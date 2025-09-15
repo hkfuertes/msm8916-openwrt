@@ -1,7 +1,7 @@
 ## WRT for uz801
 These are my attempts at building the os... my end goal is to build a working modern openwrt, but first I will start from immortalwrt from lkiuyu and the from official immortalwrt.
 
-### lkiuyu/immortalwrt
+### working
 - Modem Working
   - No Rx/Tx displayed in luci interface (?)
 - Wifi Working
@@ -43,6 +43,7 @@ These are my attempts at building the os... my end goal is to build a working mo
 
       $(eval $(call BuildPackage,foo))
     ```
+  - openwrt: enable wifi by default!
 ---
 ### Stuff
 - The `msm8916-yiming-uz801v3.dtb` file is a prebuilt dtb extracted from one of the many OpenStick-Builder project living in Github.

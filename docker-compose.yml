@@ -13,8 +13,8 @@ services:
   builder:
     build: 
       context: .
-      dockerfile: Dockerfile.immortalwrt
-    container_name: immortalwrt-builder
+      dockerfile: Dockerfile.openwrt
+    container_name: openwrt-builder
     working_dir: /home/builder/openwrt
     stdin_open: true
     tty: true
