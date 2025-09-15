@@ -14,6 +14,8 @@ _**(On all Systems, lkiuyu, immoirtalwrt, openwrt)**_
   - use linux's dts?
 - modemmanager not showing rxtx
 - msm firmware loader, to free up almost 40mb from rootfs
+- remove extra feed from apk installer
+- openwrt 24.10.2 (fixed version with opkg)
 ---
 ### Stuff
 - The `msm8916-yiming-uz801v3.dtb` file is a prebuilt dtb extracted from one of the many OpenStick-Builder project living in Github.
