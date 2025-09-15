@@ -11,7 +11,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Utilities
 	CATEGORY:=Utilities
 	TITLE:=USB Gadget with config for msm8916 chipsets
-	DEPENDS:=@USB_GADGET_SUPPORT +kmod-fs-configfs +kmod-usb-gadget +kmod-usb-lib-composite +kmod-usb-gadget-serial +kmod-usb-gadget-mass-storage
+	DEPENDS:=@USB_GADGET_SUPPORT +kmod-fs-configfs +kmod-usb-gadget +kmod-usb-lib-composite +kmod-usb-gadget-serial +kmod-usb-gadget-mass-storage +kmod-usb-gadget-ncm
 endef
 
 define Build/Configure

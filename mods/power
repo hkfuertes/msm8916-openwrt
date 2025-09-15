@@ -1,0 +1,10 @@
+#!/bin/sh
+
+[ "${ACTION}" = "released" ] || exit 0
+
+if [ "$SEEN" -ge 3 ]
+then
+	exec /sbin/poweroff
+fi
+
+return 0
