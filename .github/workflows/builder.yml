@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  CONFIG_FILE: configs/openwrt_diffconfig
+  CONFIG_FILE: diffconfig
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: false
@@ -47,7 +47,7 @@ jobs:
     
     - name: Load custom target, packages and config
       run: |
-        mv msm89xx openwrt/target/linux/msm89xx
+        [ -d msm89xx ] && mv msm89xx openwrt/target/linux/msm89xx
         [ -d packages ] && mv packages openwrt/package/uz801 
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
     
