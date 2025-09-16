@@ -19,9 +19,6 @@ FROM base
 RUN git clone --depth=1 https://github.com/openwrt/openwrt openwrt
 
 COPY mods/ath.mk openwrt/package/kernel/mac80211/ath.mk
-COPY mods/netdevices.mk openwrt/package/kernel/linux/modules/netdevices.mk
-COPY mods/power openwrt/package/base-files/files/etc/rc.button/power
-
 
 RUN openwrt/scripts/feeds update -a && \
     openwrt/scripts/feeds install -a && \
