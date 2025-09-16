@@ -1,5 +1,5 @@
 ## OpenWrt for uz801
-Moderm version of OpenWrt working on UZ801v3.
+Modern version of OpenWrt working on UZ801v3.
 
 ### Features
 - Modem Working
@@ -13,6 +13,7 @@ Moderm version of OpenWrt working on UZ801v3.
 
 ### TODO:
 - Convert `mods/*` into separated packages so no need to patch oficial repo.
+  - as modules for target?
 - Github Action Build pipeline
 - Use built dtb from openstick-builder?
   - use linux's dts?
@@ -27,12 +28,12 @@ Moderm version of OpenWrt working on UZ801v3.
 - Review `firmware-selector` default selection of packages:
   - Investigare ImageBuilder
   - Firmware selector default packages for mt300n (mango): 
-  ```
-    base-files ca-bundle dnsmasq dropbear firewall4 fstools kmod-gpio-button-hotplug kmod-leds-gpio
-    kmod-mt7603 kmod-nft-offload libc libgcc libustream-mbedtls logd mtd netifd nftables
-    odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe swconfig uci uclient-fetch urandom-seed
-    urngd wpad-basic-mbedtls kmod-usb2 kmod-usb-ohci luci
-  ```
+    ```
+      base-files ca-bundle dnsmasq dropbear firewall4 fstools kmod-gpio-button-hotplug kmod-leds-gpio
+      kmod-mt7603 kmod-nft-offload libc libgcc libustream-mbedtls logd mtd netifd nftables
+      odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe swconfig uci uclient-fetch urandom-seed
+      urngd wpad-basic-mbedtls kmod-usb2 kmod-usb-ohci luci
+    ```
 ---
 ### Stuff
 - The `msm8916-yiming-uz801v3.dtb` file is a prebuilt dtb extracted from one of the many OpenStick-Builder project living in Github.
