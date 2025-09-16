@@ -42,7 +42,7 @@ jobs:
     - name: Patch OpenWrt Sources
       run: |
         cp mods/ath.mk openwrt/package/kernel/mac80211/ath.mk
-        cp mods/netdevices.mk openwrt/package/kernel/linux/modules/netdevices.mk
+        # cp mods/netdevices.mk openwrt/package/kernel/linux/modules/netdevices.mk
         cp mods/power openwrt/package/base-files/files/etc/rc.button/power
     
     - name: Load msm89xx target and uz801 packages
