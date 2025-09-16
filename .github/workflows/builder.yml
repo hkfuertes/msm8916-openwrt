@@ -45,15 +45,12 @@ jobs:
         cp mods/netdevices.mk openwrt/package/kernel/linux/modules/netdevices.mk
         cp mods/power openwrt/package/base-files/files/etc/rc.button/power
     
-    - name: Load custom target
+    - name: Load custom target, packages and config
       run: |
-        [ -d msm89xx ] && mv msm89xx openwrt/target/linux/
+        mv msm89xx openwrt/target/linux/msm89xx
+        [ -d packages ] && mv packages openwrt/package/uz801 
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
     
-    - name: Load custom packages
-      run: |
-        [ -d packages ] && mv packages openwrt/package/uz801 
-
     - name: Update and install feeds
       run: |
         rm -rf openwrt/tmp
