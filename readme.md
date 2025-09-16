@@ -12,6 +12,7 @@ Moderm version of OpenWrt working on UZ801v3.
 - GRE Protocol Installed
 
 ### TODO:
+- Convert `mods/*` into separated packages so no need to patch oficial repo.
 - Github Action Build pipeline
 - Use built dtb from openstick-builder?
   - use linux's dts?
