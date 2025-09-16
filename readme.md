@@ -17,6 +17,7 @@ Moderm version of OpenWrt working on UZ801v3.
   - use linux's dts?
 - ModemManager not showing Rx/Tx
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
+  - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)
 - Remove extra feed from apk installer:
   - This feed does nothing as its pointing to msm89xx/msm8916 wich does not exist.
   - /etc/apk/repositories.d/distfeeds.list
