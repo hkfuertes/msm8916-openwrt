@@ -1,5 +1,5 @@
 ## OpenWrt for uz801
-Moderm version of OpenWrt working on UZ801v3.
+Modern version of OpenWrt working on UZ801v3.
 
 ### Features
 - Modem Working
