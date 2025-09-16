@@ -89,3 +89,29 @@ define KernelPackage/bam-dmux/description
 endef
 
 $(eval $(call KernelPackage,bam-dmux))
+
+define KernelPackage/wcn36xx
+  SUBMENU:=Wireless Drivers
+  TITLE:=Qualcomm Atheros WCN3660/3680 support
+  URL:=https://wireless.wiki.kernel.org/en/users/drivers/wcn36xx
+  DEPENDS:=@TARGET_msm89xx +kmod-ath +kmod-qcom-rproc-wcnss
+  FILES:=$(LINUX_DIR)/drivers/net/wireless/ath/wcn36xx/wcn36xx.ko
+  AUTOLOAD:=$(call AutoProbe,wcn36xx)
+endef
+
+define KernelPackage/wcn36xx/config
+  if PACKAGE_kmod-wcn36xx
+    config WCN36XX_DEBUGFS
+      bool "Enable WCN36XX debugfs support"
+      default y if PACKAGE_MAC80211_DEBUGFS
+      help
+        Say Y to enable debugfs entries for the WCN36XX driver.
+  endif
+endef
+
+define KernelPackage/wcn36xx/description
+  This module adds support for Qualcomm Atheros WCN3660/3680
+  Wireless blocks in some Qualcomm SoCs.
+endef
+
+$(eval $(call KernelPackage,wcn36xx))
