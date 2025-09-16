@@ -18,7 +18,8 @@ FROM base
 
 RUN git clone --depth=1 https://github.com/openwrt/openwrt openwrt
 
-# COPY mods/ath.mk openwrt/package/kernel/mac80211/ath.mk
+COPY ath.patch .
+RUN git apply ath.patch
 
 RUN openwrt/scripts/feeds update -a && \
     openwrt/scripts/feeds install -a && \

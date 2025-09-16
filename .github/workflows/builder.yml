@@ -41,6 +41,7 @@ jobs:
     
     - name: Load msm89xx target and uz801 packages
       run: |
+        [-f ath.patch] && git apply ath.patch
         [ -d msm89xx ] && mv msm89xx openwrt/target/linux/msm89xx
         [ -d packages ] && mv packages openwrt/package/uz801 
     
