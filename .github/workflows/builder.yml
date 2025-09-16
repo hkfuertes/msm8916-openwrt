@@ -56,9 +56,10 @@ jobs:
     
     - name: Update and install feeds
       run: |
-        rm -rf openwrt/tmp
-        cd openwrt && ./scripts/feeds update -a
-        cd openwrt && ./scripts/feeds install -a
+        cd openwrt
+        rm -rf tmp
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
 
     - name: Download package
       id: package
