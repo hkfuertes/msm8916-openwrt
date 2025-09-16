@@ -33,7 +33,6 @@ apt-get update && apt-get install -y --no-install-recommends \
     tar \
     unzip \
     wget \
-    # which \
     gettext \
     xsltproc \
     sudo \

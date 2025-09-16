@@ -11,9 +11,7 @@ services:
     restart: "no"
 
   builder:
-    build: 
-      context: .
-      dockerfile: Dockerfile.openwrt
+    build: .
     container_name: openwrt-builder
     working_dir: /home/builder/openwrt
     stdin_open: true

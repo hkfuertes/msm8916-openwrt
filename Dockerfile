@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS base
+FROM ubuntu:22.04 AS base
 
 LABEL maintainer="OpenWrt Builder"
 
@@ -16,12 +16,15 @@ WORKDIR /home/builder
 
 FROM base
 
-RUN git clone --depth=1 https://github.com/lkiuyu/immortalwrt openwrt
+RUN git clone --depth=1 https://github.com/openwrt/openwrt openwrt
 
-# Restoring default feeds.
-COPY mods/feeds.conf.default openwrt/
+COPY mods/ath.mk openwrt/package/kernel/mac80211/ath.mk
+COPY mods/netdevices.mk openwrt/package/kernel/linux/modules/netdevices.mk
+COPY mods/power openwrt/package/base-files/files/etc/rc.button/power
+
 
 RUN openwrt/scripts/feeds update -a && \
-    openwrt/scripts/feeds install -a
+    openwrt/scripts/feeds install -a && \
+    rm -rf openwrt/tmp
 
 CMD ["/bin/bash"]
