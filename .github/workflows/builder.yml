@@ -41,9 +41,10 @@ jobs:
     
     - name: Load msm89xx target and uz801 packages
       run: |
-        [-f ath.patch] && git apply ath.patch
-        [ -d msm89xx ] && mv msm89xx openwrt/target/linux/msm89xx
-        [ -d packages ] && mv packages openwrt/package/uz801 
+        cp enable_wcn36xx_mac80211.patch $GITHUB_WORKSPACE
+        git apply $GITHUB_WORKSPACE/enable_wcn36xx_mac80211.patch
+        mv msm89xx openwrt/target/linux/msm89xx
+        mv packages openwrt/package/uz801 
     
     - name: Load config
       run: |
