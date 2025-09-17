@@ -41,7 +41,8 @@ jobs:
     
     - name: Load msm89xx target and uz801 packages
       run: |
-        git apply ath.patch
+        realpath openwrt/package/kernel/mac80211/ath.mk
+        git apply --unsafe-paths --directory=openwrt enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/uz801 
     
