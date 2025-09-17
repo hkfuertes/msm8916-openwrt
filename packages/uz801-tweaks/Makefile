@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Utilities
 	CATEGORY:=Utilities
 	TITLE:=Defaults Setting For uz801v3
-	DEPENDS:=+rootfs-resizer +PACKAGE_luci:luci-proto-modemmanager +kmod-usb-lib-composite +rmtfs +opkg
+	DEPENDS:=+rootfs-resizer +PACKAGE_luci:luci-proto-modemmanager +kmod-usb-lib-composite +rmtfs
 endef
 
 define Build/Configure
@@ -28,7 +28,8 @@ endef
 
 define Package/$(PKG_NAME)/install 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/uci-defaults $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/98-default-config
+	$(INSTALL_BIN) ./files/remove_feed $(1)/etc/uci-defaults/99-remove-bad-feed
 endef 
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

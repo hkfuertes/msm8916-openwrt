@@ -1,0 +1,11 @@
+#!/bin/sh
+# /etc/uci-defaults/99-remove-bad-feed
+
+REPO_FILE="/etc/apk/repositories.d/distfeeds.list"
+BAD_FEED="https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb"
+
+if [ -f "$REPO_FILE" ]; then
+    sed -i "\|$BAD_FEED|d" "$REPO_FILE"
+fi
+
+exit 0
