@@ -51,7 +51,7 @@ jobs:
 
     - name: Load msm89xx target and uz801 packages
       run: |
-        git apply --directory=/workdir enable_wcn36xx_mac80211.patch
+        git apply --unsafe-paths --directory=/workdir enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/uz801
         if [ "${{ inputs.openwrt_version }}" == "openwrt-24.10" ]; then
