@@ -45,8 +45,8 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        echo "Cloning OpenWrt version: $${{ inputs.openwrt_version || 'main' }}"
-        git clone --depth=1 --branch $O${{ inputs.openwrt_version || 'main' }} https://git.openwrt.org/openwrt/openwrt.git openwrt
+        echo "Cloning OpenWrt version: ${{ inputs.openwrt_version }}"
+        git clone --depth=1 --branch "${{ inputs.openwrt_version }}" https://git.openwrt.org/openwrt/openwrt.git openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Load msm89xx target and uz801 packages
