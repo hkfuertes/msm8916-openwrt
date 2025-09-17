@@ -16,7 +16,7 @@ WORKDIR /home/builder
 
 FROM base
 
-RUN git clone --depth=1 https://github.com/openwrt/openwrt openwrt
+RUN git clone --depth=1 https://git.openwrt.org/openwrt/openwrt.git openwrt
 
 COPY ath.patch .
 RUN git apply ath.patch

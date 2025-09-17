@@ -1,3 +1,14 @@
+![OpenWrt logo](https://raw.githubusercontent.com/openwrt/openwrt/refs/heads/main/include/logo.png)
+
+OpenWrt Project is a Linux operating system targeting embedded devices. Instead
+of trying to create a single, static firmware, OpenWrt provides a fully
+writable filesystem with package management. This frees you from the
+application selection and configuration provided by the vendor and allows you
+to customize the device through the use of packages to suit any application.
+For developers, OpenWrt is the framework to build an application without having
+to build a complete firmware around it; for users this means the ability for
+full customization, to use the device in ways never envisioned.
+
 ## OpenWrt for uz801
 Modern version of OpenWrt working on UZ801v3.
 
@@ -12,8 +23,11 @@ Modern version of OpenWrt working on UZ801v3.
 - GRE Protocol Installed
 
 ### TODO:
-- Use built dtb from openstick-builder?
-  - use linux's dts?
+- Using default dts:
+  - SNAPSHOT (main) Working!
+  - 24.10 Not Working! (maybe remove patches)
+- Use Provided dtb (blue color)
+- Extract dtb from boot.img
 - ModemManager not showing Rx/Tx
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
   - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)

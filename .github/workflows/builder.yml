@@ -2,6 +2,15 @@ name: OpenWrt Builder
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      openwrt_version:
+        description: 'OpenWrt version to build'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - 'main'
+          - 'openwrt-24.10'
 
 env:
   CONFIG_FILE: diffconfig
@@ -16,7 +25,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
 
     - name: Initialization environment
       env:
@@ -36,20 +45,23 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone --depth=1 https://github.com/openwrt/openwrt openwrt
+        echo "Cloning OpenWrt version: $${{ inputs.openwrt_version || 'main' }}"
+        git clone --depth=1 --branch $O${{ inputs.openwrt_version || 'main' }} https://git.openwrt.org/openwrt/openwrt.git openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-    
+
     - name: Load msm89xx target and uz801 packages
       run: |
-        cp enable_wcn36xx_mac80211.patch $GITHUB_WORKSPACE
-        git apply $GITHUB_WORKSPACE/enable_wcn36xx_mac80211.patch
+        git apply --directory=/workdir enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
-        mv packages openwrt/package/uz801 
-    
+        mv packages openwrt/package/uz801
+        if [ "${{ inputs.openwrt_version }}" == "openwrt-24.10" ]; then
+          sed -i '/^KERNEL_PATCHVER/c\KERNEL_PATCHVER:=6.6' openwrt/target/linux/msm89xx/Makefile
+        fi
+
     - name: Load config
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-    
+
     - name: Update and install feeds
       run: |
         cd openwrt
@@ -63,8 +75,8 @@ jobs:
         cd openwrt
         make defconfig
         make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
+        find dl -size -1024c -exec ls -l {} \; || true
+        find dl -size -1024c -exec rm -f {} \; || true
 
     - name: Compile the firmware
       id: compile
@@ -82,7 +94,7 @@ jobs:
       run: df -hT
 
     - name: Upload bin directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v4
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: openwrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
@@ -98,7 +110,7 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v4
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
@@ -114,7 +126,7 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
-      uses: softprops/action-gh-release@master
+      uses: softprops/action-gh-release@v2
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
