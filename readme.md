@@ -21,10 +21,10 @@ Modern version of OpenWrt working on UZ801v3:
 - GRE Protocol Installed
 
 ### TODO:
-- Device Trees:
+- Default Device Trees:
   - SNAPSHOT (main) Working!
   - 24.10 Not Working! (maybe remove patches)
-  - Use Provided dtb (blue color) _**in use**_ 
+  - Provided dtb (blue color) _**in use**_ 
     - _...from one of the many OpenStick-Builder project living in Github._
 - ModemManager not showing Rx/Tx
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
