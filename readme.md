@@ -26,8 +26,8 @@ Modern version of OpenWrt working on UZ801v3.
 - Using default dts:
   - SNAPSHOT (main) Working!
   - 24.10 Not Working! (maybe remove patches)
-- Use Provided dtb (blue color)
-- Extract dtb from boot.img
+  - Use Provided dtb (blue color)
+  - Extract dtb from boot.img
 - ModemManager not showing Rx/Tx
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
   - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)

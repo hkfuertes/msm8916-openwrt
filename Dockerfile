@@ -16,10 +16,13 @@ WORKDIR /home/builder
 
 FROM base
 
-RUN git clone --depth=1 https://git.openwrt.org/openwrt/openwrt.git openwrt
+# ENV BRANCH openwrt-24.10
+ENV BRANCH main
 
-COPY ath.patch .
-RUN git apply ath.patch
+RUN git clone --depth=1 -b ${BRANCH} https://git.openwrt.org/openwrt/openwrt.git openwrt
+
+COPY enable_wcn36xx_mac80211.patch .
+RUN git apply enable_wcn36xx_mac80211.patch
 
 RUN openwrt/scripts/feeds update -a && \
     openwrt/scripts/feeds install -a && \
