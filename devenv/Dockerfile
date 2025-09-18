@@ -3,7 +3,7 @@ FROM ubuntu:22.04 AS base
 LABEL maintainer="OpenWrt Builder"
 
 # Install required dependencies
-COPY ./dependencies.sh /install_dependencies
+COPY devenv/dependencies.sh /install_dependencies
 RUN chmod +x /install_dependencies && \
     /install_dependencies && \
     rm -rf /install_dependencies
@@ -21,7 +21,7 @@ ENV BRANCH main
 
 RUN git clone --depth=1 -b ${BRANCH} https://git.openwrt.org/openwrt/openwrt.git openwrt
 
-COPY ../enable_wcn36xx_mac80211.patch .
+COPY enable_wcn36xx_mac80211.patch .
 RUN git apply enable_wcn36xx_mac80211.patch
 
 RUN openwrt/scripts/feeds update -a && \

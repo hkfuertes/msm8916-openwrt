@@ -12,12 +12,15 @@ full customization, to use the device in ways never envisioned.
 ### This repository
 Modern version of OpenWrt working on UZ801v3:
 - Modem Working
+  - ModemManager not showing Rx/Tx in Luci
 - Wifi Working
 - USB gadget working (NCM, RNDIS, MASS, ACM tested!)
   - No shell attached to ACM, just pure raw Serial (/dev/ttyGS0)
 - TUN installed
 - Wireguard Installed
 - GRE Protocol Installed
+- `init.d` script to manage leds, only on/off if iface, no blinking:
+  - Activity trigger installed, _**deactivate init script and add led configs from luci or uci if needed.**_
 
 ### How to build OpenWrt
 Docker is required!
@@ -39,13 +42,6 @@ After the succesfull flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
 - Want to enter `edl`, boot into fastboot and execute: `fastboot oem reboot-edl`.
 
-### TODO:
-- ModemManager not showing Rx/Tx
-- Use Original/Linux-Tree DTS/DTB:
-  - Green and Blue lights are constantly on with the provieded dts and red with linux-tree dts.
-- `luci-app-tailscale`: https://github.com/gw826943555/luci-app-tailscale
-  - Using a fork as it has solved the installation issue with tailscale package
-
 ### Future:
 - Custom package server for msm89xx/8916
   - Right now the first source from `distfeeds`, related to this specific target will fail as it won't exist. Any module not present might required to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
@@ -56,5 +52,5 @@ After the succesfull flash if you:
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916: Starting point for this project.
 - @lkiuyu https://github.com/lkiuyu/immortalwrt: Almost all the msm8916 folder + patches + openstick feeds.
-- @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder: `usb-gadget`, `msm-firmware-loader` idea, dtb.
+- @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder: `usb-gadget` and `msm-firmware-loader` idea.
 - @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale: Application for controlling tailscale from luci.

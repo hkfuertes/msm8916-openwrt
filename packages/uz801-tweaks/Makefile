@@ -28,8 +28,10 @@ endef
 
 define Package/$(PKG_NAME)/install 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/98-default-config
-	$(INSTALL_BIN) ./files/remove_feed $(1)/etc/uci-defaults/99-remove-bad-feed
+	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/smart_leds $(1)/etc/init.de/smart-leds
 endef 
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

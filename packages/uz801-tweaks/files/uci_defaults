@@ -19,6 +19,7 @@ uci add_list firewall.@zone[1].network='modem'
 # We commit all the changes and restart network
 uci commit
 /etc/init.d/network restart
+/etc/init.d/led restart
 
 apk del uz801-tweaks
 
