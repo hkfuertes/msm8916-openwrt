@@ -7,9 +7,6 @@ define Device/msm8916
 	CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rw rootwait"
 endef
 
-# DEVICE_DTS := msm8916-yiming-uz801v3
-# DEVICE_DTS_DIR := ../dts
-
 define Device/yiming-uz801v3
   $(Device/msm8916)
   DEVICE_VENDOR := YiMing

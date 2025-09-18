@@ -20,7 +20,8 @@ Modern version of OpenWrt working on UZ801v3:
 - Wireguard Installed
 - GRE Protocol Installed
 - `init.d` script to manage leds, only on/off if iface, no blinking:
-  - Activity trigger installed, _**deactivate init script and add led configs from luci or uci if needed.**_
+  - Led init script: [packages/uz801-tweaks/files/smart_leds](packages/uz801-tweaks/files/smart_leds)
+  - Activity trigger installed but not in use, _**deactivate init script and add led configs from luci or uci if needed.**_
 
 ### How to build OpenWrt
 Docker is required!
