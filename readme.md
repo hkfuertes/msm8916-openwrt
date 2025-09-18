@@ -22,6 +22,7 @@ Modern version of OpenWrt working on UZ801v3:
 ### How to build OpenWrt
 Docker is required!
 ```bash
+cd devenv
 docker compose run --rm builder # This will open bash inside a build environment
 cp /repo/diffconfig .config # Copies the config on to the working folder
 make defconfig

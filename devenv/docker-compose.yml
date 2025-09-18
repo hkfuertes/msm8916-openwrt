@@ -4,7 +4,7 @@ services:
     command: >
       sh -c "chown -R 1000:1000 /home/builder/openwrt/dl /home/builder/openwrt/bin /home/builder/openwrt/build_dir"
     volumes:
-      - ./bin:/home/builder/openwrt/bin
+      - ../bin:/home/builder/openwrt/bin
       - dl:/home/builder/openwrt/dl
       - build_dir:/home/builder/openwrt/build_dir
     user: root
@@ -17,12 +17,11 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - .:/repo
-      - ./packages:/home/builder/openwrt/package/uz801
-      - ./msm89xx:/home/builder/openwrt/target/linux/msm89xx
-      - ./bin:/home/builder/openwrt/bin
+      - ..:/repo
+      - ../packages:/home/builder/openwrt/package/uz801
+      - ../msm89xx:/home/builder/openwrt/target/linux/msm89xx
+      - ../bin:/home/builder/openwrt/bin
       # - ./files:/home/builder/openwrt/files
-      # - ./diffconfig:/home/builder/openwrt/.config
       - dl:/home/builder/openwrt/dl
       - build_dir:/home/builder/openwrt/build_dir
     command: ["/bin/bash"]
