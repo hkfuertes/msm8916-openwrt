@@ -22,6 +22,7 @@ Modern version of OpenWrt working on UZ801v3:
 ### How to build OpenWrt
 Docker is required!
 ```bash
+cd devenv
 docker compose run --rm builder # This will open bash inside a build environment
 cp /repo/diffconfig .config # Copies the config on to the working folder
 make defconfig
@@ -56,3 +57,4 @@ After the succesfull flash if you:
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916: Starting point for this project.
 - @lkiuyu https://github.com/lkiuyu/immortalwrt: Almost all the msm8916 folder + patches + openstick feeds.
 - @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder: `usb-gadget`, `msm-firmware-loader` idea, dtb.
+- @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale: Application for controlling tailscale from luci.
