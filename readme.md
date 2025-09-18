@@ -9,7 +9,7 @@ For developers, OpenWrt is the framework to build an application without having
 to build a complete firmware around it; for users this means the ability for
 full customization, to use the device in ways never envisioned.
 
-### Features
+### This repository
 Modern version of OpenWrt working on UZ801v3:
 - Modem Working
 - Wifi Working
