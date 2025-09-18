@@ -43,8 +43,6 @@ After the succesfull flash if you:
 - ModemManager not showing Rx/Tx
 - Use Original/Linux-Tree DTS/DTB:
   - Green and Blue lights are constantly on with the provieded dts and red with linux-tree dts.
-- `luci-app-tailscale`: https://github.com/gw826943555/luci-app-tailscale
-  - Using a fork as it has solved the installation issue with tailscale package
 
 ### Future:
 - Custom package server for msm89xx/8916
