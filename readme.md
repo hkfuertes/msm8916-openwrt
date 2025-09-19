@@ -39,7 +39,7 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Run `cd base_partitions && ./flash.sh`. The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions. During the execution, the script will halt and ask you to drag the boot and rootfs (system) partitions.
 
-After the succesfull flash if you:
+After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
 - Want to enter `edl`, boot into fastboot and execute: `fastboot oem reboot-edl`.
 
