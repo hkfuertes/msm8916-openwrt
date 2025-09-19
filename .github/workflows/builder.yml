@@ -109,43 +109,21 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Upload firmware directory
+    - name: Upload firmware
       uses: actions/upload-artifact@v4
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}/*.img
-
-    - name: Generate release tag
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
-        touch release.txt
-        [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
-        echo "status=success" >> $GITHUB_OUTPUT
-
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@v2
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
-
-#    - name: Delete workflow runs
-#      uses: Mattraks/delete-workflow-runs@main
+        path: |
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-boot.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3.manifest
+    
+#    - name: Upload image builder
+#      uses: actions/upload-artifact@v4
+#      if: steps.organize.outputs.status == 'success' && !cancelled()
 #      with:
-#        retain_days: 0
-#        keep_minimum_runs: 2
-
-#    - name: Remove old Releases
-#      uses: dev-drprasad/delete-older-releases@master
-#      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-#      with:
-#        keep_latest: 3
-#        delete_tags: true
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        name: openwrt_imagebuilder_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+#        path: |
+#          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-boot.img
+#          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
