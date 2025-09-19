@@ -44,6 +44,7 @@ After the succesfull flash if you:
 - Want to enter `edl`, boot into fastboot and execute: `fastboot oem reboot-edl`.
 
 ### Future:
+- GHA/Local build with `imagebuilder`
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
