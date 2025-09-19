@@ -11,9 +11,16 @@ on:
         options:
           - 'main'
           - 'openwrt-24.10'
+      diffconfig:
+        description: 'Configuration to use'
+        required: true
+        default: 'diffconfig'
+        type: choice
+        options:
+          - 'diffconfig'
+          - 'diffconfig_tailscale'
 
 env:
-  CONFIG_FILE: diffconfig
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: false
@@ -38,20 +45,16 @@ jobs:
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
 
-    - name: Clone source code
-      working-directory: /workdir
+    - name: "Clone source code - Branch: ${{ inputs.openwrt_version }}"
       run: |
         df -hT $PWD
         echo "Cloning OpenWrt version: ${{ inputs.openwrt_version }}"
         git clone --depth=1 --branch "${{ inputs.openwrt_version }}" https://git.openwrt.org/openwrt/openwrt.git openwrt
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Load msm89xx target and uz801 packages
       run: |
-        git apply --unsafe-paths --directory=/workdir enable_wcn36xx_mac80211.patch
+        git apply --unsafe-paths enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/uz801
         if [ "${{ inputs.openwrt_version }}" == "openwrt-24.10" ]; then
@@ -65,9 +68,9 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Load config
+    - name: "Load config - Using: ${{inputs.diffconfig}}"
       run: |
-        [ -f $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -f ${{inputs.diffconfig}} ] && mv ${{inputs.diffconfig}} openwrt/.config
 
     - name: Download package
       id: package
@@ -88,17 +91,6 @@ jobs:
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-
-    - name: Check space usage
-      if: (!cancelled())
-      run: df -hT
-
-    - name: Upload bin directory
-      uses: actions/upload-artifact@v4
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-      with:
-        name: openwrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-        path: openwrt/bin
 
     - name: Organize files
       id: organize
