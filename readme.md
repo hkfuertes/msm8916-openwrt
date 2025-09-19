@@ -51,7 +51,11 @@ After the succesfull flash if you:
   - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)
 
 ## Credits
-- @ghosthgy https://github.com/ghosthgy/openwrt-msm8916: Starting point for this project.
-- @lkiuyu https://github.com/lkiuyu/immortalwrt: Almost all the msm8916 folder + patches + openstick feeds.
-- @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder: `usb-gadget` and `msm-firmware-loader` idea.
-- @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale: Application for controlling tailscale from luci.
+- @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
+  - Starting point for this project.
+- @lkiuyu https://github.com/lkiuyu/immortalwrt
+  - Almost all the msm8916 folder + patches + openstick feeds.
+- @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder
+  - `usb-gadget` and `msm-firmware-loader` idea.
+- @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale
+  - Application for controlling tailscale from luci.
