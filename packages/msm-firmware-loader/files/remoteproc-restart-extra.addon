@@ -1,0 +1,13 @@
+
+# Wait a bit for firmware path to be fully processed
+sleep 3
+
+# Now restart remoteproc so it can find the new firmware
+logger -t msm-firmware-loader "Firmware path set, restarting remoteproc devices"
+echo stop > /sys/class/remoteproc/remoteproc0/state 2>/dev/null || true
+echo stop > /sys/class/remoteproc/remoteproc1/state 2>/dev/null || true
+sleep 2
+echo start > /sys/class/remoteproc/remoteproc0/state 2>/dev/null || true
+echo start > /sys/class/remoteproc/remoteproc1/state 2>/dev/null || true
+
+logger -t msm-firmware-loader "Remoteproc restart completed"

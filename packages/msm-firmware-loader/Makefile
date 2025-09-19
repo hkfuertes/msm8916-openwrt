@@ -23,12 +23,14 @@ define Build/Configure
 endef
 
 define Build/Compile
+	@echo "" >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
+	@echo "# Custom remoteproc restart after firmware path is set:" >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
+	cat ./files/remoteproc-restart-extra.addon >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
 endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./msm-firmware-loader.init $(1)/etc/init.d/msm-firmware-loader
-	$(INSTALL_BIN) ./remoteproc-start.init $(1)/etc/init.d/remoteproc-start
+	$(INSTALL_BIN) ./files/msm-firmware-loader.init $(1)/etc/init.d/msm-firmware-loader
 	
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/msm-firmware-loader.sh $(1)/usr/sbin/msm-firmware-loader
