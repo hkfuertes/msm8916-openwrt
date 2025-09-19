@@ -45,8 +45,7 @@ After the succesfull flash if you:
 
 ### Future:
 - Custom package server for msm89xx/8916
-  - Right now the first source from `distfeeds`, related to this specific target will fail as it won't exist. Any module not present might required to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
-- Option to attach shell to ACM Gadget in `msm8916-usb-gadget.conf`
+  - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
   - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)
 
