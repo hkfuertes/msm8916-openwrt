@@ -1,0 +1,18 @@
+#!/bin/sh
+# /etc/hotplug.d/ieee80211/99-wifi-led
+
+logger -t smart-leds-wifi "IEEE80211 Event: ACTION=$ACTION DEVICENAME=$DEVICENAME"
+
+case "$ACTION" in
+    add)
+        sleep 3
+        if ip link show phy0-ap0 2>/dev/null | grep -q "UP"; then
+            logger -t smart-leds "WiFi device added and UP, enabling blue LED"
+            echo 1 > /sys/class/leds/blue:wan/brightness
+        fi
+        ;;
+    remove)
+        logger -t smart-leds "WiFi device removed, disabling blue LED"
+        echo 0 > /sys/class/leds/blue:wan/brightness
+        ;;
+esac

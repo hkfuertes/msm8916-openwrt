@@ -30,11 +30,12 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
 
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/smart-leds-daemon.init $(1)/etc/init.d/smart-leds-daemon
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
+	$(INSTALL_BIN) ./files/wifi-led.hotplug $(1)/etc/hotplug.d/ieee80211/99-wifi-led
 
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) ./files/smart-leds-daemon.sh $(1)/usr/bin/smart-leds-daemon
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/modem-led.hotplug $(1)/etc/hotplug.d/iface/99-modem-led
+
 endef 
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
