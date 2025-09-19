@@ -58,16 +58,16 @@ jobs:
           sed -i '/^KERNEL_PATCHVER/c\KERNEL_PATCHVER:=6.6' openwrt/target/linux/msm89xx/Makefile
         fi
 
-    - name: Load config
-      run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-
     - name: Update and install feeds
       run: |
         cd openwrt
         rm -rf tmp
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+
+    - name: Load config
+      run: |
+        [ -f $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
 
     - name: Download package
       id: package
