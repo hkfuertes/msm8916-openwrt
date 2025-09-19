@@ -108,6 +108,7 @@ jobs:
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
+        echo "imagebuilder=$(ls -l *imagebuilder* | wc -l)" >> $GITHUB_OUTPUT
 
     - name: Upload firmware
       uses: actions/upload-artifact@v4
@@ -119,11 +120,10 @@ jobs:
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3.manifest
     
-#    - name: Upload image builder
-#      uses: actions/upload-artifact@v4
-#      if: steps.organize.outputs.status == 'success' && !cancelled()
-#      with:
-#        name: openwrt_imagebuilder_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-#        path: |
-#          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-boot.img
-#          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
+    - name: Upload image builder
+      uses: actions/upload-artifact@v4
+      if: steps.organize.outputs.imagebuilder != '0' && !cancelled()
+      with:
+        name: openwrt_imagebuilder_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        path: |
+          ${{ env.FIRMWARE }}/openwrt-imagebuilder-msm89xx-msm8916.Linux-x86_64.tar.zst
