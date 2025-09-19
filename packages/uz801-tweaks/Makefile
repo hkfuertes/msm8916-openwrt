@@ -31,7 +31,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/smart_leds $(1)/etc/init.d/smart-leds
+	$(INSTALL_BIN) ./files/smart-leds-daemon.init $(1)/etc/init.d/smart-leds-daemon
+
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ./files/smart-leds-daemon.sh $(1)/usr/bin/smart-leds-daemon
 endef 
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
