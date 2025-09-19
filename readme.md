@@ -19,7 +19,7 @@ Modern version of OpenWrt working on UZ801v3:
 - TUN installed
 - Wireguard Installed
 - GRE Protocol Installed
-- `init.d` script to manage leds, only on/off if iface, no blinking:
+- `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
   - Wifi Led: [packages/uz801-tweaks/files/wifi-led.hotplug](packages/uz801-tweaks/files/wifi-led.hotplug)
   - Modem Led: [packages/uz801-tweaks/files/modem-led.hotplug](packages/uz801-tweaks/files/modem-led.hotplug)
 
