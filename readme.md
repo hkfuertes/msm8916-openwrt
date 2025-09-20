@@ -19,7 +19,7 @@ Modern version of OpenWrt working on UZ801v3:
 - TUN installed
 - Wireguard Installed
 - GRE Protocol Installed
-- `init.d` script to manage leds, only on/off if iface, no blinking:
+- `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
   - Wifi Led: [packages/uz801-tweaks/files/wifi-led.hotplug](packages/uz801-tweaks/files/wifi-led.hotplug)
   - Modem Led: [packages/uz801-tweaks/files/modem-led.hotplug](packages/uz801-tweaks/files/modem-led.hotplug)
 
@@ -39,11 +39,12 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Run `cd base_partitions && ./flash.sh`. The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions. During the execution, the script will halt and ask you to drag the boot and rootfs (system) partitions.
 
-After the succesfull flash if you:
+After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
 - Want to enter `edl`, boot into fastboot and execute: `fastboot oem reboot-edl`.
 
 ### Future:
+- GHA/Local build with `imagebuilder`
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
