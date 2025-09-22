@@ -17,6 +17,7 @@ define Package/$(PKG_NAME)
 	SECTION:=utils
 	CATEGORY:=Utilities
 	TITLE:=Loads firmware blobs from firmware partitions on qcom devices.
+	DEPENDS:=+bash
 endef
 
 define Build/Configure
