@@ -27,7 +27,7 @@ read_path() {
 mkdir -p saved
 
 # Backup important partitions
-for n in fsc fsg modemst1 modemst2 modem persist sec; do
+for n in fsc fsg modemst1 modemst2; do
     echo "Backing up partition $n ..."
     edl r "$n" "saved/$n.bin" || { echo "Error backing up $n"; exit 1; }
 done
@@ -60,7 +60,7 @@ echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }
 
 # Restore original partitions
-for n in fsc fsg modemst1 modemst2 modem persist sec; do
+for n in fsc fsg modemst1 modemst2; do
     echo "Restoring partition $n ..."
     edl w "$n" "saved/$n.bin" || { echo "Error restoring $n"; exit 1; }
 done
