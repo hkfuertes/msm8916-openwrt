@@ -1,15 +1,43 @@
 #!/bin/sh /etc/rc.common
-START=95
+# MSM8916 USB gadget service (procd)
+
 USE_PROCD=1
+START=98
+STOP=10
+
+PROG="/etc/msm8916-usb-gadget.sh"
+
+EXTRA_COMMANDS="status reload"
+EXTRA_HELP="status  Show gadget status
+reload  Recreate gadget with new config"
 
 start_service() {
-	procd_open_instance
-	procd_set_param command /bin/sh /etc/msm8916-usb-gadget.sh start
-	procd_set_param stdout 1
-	procd_set_param stderr 1
-	procd_close_instance
+    local sh="/bin/bash"
+    [ -x "$sh" ] || sh="/bin/sh"
+
+    procd_open_instance
+    procd_set_param command "$sh" "$PROG" start
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_set_param type oneshot
+    procd_set_param file /etc/msm8916-usb-gadget.conf
+    procd_close_instance
 }
 
 stop_service() {
-	/bin/sh /etc/msm8916-usb-gadget.sh stop 2>/dev/null || true
+    local sh="/bin/bash"
+    [ -x "$sh" ] || sh="/bin/sh"
+    "$sh" "$PROG" stop 2>/dev/null || true
+}
+
+reload_service() {
+    local sh="/bin/bash"
+    [ -x "$sh" ] || sh="/bin/sh"
+    "$sh" "$PROG" restart
+}
+
+status() {
+    local sh="/bin/bash"
+    [ -x "$sh" ] || sh="/bin/sh"
+    "$sh" "$PROG" status
 }

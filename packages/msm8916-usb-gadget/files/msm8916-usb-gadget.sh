@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+# /etc/msm8916-usb-gadget.sh
 # Main script for MSM8916 USB Gadget
 
 #SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
