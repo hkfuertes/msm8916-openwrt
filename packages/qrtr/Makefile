@@ -4,10 +4,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=qrtr
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/linux-msm/qrtr.git
+# Commit que estás usando
 PKG_SOURCE_VERSION:=5923eea97377f4a3ed9121b358fd919e3659db7b
 
 PKG_LICENSE:=BSD-3-Clause
@@ -18,8 +19,12 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/meson.mk
 
-# Ajustes Meson opcionales (ej.: tipo de build)
-# MESON_ARGS += --buildtype=release
+# Habilitar librería, herramientas y daemon (ajusta si tu meson_options cambia)
+# Consulta 'meson introspect --buildoptions $(PKG_BUILD_DIR)' si falla
+MESON_ARGS += \
+	-Ddefault_library=shared \
+	-Dqrtr-ns=enabled \
+	-Dsystemd-service=disabled
 
 define Package/libqrtr
   SECTION:=libs
@@ -34,31 +39,34 @@ define Package/qrtr-utils
   TITLE:=QRTR tools and daemon (qrtr-ns, lookup, etc.)
 endef
 
-# Headers y .so para SDK
+# Archivos de desarrollo para SDK/feeds
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/ || true
 
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/ || true
 endef
 
-# Biblioteca en su propio paquete
+# Biblioteca en tiempo de ejecución
 define Package/libqrtr/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/ || true
 endef
 
 # Herramientas y daemon
 define Package/qrtr-utils/install
+	# Binarios en /usr/bin
 	$(INSTALL_DIR) $(1)/usr/bin
-	# Instalar utilidades/daemon construidos por Meson
-	# (p.ej. qrtr-ns, qrtr-lookup, qrtr-cmd si están presentes)
-	-$(CP) $(PKG_INSTALL_DIR)/usr/bin/qrtr* $(1)/usr/bin/
+	-$(CP) $(PKG_INSTALL_DIR)/usr/bin/qrtr* $(1)/usr/bin/ 2>/dev/null || true
 
-	# Init script opcional (procd); coloque un files/qrtrns.init si se desea
-	# $(INSTALL_DIR) $(1)/etc/init.d
-	# $(INSTALL_BIN) ./files/qrtrns.init $(1)/etc/init.d/qrtrns
+	# Daemon en /usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin
+	-$(CP) $(PKG_INSTALL_DIR)/usr/sbin/qrtr-ns $(1)/usr/sbin/ 2>/dev/null || true
+
+	# Init script (opcional): coloca files/qrtrns.init para procd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/qrtrns.init $(1)/etc/init.d/qrtrns
 endef
 
 $(eval $(call BuildPackage,libqrtr))

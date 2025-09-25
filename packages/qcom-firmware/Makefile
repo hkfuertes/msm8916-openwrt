@@ -68,7 +68,7 @@ define Package/qcom-msm8916-modem-uz801-firmware/install
 		$(1)/lib/firmware
 	$(INSTALL_DATA) \
 		$(PKG_BUILD_DIR)/uz801/mcfg_sw.mbn \
-		$(1)/lib/firmware
+		$(1)/lib/firmware/MCFG_SW.MBN
 endef
 
 $(eval $(call BuildPackage,qcom-msm8916-uz801-wcnss-firmware))
