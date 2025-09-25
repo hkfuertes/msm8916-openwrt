@@ -19,8 +19,6 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/meson.mk
 
-# Habilitar librería, herramientas y daemon (ajusta si tu meson_options cambia)
-# Consulta 'meson introspect --buildoptions $(PKG_BUILD_DIR)' si falla
 MESON_ARGS += \
 	-Ddefault_library=shared \
 	-Dqrtr-ns=enabled \
@@ -39,7 +37,6 @@ define Package/qrtr-utils
   TITLE:=QRTR tools and daemon (qrtr-ns, lookup, etc.)
 endef
 
-# Archivos de desarrollo para SDK/feeds
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/ || true
@@ -48,13 +45,11 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/ || true
 endef
 
-# Biblioteca en tiempo de ejecución
 define Package/libqrtr/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libqrtr*.so* $(1)/usr/lib/ || true
 endef
 
-# Herramientas y daemon
 define Package/qrtr-utils/install
 	# Binarios en /usr/bin
 	$(INSTALL_DIR) $(1)/usr/bin
