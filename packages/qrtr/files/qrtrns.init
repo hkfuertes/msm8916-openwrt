@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+# qrtr-ns procd service for QRTR name server
+
+START=60
+STOP=99
+
+USE_PROCD=1
+PROG=/usr/sbin/qrtr-ns
+OOM_ADJ=-17
+
+load_modules() {
+	modprobe qrtr 2>/dev/null || true
+	modprobe qrtr-tun 2>/dev/null || true
+}
+
+start_service() {
+	load_modules
+
+	procd_open_instance
+	procd_set_param oom_score_adj $OOM_ADJ
+	procd_set_param command "$PROG" -f
+	procd_set_param respawn 3600 5 5
+	procd_close_instance
+}
+
+stop_service() {
+	killall qrtr-ns 2>/dev/null || true
+}
