@@ -44,8 +44,34 @@ After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
 - Want to enter `edl`, boot into fastboot and execute: `fastboot oem reboot-edl`.
 
+### No Network/Modem Stuck at Searching
+
+First, extract the contents of `modem.bin` from your firmware dump. You can do `eld r modem modem.bin`. In linux, its a simple image, you can mount it. Once you have it mounted, navigate to this directory: `image/modem_pr/mcfg/configs/mcfg_sw/generic/` and choose the folder according to your region:
+
+- **APAC** - Asia Pacific
+- **CHINA** - China
+- **COMMON** - Use this if your region is not listed
+- **EU** - Europe
+- **NA** - North America
+- **SA** - South America
+- **SEA** - South East Asia
+
+Once you have selected your region, you'll find folders typically representing Telcos in your area. Navigate through the appropriate folder until you locate `mcfg_sw.mbn`. If your telco is not listed, just grab a generic as it is done in this project for europe:
+```makefile
+  # packages/qcom-firmware/Makefile
+  define Build/Compile
+      ...
+  		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)/uz801
+      ...
+  endef
+```
+
+#### To apply the fix:
+1. Transfer the file to your dongle: `scp -O mcfg_sw.mbn root@192.168.1.1:/lib/firmware/MCFG_SW.MBN`
+   - **Capitalization matters!** Modem expects it to be all caps.
+3. Reboot the device.
+
 ### Future:
-- GHA/Local build with `imagebuilder`
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - `msm-firmware-loader`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
@@ -58,5 +84,7 @@ After the succesful flash if you:
   - Almost all the msm8916 folder + patches + openstick feeds.
 - @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder
   - `usb-gadget` and `msm-firmware-loader` idea.
+- @AlienWolfX https://github.com/AlienWolfX/UZ801-USB_MODEM/wiki/Troubleshooting
+  - For the carriers policy troubleshooting.
 - @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale
   - Application for controlling tailscale from luci.
