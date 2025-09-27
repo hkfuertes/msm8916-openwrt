@@ -38,6 +38,7 @@ make -j$(nproc)
 The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
+- Do a full backup: `edl rf backup.bin`
 - Run `cd base_partitions && ./flash.sh`. The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions. During the execution, the script will halt and ask you to drag the boot and rootfs (system) partitions.
 
 After the succesful flash if you:
