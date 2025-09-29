@@ -30,6 +30,7 @@ Docker is required!
 cd devenv
 docker compose run --rm builder # This will open bash inside a build environment
 cp /repo/diffconfig .config # Copies the config on to the working folder
+echo "# CONFIG_SIGNED_PACKAGES is not set" >> .config # Optional: Disable APK signature verification
 make defconfig
 make -j$(nproc)
 ```

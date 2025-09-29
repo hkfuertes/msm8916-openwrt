@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=msm-firmware-loader
 PKG_VERSION:=1.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
@@ -17,16 +17,15 @@ define Package/$(PKG_NAME)
 	SECTION:=utils
 	CATEGORY:=Utilities
 	TITLE:=Loads firmware blobs from firmware partitions on qcom devices.
-	DEPENDS:=+bash
+	DEPENDS:=+bash +kmod-fs-ext4 +e2fsprogs +kmod-fs-vfat +kmod-nls-cp437 +kmod-nls-iso8859-1
 endef
 
 define Build/Configure
 endef
 
 define Build/Compile
-	@echo "" >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
-	@echo "# Custom remoteproc restart after firmware path is set:" >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
-	cat ./files/remoteproc-restart-extra.addon >> $(PKG_BUILD_DIR)/msm-firmware-loader.sh
+    # Suppress dirname error by redirecting stderr
+    sed -i 's|xargs dirname|xargs dirname 2>/dev/null || echo ""|' $(PKG_BUILD_DIR)/msm-firmware-loader.sh
 endef
 
 define Package/$(PKG_NAME)/install
@@ -35,6 +34,10 @@ define Package/$(PKG_NAME)/install
 	
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/msm-firmware-loader.sh $(1)/usr/sbin/msm-firmware-loader
+	$(INSTALL_BIN) ./files/msm-firmware-post.sh $(1)/usr/sbin/msm-firmware-post
+	
+	$(INSTALL_DIR) $(1)/lib/firmware
+	$(INSTALL_BIN) ./files/mcfg_sw.mbn $(1)/lib/firmware/MCFG_SW.MBN
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
