@@ -41,8 +41,7 @@ logger -t msm-firmware-loader "Remoteproc restart completed"
 # Wait for stability
 sleep 3
 
-# Reload WiFi service so it detects the new firmware
-logger -t msm-firmware-loader "Reloading WiFi service"  
-wifi reload 2>/dev/null || true
+logger -t msm-firmware-loader "Restarting entire network stack"
+/etc/init.d/network restart
 
 logger -t msm-firmware-loader "All post-firmware tasks completed"
