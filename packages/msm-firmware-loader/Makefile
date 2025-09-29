@@ -24,8 +24,6 @@ define Build/Configure
 endef
 
 define Build/Compile
-    # Suppress dirname error by redirecting stderr
-    sed -i 's|xargs dirname|xargs dirname 2>/dev/null || echo ""|' $(PKG_BUILD_DIR)/msm-firmware-loader.sh
 endef
 
 define Package/$(PKG_NAME)/install
