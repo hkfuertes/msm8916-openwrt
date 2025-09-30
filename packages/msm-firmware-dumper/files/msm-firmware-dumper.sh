@@ -5,15 +5,17 @@
 # env var to override the MCFG relative path within modem/persist.
 
 set -e
+DEFAULT_MARKER="/etc/msm-firmware-dumped"
+DEFAULT_MCFG_PATH="image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default"
 
-MARKER="${MSM_DUMPER_FLAG_FILE:-/etc/msm-fw-dumped}"
+MARKER="${MSM_DUMPER_FLAG_FILE:-$DEFAULT_MARKER}"
 [ -f "$MARKER" ] && exit 0
 
 log() { logger -t msm-fw-dumper "$*"; }
 
 MNT="/tmp/mnt/msmfw"
 FW="/lib/firmware"
-MCFG_REL="${MCFG_PATH:-}"
+MCFG_REL="${MCFG_PATH:-$DEFAULT_MCFG_PATH}"
 
 log "start (marker not present)"
 
@@ -24,7 +26,14 @@ mkdir -p "$MNT/modem" "$MNT/persist" "$FW/wlan/prima"
 mount -t vfat -o ro,nosuid,nodev,noexec,iocharset=iso8859-1,codepage=437 /dev/mmcblk0p3 "$MNT/modem" 2>/dev/null || log "WARN: modem mount failed"
 mount -t ext4 -o ro,nosuid,nodev,noexec /dev/mmcblk0p6 "$MNT/persist" 2>/dev/null || log "WARN: persist mount failed"
 
-copy_if() { [ -f "$1" ] && cp -af "$1" "$2" && log "copied $(basename "$1")"; }
+# Copy if exists!
+copy_if() {
+  src="$1"; dst="$2"
+  if [ -f "$src" ]; then
+    cp -af "$src" "$dst" && log "copied $(basename "$src")" || return $?
+  fi
+  return 0
+}
 
 # Modem/Wi-Fi core blobs (MDT + fragments + MBA if present)
 for p in "$MNT/modem"/image/wcnss.mdt "$MNT/modem"/image/wcnss.b* \
@@ -41,21 +50,16 @@ copy_if "$MNT/modem/image/wlan/prima/WCNSS_cfg.dat" "$FW/wlan/prima/WCNSS_cfg.da
 copy_if "$MNT/modem/image/wlan/prima/WCNSS_qcom_cfg.ini" "$FW/wlan/prima/WCNSS_qcom_cfg.ini"
 
 # MCFG handling:
-if [ -n "$MCFG_REL" ]; then
-  if [ -f "$MNT/modem/$MCFG_REL" ]; then
-    cp -af "$MNT/modem/$MCFG_REL" "$FW/MCFG_SW.MBN" && log "MCFG from modem:$MCFG_REL"
-  else
-    log "WARN: MCFG 'path=$MCFG_REL' not found in modem/persist"
-  fi
-fi
-if [ ! -f "$FW/MCFG_SW.MBN" ] && [ -f "$MNT/modem/image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn" ]; then
-  cp -af "$MNT/modem/image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn" "$FW/MCFG_SW.MBN" && log "MCFG default copied"
+if [ -f "$MNT/modem/$MCFG_REL/mcfg_sw.mbn" ]; then
+  cp -af "$MNT/modem/$MCFG_REL/mcfg_sw.mbn" "$FW/MCFG_SW.MBN" && log "MCFG from modem:$MCFG_REL"
+else
+  log "WARN: MCFG 'MCFG_PATH=$MCFG_REL' not found in modem"
 fi
 
+# Honoring any user copied MCFG to /lib/firmware
 [ -f "$FW/mcfg_sw.mbn" ] && ln -sf "$FW/mcfg_sw.mbn" "$FW/MCFG_SW.MBN" 2>/dev/null || true
 
 sync
-
 
 # Unmount and cleanup
 umount "$MNT/modem" 2>/dev/null || true

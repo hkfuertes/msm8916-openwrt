@@ -23,7 +23,9 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_CONF) ./files/msm8916-usb-gadget.conf $(1)/etc/
-	$(INSTALL_BIN) ./files/msm8916-usb-gadget.sh $(1)/etc/msm8916-usb-gadget.sh
+
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ./files/msm8916-usb-gadget.sh $(1)/usr/bin/msm8916-usb-gadget
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/msm8916-usb-gadget.init $(1)/etc/init.d/msm8916-usb-gadget
