@@ -3,8 +3,8 @@
 ifeq ($(SUBTARGET),msm8916)
 
 define Device/msm8916
-  SOC := msm8916
-  CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs ro rootwait"
+	SOC := msm8916
+	CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rw rootwait"
 endef
 
 define Device/yiming-uz801v3
