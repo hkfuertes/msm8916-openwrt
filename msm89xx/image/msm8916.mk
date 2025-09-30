@@ -11,7 +11,7 @@ define Device/yiming-uz801v3
   $(Device/msm8916)
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-loader
+  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper
 endef
 TARGET_DEVICES += yiming-uz801v3
 

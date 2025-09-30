@@ -5,7 +5,7 @@ START=60
 STOP=99
 
 USE_PROCD=1
-PROG=/usr/sbin/qrtr-ns
+PROG=/usr/bin/qrtr-ns
 OOM_ADJ=-17
 
 load_modules() {
