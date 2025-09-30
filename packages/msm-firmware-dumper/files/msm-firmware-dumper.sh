@@ -1,7 +1,7 @@
 #!/bin/sh
 # One-shot Qualcomm firmware dumper: mount partitions read-only,
 # copy relevant blobs into /lib/firmware, set a marker to avoid
-# re-running, and trigger a reboot. Accepts optional 'path'
+# re-running, and trigger a reboot. Accepts optional 'MCFG_PATH'
 # env var to override the MCFG relative path within modem/persist.
 
 set -e

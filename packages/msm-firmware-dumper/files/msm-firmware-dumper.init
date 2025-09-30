@@ -5,5 +5,5 @@ NAME=msm-firmware-dumper
 
 start() {
   [ -f /etc/msm-fw-dumped ] && exit 0
-  /usr/bin/msm-firmware-dumper || true
+  # /usr/bin/msm-firmware-dumper || true
 }
