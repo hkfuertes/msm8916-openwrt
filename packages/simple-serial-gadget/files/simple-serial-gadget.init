@@ -1,0 +1,49 @@
+#!/bin/sh
+# Legacy g_serial driver
+
+log() {
+    logger -t serial-gadget "$@"
+    echo "$@"
+}
+
+start() {
+    log "Loading g_serial module"
+    
+    # Remove if loaded
+    rmmod g_serial 2>/dev/null
+    
+    # Load with explicit parameters
+    modprobe g_serial vendor=0x1d6b product=0x0104 || {
+        log "ERROR: Cannot load g_serial"
+        return 1
+    }
+    
+    sleep 3
+    
+    # Setup shell
+    if [ -c /dev/ttyGS0 ]; then
+        log "ttyGS0 found, adding shell"
+        grep -v "^ttyGS0:" /etc/inittab > /tmp/inittab.new 2>/dev/null
+        mv /tmp/inittab.new /etc/inittab 2>/dev/null
+        echo "ttyGS0::askfirst:/usr/libexec/login.sh" >> /etc/inittab
+        killall -HUP procd 2>/dev/null
+        log "Shell configured"
+    else
+        log "ERROR: ttyGS0 not found"
+        return 1
+    fi
+}
+
+stop() {
+    log "Stopping g_serial"
+    sed -i "/^ttyGS0:/d" /etc/inittab 2>/dev/null
+    killall -HUP procd 2>/dev/null
+    rmmod g_serial 2>/dev/null
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart) stop; sleep 2; start ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac
