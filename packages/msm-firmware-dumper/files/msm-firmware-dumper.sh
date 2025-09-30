@@ -6,7 +6,7 @@
 
 set -e
 
-MARKER="/etc/msm-fw-dumped"
+MARKER="${MSM_DUMPER_FLAG_FILE:-/etc/msm-fw-dumped}"
 [ -f "$MARKER" ] && exit 0
 
 log() { logger -t msm-fw-dumper "$*"; }
@@ -21,10 +21,8 @@ log "start (marker not present)"
 mkdir -p "$MNT/modem" "$MNT/persist" "$FW/wlan/prima"
 
 # Mount partitions read-only (adjust device nodes if needed)
-# mount -t vfat -o ro,nosuid,nodev,noexec,iocharset=iso8859-1,codepage=437 /dev/mmcblk0p3 "$MNT/modem" 2>/dev/null || log "WARN: modem mount failed"
-# mount -t ext4 -o ro,nosuid,nodev,noexec /dev/mmcblk0p6 "$MNT/persist" 2>/dev/null || log "WARN: persist mount failed"
-mount -t vfat -o ro,nosuid,nodev,noexec,iocharset=iso8859-1,codepage=437 /dev/disk/by-label/modem "$MNT/modem" 2>/dev/null || log "WARN: modem mount failed"
-mount -t ext4 -o ro,nosuid,nodev,noexec /dev/disk/by-label/persist "$MNT/persist" 2>/dev/null || log "WARN: persist mount failed"
+mount -t vfat -o ro,nosuid,nodev,noexec,iocharset=iso8859-1,codepage=437 /dev/mmcblk0p3 "$MNT/modem" 2>/dev/null || log "WARN: modem mount failed"
+mount -t ext4 -o ro,nosuid,nodev,noexec /dev/mmcblk0p6 "$MNT/persist" 2>/dev/null || log "WARN: persist mount failed"
 
 copy_if() { [ -f "$1" ] && cp -af "$1" "$2" && log "copied $(basename "$1")"; }
 

@@ -3,7 +3,9 @@ USE_PROCD=1
 START=08
 NAME=msm-firmware-dumper
 
+export MSM_DUMPER_FLAG_FILE="/etc/msm-fw-dumped"
+
 start() {
-  [ -f /etc/msm-fw-dumped ] && exit 0
-  # /usr/bin/msm-firmware-dumper || true
+  [ -f $MSM_DUMPER_FLAG_FILE ] && exit 0
+  /usr/bin/msm-firmware-dumper || true
 }
