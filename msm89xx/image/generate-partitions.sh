@@ -52,7 +52,7 @@ UD_BYTES=$((UD_SECTORS*SECTOR_SIZE))
 RAW="${TMPDIR}/rootfs_data.raw"
 SPARSE="${OUTDIR}/rootfs_data.img"
 truncate -s "${UD_BYTES}" "${RAW}"
-mke2fs -t ext4 -F -L rootfs_data -O ^has_journal -m 0 "${RAW}" >/dev/null 2>&1
+mke2fs -t ext4 -F -L rootfs_data -O ^has_journal "${RAW}" >/dev/null 2>&1
 
 # Convert to Android sparse
 img2simg "${RAW}" "${SPARSE}"
