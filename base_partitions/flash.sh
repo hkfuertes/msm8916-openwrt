@@ -59,7 +59,7 @@ system_path=$(read_path "Drag the system image: ")
 fastboot flash rootfs "$system_path" || { echo "Error flashing system"; exit 1; }
 
 rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
-fastboot flash rootfs "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
+fastboot flash rootfs_data "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
 
 echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }

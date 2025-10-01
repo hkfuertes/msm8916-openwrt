@@ -81,10 +81,8 @@ Once you have selected your region, you'll find folders typically representing T
   - Also test Shell
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
-- `msm-firmware-loader` or `msm-firmware-staging`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
-  - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)
-  - Posible solution: use `preinit` script, but not working... bootloop.
 - Generate all `base_partitions` with openwrt builder.
+- Format `rootfs_data` with openwrt first boot!
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916

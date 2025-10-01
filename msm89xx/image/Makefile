@@ -3,13 +3,6 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-define Image/Prepare
-	# Copiar script a staging
-	mkdir -p $(STAGING_DIR_HOST)/bin
-	$(CP) ./generate-partitions.sh $(STAGING_DIR_HOST)/bin/
-	chmod +x $(STAGING_DIR_HOST)/bin/generate-partitions.sh
-endef
-
 define Build/Compile
 	$(CP) $(LINUX_DIR)/COPYING $(KDIR)/COPYING.linux
 endef
@@ -27,10 +20,6 @@ endef
 define Build/sparse-img
 	img2simg  $@ $@.new
 	mv $@.new $@
-endef
-
-define Build/generate-gpt-and-data
-	$(STAGING_DIR_HOST)/bin/generate-partitions.sh $(BIN_DIR)
 endef
 
 ### Devices ###

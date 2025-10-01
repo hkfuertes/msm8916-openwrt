@@ -1,19 +1,25 @@
 #!/bin/sh -e
-# Integrated GPT + rootfs_data generator for OpenWRT build
-# Called automatically during image generation
+# Generates:
+#  - files/gpt_both0.bin (Qualcomm/fastboot-compatible GPT blob)
+#  - files/rootfs_data.img  (Android sparse ext4 sized to GPT rootfs_data)
+#
+# Requirements:
+#  - util-linux (sfdisk, dd, stat)  [host]
+#  - e2fsprogs (mke2fs)             [host]
+#  - android-sdk-libsparse-utils (img2simg) [host]
 
-OUTDIR="$1"  # Passed by OpenWRT build system
+OUTDIR="."
 TMPDIR="$(mktemp -d)"
 IMG="${TMPDIR}/gpt.img"
 SECTOR_SIZE=512
 
 mkdir -p "${OUTDIR}"
 
-# Exact eMMC size
-SECTORS_TOTAL=7634944
+# Exact eMMC size seen in EDL: 0xE9000000 bytes = 7634944 sectors of 512 B
+SECTORS_TOTAL=7634944    # adjust if device differs
 truncate -s $((SECTORS_TOTAL*SECTOR_SIZE)) "${IMG}"
 
-# Write GPT
+# Write GPT: keep fsc..boot; replace rootfs with system (128MiB) + rootfs_data (rest)
 cat << 'EOF' | sfdisk "${IMG}"
 label: gpt
 unit: sectors
@@ -36,28 +42,27 @@ p14: start=   348194, size= 262144,     type=0FC63DAF-8483-4772-8E79-3D69D8477DE
 p15: start=   610338,                    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, name="rootfs_data"
 EOF
 
-# Build GPT blob
+# Build fastboot-compatible GPT blob (primary 34 sectors + backup 33 sectors)
 {
   dd if="${IMG}" bs=${SECTOR_SIZE} count=34 status=none
   dd if="${IMG}" bs=${SECTOR_SIZE} skip=$((SECTORS_TOTAL - 33)) count=33 status=none
 } > "${OUTDIR}/gpt_both0.bin"
 
-# Calculate rootfs_data size
+# Derive exact rootfs_data size in sectors from the written table
 UD_LINE="$(sfdisk --dump "${IMG}" | awk -F: '/name="rootfs_data"/{print $2}')"
 UD_SECTORS="$(printf '%s\n' "${UD_LINE}" | sed -n 's/.*size=\s*\([0-9]\+\).*/\1/p')"
 [ -n "${UD_SECTORS}" ] || { echo "Failed to resolve rootfs_data size"; exit 1; }
 UD_BYTES=$((UD_SECTORS*SECTOR_SIZE))
 
-# Create rootfs_data (no journal)
-RAW="${TMPDIR}/rootfs_data.raw"
+# Create raw empty ext4 sized exactly to rootfs_data
+RAW="${OUTDIR}/rootfs_data.raw"
 SPARSE="${OUTDIR}/rootfs_data.img"
 truncate -s "${UD_BYTES}" "${RAW}"
-mke2fs -t ext4 -F -L rootfs_data -O ^has_journal "${RAW}" >/dev/null 2>&1
+mke2fs -t ext4 -F -L rootfs_data -O ^has_journal "${RAW}"
 
 # Convert to Android sparse
+# Requires img2simg (package: android-sdk-libsparse-utils)
 img2simg "${RAW}" "${SPARSE}"
 
-echo "Generated: gpt_both0.bin ($(stat -c%s ${OUTDIR}/gpt_both0.bin) bytes)"
-echo "Generated: rootfs_data.img ($(stat -c%s ${SPARSE}) bytes)"
-
+echo "Wrote: ${OUTDIR}/gpt_both0.bin and ${SPARSE}"
 rm -rf "${TMPDIR}"

@@ -13,9 +13,6 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper
-  ARTIFACTS := gpt_both0.bin rootfs_data.img
-  ARTIFACT/gpt_both0.bin := generate-gpt-and-data
-  ARTIFACT/rootfs_data.img := generate-gpt-and-data
 endef
 TARGET_DEVICES += yiming-uz801v3
 
