@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # Prerequisites: EDL mode.
 
+# Function to check if image is sparse
+is_sparse() {
+  # Devuelve 0 si magic == ed26ff3a (Android sparse), 1 si no
+  [ -f "$1" ] || return 1
+  local magic
+  magic="$(hexdump -v -n 4 -e '4/1 "%02x"' "$1" 2>/dev/null)"
+  [ "$magic" = "ed26ff3a" ]
+}
+
 # Function to read file path with validation and quote cleanup
 read_path() {
     local prompt="$1"
@@ -58,8 +67,9 @@ fastboot flash boot "$boot_path" || { echo "Error flashing boot"; exit 1; }
 system_path=$(read_path "Drag the system image: ")
 fastboot flash rootfs "$system_path" || { echo "Error flashing system"; exit 1; }
 
-rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
-fastboot flash rootfs_data "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
+# rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
+# fastboot flash rootfs_data "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
+fastboot erase rootfs_data
 
 echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }
@@ -69,5 +79,14 @@ for n in fsc fsg modemst1 modemst2 modem persist sec; do
     echo "Restoring partition $n ..."
     edl w "$n" "saved/$n.bin" || { echo "Error restoring $n"; exit 1; }
 done
+
+rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
+unsparsed=$rootfs_data_path
+if is_sparse "$rootfs_data_path"; then
+  unsparsed="$(mktemp --suffix=.raw.img)"
+  simg2img "$rootfs_data_path" "$unsparsed" || { echo "simg2img falló"; exit 1; }
+fi
+
+edl w rootfs_data "${unsparsed}"
 
 echo "Process completed successfully."
