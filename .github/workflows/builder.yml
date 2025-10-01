@@ -2,23 +2,6 @@ name: OpenWrt Builder
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs:
-      openwrt_version:
-        description: 'OpenWrt version to build'
-        required: true
-        default: 'main'
-        type: choice
-        options:
-          - 'main'
-          - 'openwrt-24.10'
-      diffconfig:
-        description: 'Configuration to use'
-        required: true
-        default: 'diffconfig'
-        type: choice
-        options:
-          - 'diffconfig'
-          - 'diffconfig_tailscale'
 
 env:
   UPLOAD_BIN_DIR: true
@@ -46,11 +29,10 @@ jobs:
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
 
-    - name: "Clone source code - Branch: ${{ inputs.openwrt_version }}"
+    - name: "Clone OpenWrt source code"
       run: |
         df -hT $PWD
-        echo "Cloning OpenWrt version: ${{ inputs.openwrt_version }}"
-        git clone --depth=1 --branch "${{ inputs.openwrt_version }}" https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git clone --depth=1 --branch "main" https://git.openwrt.org/openwrt/openwrt.git openwrt
 
     - name: Load msm89xx target and uz801 packages
       run: |
@@ -68,9 +50,9 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: "Load config - Using: ${{inputs.diffconfig}}"
+    - name: "Load diffconfig"
       run: |
-        [ -f ${{inputs.diffconfig}} ] && mv ${{inputs.diffconfig}} openwrt/.config
+        [ -f diffconfig ] && mv diffconfig openwrt/.config
 
     - name: Download package
       id: package
@@ -100,7 +82,6 @@ jobs:
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-        echo "imagebuilder=$(ls -l *imagebuilder* | wc -l)" >> $GITHUB_OUTPUT
 
     - name: Upload firmware
       uses: actions/upload-artifact@v4
@@ -108,14 +89,8 @@ jobs:
       with:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: |
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-gpt_both0.bin
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-rootfs_data.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-boot.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3.manifest
-    
-    - name: Upload image builder
-      uses: actions/upload-artifact@v4
-      if: steps.organize.outputs.imagebuilder != '0' && !cancelled()
-      with:
-        name: openwrt_imagebuilder_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-        path: |
-          ${{ env.FIRMWARE }}/openwrt-imagebuilder-msm89xx-msm8916.Linux-x86_64.tar.zst
