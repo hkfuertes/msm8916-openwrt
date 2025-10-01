@@ -18,15 +18,14 @@ Modern version of OpenWrt working on UZ801v3:
   - No shell attached to ACM, just pure raw Serial (/dev/ttyGS0)
 - TUN installed
 - Wireguard Installed
-- GRE Protocol Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
   - On default Linux Kernel `dts`, leds are swapped!
   - Wifi Led: [packages/uz801-tweaks/files/wifi-led.hotplug](packages/uz801-tweaks/files/wifi-led.hotplug)
   - Modem Led: [packages/uz801-tweaks/files/modem-led.hotplug](packages/uz801-tweaks/files/modem-led.hotplug)
 - Firmware is dumped on first boot from modem/persist partition:
-  - Small distributable size
   - Uses the binaries/firmware from the own device.
     - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
+- SQUASHFS Enabled: This allows for __*firstboot*__ (factory reset).
 
 ### How to build OpenWrt
 Docker is required!
@@ -79,9 +78,7 @@ Once you have selected your region, you'll find folders typically representing T
 
 ### Future:
 - ACM gadget not working!
-- squashfs + overlayfs + firstboot:
-  - This implies new gpt partition table with `boot`, `system` and `userspace`, `system` has `ro` filesystem, and `userspace` has overlayfs.
-  - gpt table makes `fastboot erase/format` expand `userspace` to full size.
+  - Also test Shell
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - `msm-firmware-loader` or `msm-firmware-staging`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
