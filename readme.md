@@ -78,6 +78,7 @@ Once you have selected your region, you'll find folders typically representing T
 3. Reboot the device.
 
 ### Future:
+- ACM gadget not working!
 - squashfs + overlayfs + firstboot:
   - This implies new gpt partition table with `boot`, `system` and `userspace`, `system` has `ro` filesystem, and `userspace` has overlayfs.
   - gpt table makes `fastboot erase/format` expand `userspace` to full size.

@@ -5,7 +5,7 @@ ifeq ($(SUBTARGET),msm8916)
 define Device/msm8916
 	SOC := msm8916
   IMAGE/system.img := append-rootfs | append-metadata
-	CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs ro rootwait"
+	CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs ro rootwait nowatchdog"
 endef
 
 define Device/yiming-uz801v3
@@ -13,6 +13,9 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper
+  ARTIFACTS := gpt_both0.bin rootfs_data.img
+  ARTIFACT/gpt_both0.bin := generate-gpt-and-data
+  ARTIFACT/rootfs_data.img := generate-gpt-and-data
 endef
 TARGET_DEVICES += yiming-uz801v3
 
