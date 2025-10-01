@@ -43,7 +43,9 @@ edl reset || { echo "Error resetting device"; exit 1; }
 
 # Flash firmware
 echo "Flashing partitions..."
-fastboot flash partition gpt_both0.bin || { echo "Error flashing partition"; exit 1; }
+gpt_path=$(read_path "Drag the gpt_both0 image: ")
+fastboot flash partition "$gpt_path" || { echo "Error flashing partition"; exit 1; }
+
 fastboot flash aboot aboot.mbn || { echo "Error flashing aboot"; exit 1; }
 fastboot flash hyp hyp.mbn || { echo "Error flashing hyp"; exit 1; }
 fastboot flash rpm rpm.mbn || { echo "Error flashing rpm"; exit 1; }
@@ -55,6 +57,9 @@ fastboot flash boot "$boot_path" || { echo "Error flashing boot"; exit 1; }
 
 system_path=$(read_path "Drag the system image: ")
 fastboot flash rootfs "$system_path" || { echo "Error flashing system"; exit 1; }
+
+rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
+fastboot flash rootfs "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
 
 echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }

@@ -87,6 +87,7 @@ Once you have selected your region, you'll find folders typically representing T
 - `msm-firmware-loader` or `msm-firmware-staging`, to mount firmware instead of bundle to free up almost 40mb from rootfs.
   - For more info: [packages/msm-firmware-loader/readme.md](packages/msm-firmware-loader/readme.md)
   - Posible solution: use `preinit` script, but not working... bootloop.
+- Generate all `base_partitions` with openwrt builder.
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
