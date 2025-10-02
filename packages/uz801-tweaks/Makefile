@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Utilities
 	CATEGORY:=Utilities
 	TITLE:=Defaults Setting For uz801v3
-	DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager +kmod-usb-lib-composite +rmtfs
+	DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager
 endef
 
 define Build/Configure

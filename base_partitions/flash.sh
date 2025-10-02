@@ -33,6 +33,30 @@ read_path() {
     echo "$path_var"
 }
 
+# Ask filesystem type
+echo "=== Filesystem Selection ==="
+echo "1) SquashFS (requires rootfs_data)"
+echo "2) EXT4 (full writable, no rootfs_data)"
+read -p "Select filesystem type (1/2): " fs_choice
+
+case "$fs_choice" in
+    1)
+        FS_TYPE="squashfs"
+        NEEDS_ROOTFS_DATA=true
+        ;;
+    2)
+        FS_TYPE="ext4"
+        NEEDS_ROOTFS_DATA=false
+        ;;
+    *)
+        echo "Error: Invalid choice"
+        exit 1
+        ;;
+esac
+
+echo "Selected: $FS_TYPE"
+echo
+
 mkdir -p saved
 
 # Backup important partitions
@@ -52,7 +76,11 @@ edl reset || { echo "Error resetting device"; exit 1; }
 
 # Flash firmware
 echo "Flashing partitions..."
-gpt_path=$(read_path "Drag the gpt_both0 image: ")
+if [ "$FS_TYPE" = "squashfs" ]; then
+    gpt_path=$(read_path "Drag the squashfs_gpt_both0.bin image: ")
+else
+    gpt_path=$(read_path "Drag the ext4_gpt_both0.bin image: ")
+fi
 fastboot flash partition "$gpt_path" || { echo "Error flashing partition"; exit 1; }
 
 fastboot flash aboot aboot.mbn || { echo "Error flashing aboot"; exit 1; }
@@ -67,9 +95,9 @@ fastboot flash boot "$boot_path" || { echo "Error flashing boot"; exit 1; }
 system_path=$(read_path "Drag the system image: ")
 fastboot flash rootfs "$system_path" || { echo "Error flashing system"; exit 1; }
 
-# rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
-# fastboot flash rootfs_data "$rootfs_data_path" || { echo "Error flashing rootfs_data"; exit 1; }
-fastboot erase rootfs_data
+# Erase rootfs_data (will be flashed via EDL for squashfs)
+echo "Erasing rootfs_data partition..."
+fastboot erase rootfs_data || { echo "Error erasing rootfs_data"; exit 1; }
 
 echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }
@@ -80,13 +108,29 @@ for n in fsc fsg modemst1 modemst2 modem persist sec; do
     edl w "$n" "saved/$n.bin" || { echo "Error restoring $n"; exit 1; }
 done
 
-rootfs_data_path=$(read_path "Drag the rootfs_data image: ")
-unsparsed=$rootfs_data_path
-if is_sparse "$rootfs_data_path"; then
-  unsparsed="$(mktemp --suffix=.raw.img)"
-  simg2img "$rootfs_data_path" "$unsparsed" || { echo "simg2img falló"; exit 1; }
+# Flash rootfs_data via EDL (REQUIRED for squashfs)
+if [ "$NEEDS_ROOTFS_DATA" = true ]; then
+    rootfs_data_path=$(read_path "Drag the rootfs_data.img: ")
+    
+    echo "Flashing rootfs_data via EDL..."
+    unsparsed="$rootfs_data_path"
+    
+    if is_sparse "$rootfs_data_path"; then
+        echo "Detected sparse image, converting..."
+        unsparsed="$(mktemp --suffix=.raw.img)"
+        simg2img "$rootfs_data_path" "$unsparsed" || { echo "simg2img failed"; exit 1; }
+    fi
+    
+    edl w rootfs_data "$unsparsed" || { echo "Error flashing rootfs_data via EDL"; exit 1; }
+    
+    # Cleanup temp file if created
+    if [[ "$unsparsed" != "$rootfs_data_path" ]]; then
+        rm -f "$unsparsed"
+    fi
+    
+    echo "rootfs_data flashed successfully."
+else
+    echo "EXT4 mode: rootfs_data not needed (partition erased)"
 fi
-
-edl w rootfs_data "${unsparsed}"
 
 echo "Process completed successfully."
