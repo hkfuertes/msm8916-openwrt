@@ -3,11 +3,9 @@
 
 # Function to check if image is sparse
 is_sparse() {
-  # Devuelve 0 si magic == ed26ff3a (Android sparse), 1 si no
-  [ -f "$1" ] || return 1
-  local magic
-  magic="$(hexdump -v -n 4 -e '4/1 "%02x"' "$1" 2>/dev/null)"
-  [ "$magic" = "ed26ff3a" ]
+    local file="$1"
+    [ -f "$file" ] || return 1
+    [ "$(hexdump -n 4 -e '4/1 "%02x"' "$file" 2>/dev/null)" = "3aff26ed" ]
 }
 
 # Function to read file path with validation and quote cleanup
@@ -95,9 +93,11 @@ fastboot flash boot "$boot_path" || { echo "Error flashing boot"; exit 1; }
 system_path=$(read_path "Drag the system image: ")
 fastboot flash rootfs "$system_path" || { echo "Error flashing system"; exit 1; }
 
-# Erase rootfs_data (will be flashed via EDL for squashfs)
-echo "Erasing rootfs_data partition..."
-fastboot erase rootfs_data || { echo "Error erasing rootfs_data"; exit 1; }
+# Erase rootfs_data only for squashfs (partition doesn't exist in ext4 GPT)
+if [ "$NEEDS_ROOTFS_DATA" = true ]; then
+    echo "Erasing rootfs_data partition..."
+    fastboot erase rootfs_data || { echo "Error erasing rootfs_data"; exit 1; }
+fi
 
 echo "Rebooting to EDL mode..."
 fastboot oem reboot-edl || { echo "Error rebooting to EDL"; exit 1; }
@@ -130,7 +130,7 @@ if [ "$NEEDS_ROOTFS_DATA" = true ]; then
     
     echo "rootfs_data flashed successfully."
 else
-    echo "EXT4 mode: rootfs_data not needed (partition erased)"
+    echo "EXT4 mode: rootfs_data partition not present in GPT"
 fi
 
 echo "Process completed successfully."
