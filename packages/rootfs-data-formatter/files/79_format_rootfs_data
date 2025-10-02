@@ -1,0 +1,100 @@
+#!/bin/sh
+# Copyright (C) 2025 OpenWrt.org
+
+set_led() {
+    local led="$1"
+    local state="$2"
+    
+    local led_path=$(find /sys/class/leds -name "*${led}*" | head -n 1)
+    [ -z "$led_path" ] && return
+    
+    case "$state" in
+        on)
+            echo "default-on" > "$led_path/trigger"
+            ;;
+        off)
+            echo "none" > "$led_path/trigger"
+            echo 0 > "$led_path/brightness"
+            ;;
+        blink-fast)
+            echo "timer" > "$led_path/trigger"
+            echo 100 > "$led_path/delay_on"
+            echo 100 > "$led_path/delay_off"
+            ;;
+        blink-slow)
+            echo "timer" > "$led_path/trigger"
+            echo 500 > "$led_path/delay_on"
+            echo 500 > "$led_path/delay_off"
+            ;;
+    esac
+}
+
+check_and_format_rootfs_data() {
+    local rootfs_data_dev
+    local fs_type
+    local log_file="/tmp/rootfs_data_format.log"
+    
+    echo "=== rootfs_data formatter ===" > "$log_file"
+    echo "$(date)" >> "$log_file"
+    
+    rootfs_data_dev=$(blkid 2>/dev/null | grep -o '/dev/[^:]*' | while read dev; do
+        blkid "$dev" 2>/dev/null | grep -q 'PARTLABEL="rootfs_data"' && echo "$dev"
+    done)
+    
+    if [ -z "$rootfs_data_dev" ]; then
+        echo "[-] EXT4 system detected" >> "$log_file"
+        preinit_echo "EXT4 filesystem, skipping"
+        return 0
+    fi
+    
+    preinit_echo "Found rootfs_data: $rootfs_data_dev"
+    echo "[+] rootfs_data partition: $rootfs_data_dev" >> "$log_file"
+    
+    # Log partition size
+    blockdev --getsize64 "$rootfs_data_dev" >> "$log_file" 2>&1 || echo "[!] Can't get size" >> "$log_file"
+    
+    fs_type=$(blkid -s TYPE -o value "$rootfs_data_dev" 2>/dev/null)
+    
+    if [ -z "$fs_type" ]; then
+        set_led "blue" "blink-fast"
+        
+        preinit_echo "Formatting rootfs_data (ext2 fast)..."
+        echo "[!] FORMATTING rootfs_data..." >> "$log_file"
+        
+        # ULTRA-SIMPLE ext2 format - no fancy options
+        # Should complete in seconds
+        if mke2fs -t ext2 -F -L rootfs_data -m 0 "$rootfs_data_dev" >> "$log_file" 2>&1; then
+            
+            preinit_echo "rootfs_data formatted (ext2)"
+            echo "[+] Format successful" >> "$log_file"
+            
+            # GREEN LED = success
+            set_led "blue" "off"
+            set_led "green" "on"
+            sleep 3
+            set_led "green" "off"
+            
+            return 0
+        fi
+        
+        # Error
+        preinit_echo "ERROR: Format failed"
+        echo "[X] ERROR formatting" >> "$log_file"
+        
+        set_led "blue" "off"
+        set_led "red" "on"
+        sleep 5
+        
+        return 1
+    else
+        preinit_echo "Already formatted as $fs_type"
+        echo "[-] Already formatted: $fs_type" >> "$log_file"
+        
+        set_led "blue" "blink-slow"
+        sleep 1
+    fi
+    
+    return 0
+}
+
+boot_hook_add preinit_mount_root check_and_format_rootfs_data
