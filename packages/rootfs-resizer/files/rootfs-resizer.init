@@ -1,50 +1,29 @@
 #!/bin/sh /etc/rc.common
-# Early ext4 rootfs resizer with LED feedback
-
 START=01
 NAME=rootfs-resizer
+PROG="/usr/bin/rootfs-resizer"
 FLAG="/RESIZED"
 
-log() { logger -t rootfs-resizer "$*"; }
 led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
 
-get_rootdev() {
-    local dev="$(awk '$2=="/"{print $1; exit}' /proc/mounts)"
-    [ "$dev" = "/dev/root" ] && dev="$(sed -n 's/.*\broot=\([^ ]*\).*/\1/p' /proc/cmdline)"
-    echo "$dev"
-}
-
 start() {
-    [ -f "$FLAG" ] && { log "already resized, skipping"; return 0; }
+    [ -f "$FLAG" ] && return 0
     
-    log "starting rootfs resize"
+    led red off
     led blue blink
+    logger -t "$NAME" "Starting rootfs resize"
     
-    local dev="$(get_rootdev)"
-    [ -z "$dev" ] || [ ! -b "$dev" ] && { 
-        log "ERROR: invalid root device"; 
-        led red blink_fast; 
-        return 1; 
-    }
-    
-    log "resizing $dev"
-    
-    # Prepare filesystem
-    mount -o ro,remount / 2>/dev/null
-    tune2fs -O^resize_inode "$dev" >/dev/null 2>&1
-    e2fsck -yDf "$dev" >/dev/null 2>&1
-    mount -o rw,remount / 2>/dev/null
-    
-    # Resize
-    if resize2fs "$dev" 2>&1 | logger -t rootfs-resizer; then
-        log "resize successful"
-        led green on
+    if "$PROG"; then
+        logger -t "$NAME" "Resize successful, rebooting"
         touch "$FLAG"
         sync
-        ( sleep 2; led green blink; sleep 1; reboot -f ) &
+        led blue off;
+        led green on; sleep 2
+        led green blink; sleep 1
+        reboot -f
     else
-        log "ERROR: resize failed"
-        led red blink_fast
+        logger -t "$NAME" "Resize FAILED"
+        led red on
         return 1
     fi
 }

@@ -28,10 +28,10 @@ define Package/ledcontrol/install
 	$(INSTALL_BIN) ./files/ledcontrol $(1)/usr/sbin/
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(INSTALL_DATA) ./files/etc/hotplug.d/ieee80211/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
+	$(INSTALL_DATA) ./files/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_DATA) ./files/etc/hotplug.d/iface/99-modem-led $(1)/etc/hotplug.d/iface/
+	$(INSTALL_DATA) ./files/99-modem-led $(1)/etc/hotplug.d/iface/
 endef
 
 $(eval $(call BuildPackage,ledcontrol))

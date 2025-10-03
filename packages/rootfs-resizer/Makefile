@@ -24,6 +24,9 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/rootfs-resizer.init $(1)/etc/init.d/rootfs-resizer
+
+  $(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_BIN) ./files/rootfs-resizer.sh $(1)/usr/bin/rootfs-resizer
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
