@@ -42,7 +42,7 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Do a full backup: `edl rf backup.bin`
-- Run `cd bin/targets/msm89xx/msm8916 && openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh`: It will prompt for the partitions folder (`base_partitions`). The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
+- Run `./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh`: It will prompt for the partitions folder (`base_partitions`). The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
 
 After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
@@ -62,10 +62,10 @@ First, extract the contents of `modem.bin` from your firmware dump. You can do `
 
 Once you have selected your region, you'll find folders typically representing Telcos in your area. Navigate through the appropriate folder until you locate `mcfg_sw.mbn`. If your telco is not listed, just grab a generic as it is done in this project for europe:
 ```makefile
-  # packages/qcom-firmware/Makefile
+  # packages/msm8916-firmware/Makefile
   define Build/Compile
       ...
-  		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)/uz801
+  		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)
       ...
   endef
 ```
@@ -88,7 +88,7 @@ Once you have selected your region, you'll find folders typically representing T
 - @lkiuyu https://github.com/lkiuyu/immortalwrt
   - Almost all the msm8916 folder + patches + openstick feeds.
 - @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder
-  - `usb-gadget` and `msm-firmware-loader` idea.
+  - `usb-gadget` and `msm-firmware-loader` idea (now `msm-firmware-dumper`).
 - @AlienWolfX https://github.com/AlienWolfX/UZ801-USB_MODEM/wiki/Troubleshooting
   - For the carriers policy troubleshooting.
 - @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale
