@@ -147,6 +147,3 @@ done
 
 echo
 echo "[+] Process completed successfully"
-echo "[*] Device should reboot to OpenWrt automatically"
-echo
-echo "[!] Note: EXT4 filesystem - full writable rootfs, no overlay needed"
