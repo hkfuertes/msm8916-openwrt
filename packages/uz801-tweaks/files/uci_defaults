@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Enabling WiFi
-uci set wireless.@wifi-device[0].disabled='0'
-uci set wireless.@wifi-iface[0].disabled='0'
+# Enabling WiFi 
+# (disabled as wifi does not boot soon enougth, enable manually in luci)
+# uci set wireless.@wifi-device[0].disabled='0'
+# uci set wireless.@wifi-iface[0].disabled='0'
 
 # Create modem interface
 uci set network.modem=interface
@@ -18,12 +19,6 @@ uci add_list firewall.@zone[1].network='modem'
 
 # Commit all changes
 uci commit
-
-# Reload WiFi driver to load firmware
-logger -t uci-defaults "Reloading wcn36xx driver"
-rmmod wcn36xx 2>/dev/null || true
-sleep 1
-modprobe wcn36xx
 
 # Apply network and wireless configuration
 wifi reload
