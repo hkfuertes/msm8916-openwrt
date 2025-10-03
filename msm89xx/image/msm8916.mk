@@ -30,7 +30,8 @@ define Device/yiming-uz801v3
   $(Device/msm8916)
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs rootfs-resizer rootfs-data-formatter
+  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs 
+  # rootfs-resizer rootfs-data-formatter
   
   ifdef CONFIG_TARGET_ROOTFS_SQUASHFS
     IMAGE/system.img := append-rootfs | append-metadata
