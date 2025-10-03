@@ -21,6 +21,7 @@ CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-udptunnel4=y
 CONFIG_PACKAGE_kmod-udptunnel6=y
 CONFIG_PACKAGE_kmod-wireguard=y
+CONFIG_PACKAGE_ledcontrol=y
 CONFIG_PACKAGE_libattr=y
 CONFIG_PACKAGE_libdbus=y
 CONFIG_PACKAGE_libexpat=y

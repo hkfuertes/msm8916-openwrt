@@ -1,0 +1,14 @@
+#!/bin/sh
+# /etc/hotplug.d/iface/99-modem-led
+# Modem LED control based on interface status
+
+case "$ACTION:$INTERFACE" in
+    ifup:modem)
+        ledcontrol green on
+        logger -t modem-led "Modem UP - Green LED ON"
+        ;;
+    ifdown:modem)
+        ledcontrol green off
+        logger -t modem-led "Modem DOWN - Green LED OFF"
+        ;;
+esac

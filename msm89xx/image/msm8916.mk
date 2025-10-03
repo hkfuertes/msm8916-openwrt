@@ -2,11 +2,9 @@
 
 ifeq ($(SUBTARGET),msm8916)
 
-define Build/generate-gpt-ext4
-    $(TOPDIR)/target/linux/$(BOARD)/image/generate_gpt.sh \
-        "$(dir $@)" \
-        $(TOPDIR)/target/linux/$(BOARD)/image/gpt-ext4.table \
-        "$(notdir $@)"
+define Build/generate-gpt
+    chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_gpt.sh
+    $(TOPDIR)/target/linux/$(BOARD)/image/generate_gpt.sh $@
 endef
 
 define Build/install-flasher
@@ -28,7 +26,7 @@ define Device/yiming-uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs rootfs-resizer msm8916-usb-gadget
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
   ARTIFACTS := gpt_both0.bin flash.sh
-  ARTIFACT/gpt_both0.bin := generate-gpt-ext4
+  ARTIFACT/gpt_both0.bin := generate-gpt
   ARTIFACT/flash.sh := install-flasher
 endef
 TARGET_DEVICES += yiming-uz801v3

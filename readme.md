@@ -20,8 +20,8 @@ Modern version of OpenWrt working on UZ801v3:
 - Wireguard Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
   - On default Linux Kernel `dts`, leds are swapped!
-  - Wifi Led: [packages/uz801-tweaks/files/wifi-led.hotplug](packages/uz801-tweaks/files/wifi-led.hotplug)
-  - Modem Led: [packages/uz801-tweaks/files/modem-led.hotplug](packages/uz801-tweaks/files/modem-led.hotplug)
+  - Wifi Led: [packages/ledcontrol/files/99-modem-led](packages/ledcontrol/files/99-modem-led)
+  - Modem Led: [packages/ledcontrol/files/99-wifi-led](packages/ledcontrol/files/99-wifi-led)
 - Firmware is dumped on first boot from modem/persist partition:
   - Uses the binaries/firmware from the own device.
     - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
