@@ -29,7 +29,7 @@ echo
 
 # Find required OpenWrt images
 echo "[*] Detecting OpenWrt images..."
-gpt_path=$(find_image "$openwrt_dir" "*-ext4_gpt_both0.bin") || exit 1
+gpt_path=$(find_image "$openwrt_dir" "*-gpt_both0.bin") || exit 1
 boot_path=$(find_image "$openwrt_dir" "*-ext4-boot.img") || exit 1
 system_path=$(find_image "$openwrt_dir" "*-ext4-system.img") || exit 1
 

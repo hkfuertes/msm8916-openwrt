@@ -42,7 +42,7 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Do a full backup: `edl rf backup.bin`
-- Run `cd bin/targets/msm89xx/msm8916 && `: It will prompt for the partitions folder (`base_partitions`). The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
+- Run `cd bin/targets/msm89xx/msm8916 && openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh`: It will prompt for the partitions folder (`base_partitions`). The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
 
 After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
