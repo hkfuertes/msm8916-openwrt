@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-START=01
+START=15
 NAME=rootfs-resizer
 PROG="/usr/bin/rootfs-resizer"
 FLAG="/RESIZED"

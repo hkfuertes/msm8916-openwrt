@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-START=08
+START=16
 NAME=msm-firmware-dumper
 PROG="/usr/bin/msm-firmware-dumper"
 FLAG="/lib/firmware/DUMPED"

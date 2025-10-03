@@ -81,6 +81,7 @@ Once you have selected your region, you'll find folders typically representing T
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - Generate all `base_partitions` with openwrt builder.
+- Investigate `lpac` and eSIM.
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
