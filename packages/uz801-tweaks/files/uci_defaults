@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Enabling Wifi
-uci set wireless.@wifi-device[0].disabled='0'
-uci set wireless.@wifi-iface[0].disabled='0'
+# uci set wireless.@wifi-device[0].disabled='0'
+# uci set wireless.@wifi-iface[0].disabled='0'
 
 # create modem interface
 uci set network.modem=interface

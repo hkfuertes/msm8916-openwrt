@@ -2,7 +2,7 @@
 USE_PROCD=1
 START=08
 NAME=msm-firmware-dumper
-FLAG="/etc/msm-fw-dumped"
+FLAG="/lib/firmware/DUMPED"
 PROG="/usr/bin/msm-firmware-dumper"
 
 start_service() {

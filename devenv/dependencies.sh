@@ -40,4 +40,6 @@ apt-get update && apt-get install -y --no-install-recommends \
     mkbootimg \
     zstd \
     e2fsprogs \
+    fdisk \
+    nano \
     && rm -rf /var/lib/apt/lists/*
