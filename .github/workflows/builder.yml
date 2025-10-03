@@ -90,7 +90,7 @@ jobs:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: |
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-gpt_both0.bin
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-rootfs_data.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-boot.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-ext4-system.img
           ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3.manifest
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
