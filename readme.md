@@ -25,7 +25,6 @@ Modern version of OpenWrt working on UZ801v3:
 - Firmware is dumped on first boot from modem/persist partition:
   - Uses the binaries/firmware from the own device.
     - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
-- SQUASHFS Enabled: This allows for __*firstboot*__ (factory reset).
 
 ### How to build OpenWrt
 Docker is required!
@@ -43,7 +42,7 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Do a full backup: `edl rf backup.bin`
-- Run `cd base_partitions && ./flash.sh`. The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions. During the execution, the script will halt and ask you to drag the boot and rootfs (system) partitions.
+- Run `cd bin/targets/msm89xx/msm8916 && `: It will prompt for the partitions folder (`base_partitions`). The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
 
 After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
@@ -82,7 +81,6 @@ Once you have selected your region, you'll find folders typically representing T
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
 - Generate all `base_partitions` with openwrt builder.
-- Format `rootfs_data` with openwrt first boot!
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
