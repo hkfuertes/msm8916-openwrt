@@ -26,7 +26,6 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs rootfs-resizer msm8916-usb-gadget
-  # Only ext4 image, no compression
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
   ARTIFACTS := gpt_both0.bin flash.sh
   ARTIFACT/gpt_both0.bin := generate-gpt-ext4
