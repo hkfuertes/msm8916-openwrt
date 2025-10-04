@@ -25,7 +25,12 @@ Modern version of OpenWrt working on UZ801v3:
 - Firmware is dumped on first boot from modem/persist partition:
   - Uses the binaries/firmware from the own device.
     - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
-- Leaves the `luci-app-tailscale` package in `/root` ready to be installed with: `apk install --allow-untrusted luci-app-tailscale*.apk`
+- Leaves the `luci-app-tailscale` package in `/root` ready to be installed with: 
+  
+  ```
+    apk install --allow-untrusted /root/luci-app-tailscale*.apk
+  ```
+  > It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
 
 ### How to build OpenWrt
 Docker is required!
