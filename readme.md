@@ -89,6 +89,7 @@ Once you have selected your region, you'll find folders typically representing T
 - Investigate `lpac` and eSIM.
 - Convert led `hotplugs` into triggers
 - Reboot to edl/bootloader from linux/luci.
+- Swap? Zram?... expand ram with eMMC?
 - Remove unused feed:
   - _WARNING: updating and opening https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb: unexpected end of file_
 
