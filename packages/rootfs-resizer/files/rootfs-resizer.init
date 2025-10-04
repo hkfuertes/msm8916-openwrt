@@ -1,74 +1,29 @@
 #!/bin/sh /etc/rc.common
-# Early ext4 rootfs resizer with flag and logs (OpenWrt rc.common)
-
-START=01
-STOP=00
+START=15
 NAME=rootfs-resizer
-FLAG="/etc/rootfs-resizer.done"
+PROG="/usr/bin/rootfs-resizer"
+FLAG="/RESIZED"
 
-log() { logger -t rootfs-resizer "$*"; }
-
-get_rootdev() {
-    local dev
-    dev="$(findmnt -n -o SOURCE / 2>/dev/null || awk '$2=="/"{print $1; exit}' /proc/mounts)"
-    [ -n "$dev" ] || dev="$(sed -n 's/.*\broot=\([^ ]*\).*/\1/p' /proc/cmdline)"
-    [ "$dev" = "/dev/root" ] && dev="$(sed -n 's/.*\broot=\([^ ]*\).*/\1/p' /proc/cmdline)"
-    case "$dev" in
-        LABEL=*|UUID=*|PARTUUID=*|PARTLABEL=*)
-            dev="$(blkid -l -t "$dev" -o device 2>/dev/null || true)"
-        ;;
-    esac
-    echo "$dev"
-}
+led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
 
 start() {
-    if [ -f "$FLAG" ]; then
-        log "flag present, skipping resize"
-        return 0
-    fi
-
-    log "starting early rootfs resize"
-
-    local dev rc out
-    dev="$(get_rootdev)"
-    if [ -z "$dev" ] || [ ! -b "$dev" ]; then
-        log "could not resolve a valid root block device; aborting"
-        return 0
-    fi
-    log "root device resolved: $dev"
-
-    # Remount root read-only before metadata changes/checks
-    log "remounting / read-only"
-    mount -o ro,remount / 2>/dev/null || log "WARN: remount ro failed (continuing)"
-
-    # Clear resize_inode like the working script (safe to ignore errors if not present)
-    log "clearing resize_inode feature if present"
-    out="$(tune2fs -O^resize_inode "$dev" 2>&1)"; rc=$?
-    echo "$out" | logger -t rootfs-resizer
-    [ $rc -ne 0 ] && log "tune2fs exited rc=$rc (continuing)"
-
-    # Run fsck (note: generally discouraged on mounted FS; we remounted ro)
-    log "running e2fsck -yDf on $dev"
-    out="$(e2fsck -yDf "$dev" 2>&1)"; rc=$?
-    echo "$out" | logger -t rootfs-resizer
-    [ $rc -ne 0 ] && log "e2fsck exited rc=$rc (continuing)"
-
-    # Back to read-write for online resize
-    log "remounting / read-write"
-    mount -o rw,remount / 2>/dev/null || log "WARN: remount rw failed (continuing)"
-
-    log "invoking resize2fs (online) on $dev"
-    out="$(resize2fs "$dev" 2>&1)"; rc=$?
-    echo "$out" | logger -t rootfs-resizer
-
-    if [ $rc -eq 0 ]; then
-        log "resize2fs succeeded on $dev"
+    [ -f "$FLAG" ] && return 0
+    
+    led red off
+    led blue blink
+    logger -t "$NAME" "Starting rootfs resize"
+    
+    if "$PROG"; then
+        logger -t "$NAME" "Resize successful, rebooting"
         touch "$FLAG"
         sync
-        log "flag created at $FLAG; syncing and rebooting"
-
-        ( sleep 1; reboot -f ) &
+        led blue off;
+        led green on; sleep 2
+        led green blink; sleep 1
+        reboot -f
     else
-        log "resize2fs failed rc=$rc; leaving system as-is"
+        logger -t "$NAME" "Resize FAILED"
+        led red on
+        return 1
     fi
 }

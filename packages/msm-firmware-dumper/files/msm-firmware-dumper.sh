@@ -68,7 +68,6 @@ rmdir "$MNT/persist" "$MNT/modem" 2>/dev/null || true
 
 # Set marker and reboot once
 touch "$MARKER"
-log "done, rebooting"
-( sleep 2; reboot ) &
+log "Dumped!"
 
 exit 0

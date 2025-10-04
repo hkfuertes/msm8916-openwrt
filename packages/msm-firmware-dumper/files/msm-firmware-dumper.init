@@ -1,18 +1,31 @@
 #!/bin/sh /etc/rc.common
-USE_PROCD=1
-START=08
+START=16
 NAME=msm-firmware-dumper
+<<<<<<< HEAD
 FLAG="/lib/firmware/DUMPED"
+=======
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5
 PROG="/usr/bin/msm-firmware-dumper"
+FLAG="/lib/firmware/DUMPED"
 
-start_service() {
-	[ -f "$FLAG" ] && return 0
-	[ -x "$PROG" ] || return 0
+led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
 
-	procd_open_instance
-	procd_set_param command "$PROG"
-	procd_set_param env MSM_DUMPER_FLAG_FILE="$FLAG"
-	procd_set_param stdout 1
-	procd_set_param stderr 1
-	procd_close_instance
+start() {
+    [ -f "$FLAG" ] && return 0
+    led red off
+
+    logger -t "$NAME" "Starting firmware dump"
+    led blue blink
+    
+    if $PROG; then
+        logger -t "$NAME" "Firmware dump successful, rebooting"
+		led blue off
+        led green on; sleep 2
+        led green blink; sleep 1
+        reboot
+    else
+        logger -t "$NAME" "Firmware dump FAILED"
+        led red on
+        return 1
+    fi
 }

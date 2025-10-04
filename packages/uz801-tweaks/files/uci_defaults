@@ -1,10 +1,15 @@
 #!/bin/sh
 
+<<<<<<< HEAD
 # Enabling Wifi
+=======
+# Enabling WiFi 
+# (disabled as wifi does not boot soon enough, enable manually in luci)
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5
 # uci set wireless.@wifi-device[0].disabled='0'
 # uci set wireless.@wifi-iface[0].disabled='0'
 
-# create modem interface
+# Create modem interface
 uci set network.modem=interface
 uci set network.modem.proto='modemmanager'
 uci set network.modem.device='qcom-soc'
@@ -16,8 +21,11 @@ uci set network.modem.ifname='wwan0'
 uci del_list firewall.@zone[1].network='modem'
 uci add_list firewall.@zone[1].network='modem'
 
-# We commit all the changes and restart network
+# Commit all changes
 uci commit
+
+# Apply network and wireless configuration
+wifi reload
 /etc/init.d/network restart
 
 exit 0

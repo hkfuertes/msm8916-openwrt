@@ -1,2 +1,3 @@
 bin
-base_partitions/saved
+modem.bin
+persist.bin

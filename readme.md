@@ -20,12 +20,21 @@ Modern version of OpenWrt working on UZ801v3:
 - Wireguard Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
   - On default Linux Kernel `dts`, leds are swapped!
-  - Wifi Led: [packages/uz801-tweaks/files/wifi-led.hotplug](packages/uz801-tweaks/files/wifi-led.hotplug)
-  - Modem Led: [packages/uz801-tweaks/files/modem-led.hotplug](packages/uz801-tweaks/files/modem-led.hotplug)
+  - Wifi Led: [packages/ledcontrol/files/99-modem-led](packages/ledcontrol/files/99-modem-led)
+  - Modem Led: [packages/ledcontrol/files/99-wifi-led](packages/ledcontrol/files/99-wifi-led)
 - Firmware is dumped on first boot from modem/persist partition:
   - Uses the binaries/firmware from the own device.
     - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
+<<<<<<< HEAD
 - SQUASHFS Enabled: This allows for __*firstboot*__ (factory reset).
+=======
+- Leaves the `luci-app-tailscale` package in `/root` ready to be installed with: 
+  
+  ```
+    apk add --allow-untrusted /root/luci-app-tailscale*.apk
+  ```
+  > It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5
 
 ### How to build OpenWrt
 Docker is required!
@@ -43,7 +52,7 @@ The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Do a full backup: `edl rf backup.bin`
-- Run `cd base_partitions && ./flash.sh`. The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions. During the execution, the script will halt and ask you to drag the boot and rootfs (system) partitions.
+- Run `./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh`: The script will backup the important partitions specific for your device, will flash everything and will restore de previously saved partitions.
 
 After the succesful flash if you:
 - Want to enter `fastboot`, just insert the device with the button pressed.
@@ -63,10 +72,10 @@ First, extract the contents of `modem.bin` from your firmware dump. You can do `
 
 Once you have selected your region, you'll find folders typically representing Telcos in your area. Navigate through the appropriate folder until you locate `mcfg_sw.mbn`. If your telco is not listed, just grab a generic as it is done in this project for europe:
 ```makefile
-  # packages/qcom-firmware/Makefile
+  # packages/msm8916-firmware/Makefile
   define Build/Compile
       ...
-  		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)/uz801
+  		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)
       ...
   endef
 ```
@@ -81,8 +90,17 @@ Once you have selected your region, you'll find folders typically representing T
   - Also test Shell
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
+<<<<<<< HEAD
 - Generate all `base_partitions` with openwrt builder.
 - Format `rootfs_data` with openwrt first boot!
+=======
+- Investigate `lpac` and eSIM.
+- Convert led `hotplugs` into triggers
+- Reboot to edl/bootloader from linux/luci.
+- Swap? Zram?... expand ram with eMMC?
+- Remove unused feed:
+  - _WARNING: updating and opening https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb: unexpected end of file_
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
@@ -90,7 +108,7 @@ Once you have selected your region, you'll find folders typically representing T
 - @lkiuyu https://github.com/lkiuyu/immortalwrt
   - Almost all the msm8916 folder + patches + openstick feeds.
 - @Mio-sha512 https://github.com/Mio-sha512/OpenStick-Builder
-  - `usb-gadget` and `msm-firmware-loader` idea.
+  - `usb-gadget` and `msm-firmware-loader` idea (now `msm-firmware-dumper`).
 - @AlienWolfX https://github.com/AlienWolfX/UZ801-USB_MODEM/wiki/Troubleshooting
   - For the carriers policy troubleshooting.
 - @gw826943555 and @asvow https://github.com/gw826943555/luci-app-tailscale

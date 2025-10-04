@@ -9,10 +9,6 @@ CONFIG_MODEMMANAGER_WITH_NETIFD=y
 CONFIG_MODEMMANAGER_WITH_QMI=y
 CONFIG_MODEMMANAGER_WITH_QRTR=y
 CONFIG_PACKAGE_cgi-io=y
-CONFIG_PACKAGE_coreutils=y
-CONFIG_PACKAGE_coreutils-dd=y
-CONFIG_PACKAGE_coreutils-shuf=y
-CONFIG_PACKAGE_coreutils-truncate=y
 CONFIG_PACKAGE_dbus=y
 CONFIG_PACKAGE_glib2=y
 CONFIG_PACKAGE_ip-tiny=y
@@ -24,10 +20,8 @@ CONFIG_PACKAGE_kmod-crypto-lib-poly1305=y
 CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-udptunnel4=y
 CONFIG_PACKAGE_kmod-udptunnel6=y
-CONFIG_PACKAGE_kmod-usb-gadget-mass-storage=y
-CONFIG_PACKAGE_kmod-usb-gadget-ncm=y
-CONFIG_PACKAGE_kmod-usb-gadget-serial=y
 CONFIG_PACKAGE_kmod-wireguard=y
+CONFIG_PACKAGE_ledcontrol=y
 CONFIG_PACKAGE_libattr=y
 CONFIG_PACKAGE_libdbus=y
 CONFIG_PACKAGE_libexpat=y
@@ -58,7 +52,10 @@ CONFIG_PACKAGE_luci-proto-ppp=y
 CONFIG_PACKAGE_luci-proto-wireguard=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_modemmanager=y
+<<<<<<< HEAD
 CONFIG_PACKAGE_msm8916-usb-gadget=y
+=======
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5
 CONFIG_PACKAGE_mtools=y
 CONFIG_PACKAGE_nano=y
 CONFIG_PACKAGE_resolveip=y
@@ -76,7 +73,11 @@ CONFIG_PACKAGE_ucode-mod-math=y
 CONFIG_PACKAGE_uhttpd=y
 CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_wireguard-tools=y
+<<<<<<< HEAD
 # Squashfs support
 CONFIG_TARGET_ROOTFS_SQUASHFS=y
 CONFIG_TARGET_ROOTFS_PARTSIZE=128
 # NO desactivar ext4 por si acaso
+=======
+# CONFIG_TARGET_IMAGES_GZIP is not set
+>>>>>>> 45f98463e4625434939d4a5a009d61af2c3e94a5

@@ -1,0 +1,87 @@
+#!/bin/sh
+# LED Control Utility for OpenWrt
+# Usage: ledcontrol <color> <on|off|blink|blink_fast>
+
+set -e
+
+COLOR="$1"
+ACTION="$2"
+
+# LED base path
+LED_BASE="/sys/class/leds"
+
+# Find LED by color
+find_led() {
+    local color="$1"
+    local led_path
+    
+    # Search for LED containing the color in name
+    led_path=$(find "$LED_BASE" -maxdepth 1 -type l -iname "*:${color}:*" 2>/dev/null | head -n 1)
+    
+    if [ -z "$led_path" ]; then
+        # Try without colons
+        led_path=$(find "$LED_BASE" -maxdepth 1 -type l -iname "*${color}*" 2>/dev/null | head -n 1)
+    fi
+    
+    if [ -z "$led_path" ]; then
+        logger -t ledcontrol "LED color '$color' not found"
+        echo "[!] LED color '$color' not found" >&2
+        echo "[*] Available LEDs:" >&2
+        ls -1 "$LED_BASE" | sed 's/^/    /' >&2
+        return 1
+    fi
+    
+    echo "$led_path"
+}
+
+# Set LED state
+set_led() {
+    local led_path="$1"
+    local action="$2"
+    
+    case "$action" in
+        on)
+            echo none > "$led_path/trigger"
+            echo 1 > "$led_path/brightness"
+            ;;
+        off)
+            echo none > "$led_path/trigger"
+            echo 0 > "$led_path/brightness"
+            ;;
+        blink)
+            echo timer > "$led_path/trigger"
+            echo 500 > "$led_path/delay_on"
+            echo 500 > "$led_path/delay_off"
+            ;;
+        blink_fast)
+            echo timer > "$led_path/trigger"
+            echo 100 > "$led_path/delay_on"
+            echo 100 > "$led_path/delay_off"
+            ;;
+        *)
+            logger -t ledcontrol "Invalid action: $action"
+            echo "[!] Invalid action: $action" >&2
+            echo "[*] Valid actions: on, off, blink, blink_fast" >&2
+            return 1
+            ;;
+    esac
+}
+
+# Main
+if [ -z "$COLOR" ] || [ -z "$ACTION" ]; then
+    echo "Usage: ledcontrol <color> <on|off|blink|blink_fast>" >&2
+    echo "" >&2
+    echo "Available LEDs:" >&2
+    ls -1 "$LED_BASE" 2>/dev/null | sed 's/^/  /' >&2
+    exit 1
+fi
+
+LED_PATH=$(find_led "$COLOR") || exit 1
+LED_NAME=$(basename "$LED_PATH")
+
+if set_led "$LED_PATH" "$ACTION"; then
+    logger -t ledcontrol "LED '$LED_NAME' set to '$ACTION'"
+    echo "[+] LED '$COLOR' set to '$ACTION'"
+else
+    exit 1
+fi

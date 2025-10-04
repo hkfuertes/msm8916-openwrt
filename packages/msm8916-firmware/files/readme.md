@@ -1,0 +1,1 @@
+Add here the `modem.bin` and `persist.bin` partitions from your device.
