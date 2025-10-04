@@ -107,6 +107,39 @@ create_storage_image() {
     log "Storage image created successfully (raw format)"
 }
 
+setup_serial_consoles() {
+    if [ "${ENABLE_ACM}" != "1" ]; then
+        return
+    fi
+    
+    # Check if shell is enabled
+    if [ "${ACM_SHELL:-0}" != "1" ]; then
+        log "Serial ports configured as raw TTY (no shell)"
+        return
+    fi
+    
+    log "Configuring serial console shells"
+    
+    # Wait for devices to appear
+    sleep 2
+    
+    acm_count="${ACM_COUNT:-1}"
+    for i in $(seq 0 $((acm_count - 1))); do
+        if [ -c "/dev/ttyGS${i}" ]; then
+            log "Starting console shell on ttyGS${i}"
+            # Check if already in inittab
+            if ! grep -q "ttyGS${i}" /etc/inittab 2>/dev/null; then
+                echo "ttyGS${i}::askfirst:/usr/libexec/login.sh" >> /etc/inittab
+            fi
+        else
+            log "Warning: /dev/ttyGS${i} not found yet"
+        fi
+    done
+    
+    # Reload procd to pick up changes
+    killall -HUP procd 2>/dev/null || true
+}
+
 setup_gadget() {
     log "Setting up USB gadget"
 
@@ -243,6 +276,9 @@ setup_gadget() {
     log "Using UDC: ${udc}"
     echo "${udc}" > UDC || error "Failed to enable UDC"
 
+    # Configure serial console shells (only if ACM_SHELL=1)
+    setup_serial_consoles
+
     # Configure network interfaces via UCI
     setup_network
 }
@@ -305,6 +341,15 @@ teardown_gadget() {
     # Disable gadget
     echo "" > UDC || true
 
+    # Remove serial consoles from inittab (if shell was enabled)
+    if [ "${ENABLE_ACM}" = "1" ] && [ "${ACM_SHELL:-0}" = "1" ]; then
+        acm_count="${ACM_COUNT:-1}"
+        for i in $(seq 0 $((acm_count - 1))); do
+            sed -i "/ttyGS${i}/d" /etc/inittab 2>/dev/null || true
+        done
+        killall -HUP procd 2>/dev/null || true
+    fi
+
     # Remove network interfaces from LAN
     for func in functions/*/ifname; do
         if [ -f "${func}" ]; then
@@ -341,6 +386,24 @@ status() {
         echo "UDC: $(cat ${GADGET_PATH}/UDC)"
         echo "Functions:"
         ls -1 ${GADGET_PATH}/configs/c.1/ 2>/dev/null | grep -v strings
+        
+        # Show serial console status
+        if [ "${ENABLE_ACM}" = "1" ]; then
+            echo ""
+            echo "Serial consoles:"
+            acm_count="${ACM_COUNT:-1}"
+            for i in $(seq 0 $((acm_count - 1))); do
+                if [ -c "/dev/ttyGS${i}" ]; then
+                    if [ "${ACM_SHELL:-0}" = "1" ]; then
+                        echo "  /dev/ttyGS${i} - available (with shell)"
+                    else
+                        echo "  /dev/ttyGS${i} - available (raw TTY)"
+                    fi
+                else
+                    echo "  /dev/ttyGS${i} - not found"
+                fi
+            done
+        fi
         return 0
     else
         echo "USB Gadget is inactive"

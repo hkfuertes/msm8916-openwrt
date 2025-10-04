@@ -5,7 +5,7 @@
 # env var to override the MCFG relative path within modem/persist.
 
 set -e
-DEFAULT_MARKER="/etc/msm-firmware-dumped"
+DEFAULT_MARKER="/lib/firmware/DUMPED"
 DEFAULT_MCFG_PATH="image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default"
 
 MARKER="${MSM_DUMPER_FLAG_FILE:-$DEFAULT_MARKER}"
@@ -66,14 +66,8 @@ umount "$MNT/modem" 2>/dev/null || true
 umount "$MNT/persist" 2>/dev/null || true
 rmdir "$MNT/persist" "$MNT/modem" 2>/dev/null || true
 
-# Enable WIFI
-uci set wireless.@wifi-device[0].disabled='0'
-uci set wireless.@wifi-iface[0].disabled='0'
-uci commit wireless
-
 # Set marker and reboot once
 touch "$MARKER"
-log "done, rebooting"
-( sleep 2; reboot ) &
+log "Dumped!"
 
 exit 0
