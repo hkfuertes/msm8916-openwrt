@@ -12,6 +12,11 @@ define Build/install-flasher
     chmod +x $@
 endef
 
+define Build/generate-firmware
+    chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh
+    $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@
+endef
+
 define Device/msm8916
   SOC := msm8916
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootwait"
@@ -25,9 +30,10 @@ define Device/yiming-uz801v3
   DEVICE_MODEL := uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs rootfs-resizer msm8916-usb-gadget
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
-  ARTIFACTS := gpt_both0.bin flash.sh
-  ARTIFACT/gpt_both0.bin := generate-gpt
+  ARTIFACTS := ext4-gpt_both0.bin flash.sh firmware.zip
+  ARTIFACT/ext4-gpt_both0.bin := generate-gpt
   ARTIFACT/flash.sh := install-flasher
+  ARTIFACT/firmware.zip := generate-firmware
 endef
 TARGET_DEVICES += yiming-uz801v3
 

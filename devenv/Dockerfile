@@ -23,8 +23,8 @@ ENV BRANCH=main
 RUN git clone --depth=1 -b ${BRANCH} https://git.openwrt.org/openwrt/openwrt.git openwrt
 
 # Apply patch inside openwrt directory
-COPY enable_wcn36xx_mac80211.patch openwrt/
-RUN cd openwrt && git apply enable_wcn36xx_mac80211.patch
+COPY enable_wcn36xx_mac80211.patch .
+RUN git apply enable_wcn36xx_mac80211.patch
 
 # Update and install feeds
 RUN cd openwrt && \
