@@ -14,8 +14,8 @@ Modern version of OpenWrt working on UZ801v3:
 - Modem Working
   - ModemManager not showing Rx/Tx in Luci
 - Wifi Working
-- USB gadget working (NCM, RNDIS, MASS, ACM tested!)
-  - No shell attached to ACM, just pure raw Serial (/dev/ttyGS0)
+- USB gadget working (NCM, RNDIS, MASS, ACM Shell)
+  - Edit [/etc/msm8916-usb-gadget.conf](packages/msm8916-usb-gadget/files/msm8916-usb-gadget.conf) to manage modes.
 - TUN installed
 - Wireguard Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
@@ -24,13 +24,10 @@ Modern version of OpenWrt working on UZ801v3:
   - Modem Led: [packages/ledcontrol/files/99-wifi-led](packages/ledcontrol/files/99-wifi-led)
 - Firmware is dumped on first boot from modem/persist partition:
   - Uses the binaries/firmware from the own device.
-    - __This might imply that a port for other devices would be easier... but I have not tested it as I only have this device.___
-- Leaves the `luci-app-tailscale` package in `/root` ready to be installed with: 
-  
-  ```
-    apk add --allow-untrusted /root/luci-app-tailscale*.apk
-  ```
-  > It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
+- Leaves the `luci-app-tailscale` package in `/root` ready to be installed:
+  - It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
+  - `apk add --allow-untrusted /root/luci-app-tailscale*.apk`
+
 
 ### How to build OpenWrt
 Docker is required!
@@ -82,16 +79,12 @@ Once you have selected your region, you'll find folders typically representing T
 3. Reboot the device.
 
 ### Future:
-- ACM gadget not working!
-  - Also test Shell
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
+  - Feed:  `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb` has been removed from distfeeds file.
 - Investigate `lpac` and eSIM.
-- Convert led `hotplugs` into triggers
 - Reboot to edl/bootloader from linux/luci.
 - Swap? Zram?... expand ram with eMMC?
-- Remove unused feed:
-  - _WARNING: updating and opening https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb: unexpected end of file_
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
