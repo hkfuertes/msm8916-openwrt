@@ -85,6 +85,7 @@ Once you have selected your region, you'll find folders typically representing T
 - Investigate `lpac` and eSIM.
 - Reboot to edl/bootloader from linux/luci.
 - Swap? Zram?... expand ram with eMMC?
+- usb-gadget: HOST_MODE flag, to not enter gadget mode.
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
