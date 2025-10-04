@@ -28,7 +28,7 @@ Modern version of OpenWrt working on UZ801v3:
 - Leaves the `luci-app-tailscale` package in `/root` ready to be installed with: 
   
   ```
-    apk install --allow-untrusted /root/luci-app-tailscale*.apk
+    apk add --allow-untrusted /root/luci-app-tailscale*.apk
   ```
   > It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
 
@@ -89,6 +89,8 @@ Once you have selected your region, you'll find folders typically representing T
 - Investigate `lpac` and eSIM.
 - Convert led `hotplugs` into triggers
 - Reboot to edl/bootloader from linux/luci.
+- Remove unused feed:
+  - _WARNING: updating and opening https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb: unexpected end of file_
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
