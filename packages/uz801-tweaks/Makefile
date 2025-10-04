@@ -29,6 +29,9 @@ endef
 define Package/$(PKG_NAME)/install 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
+
+	$(INSTALL_DIR) $(1)/root/
+	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
 endef 
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
