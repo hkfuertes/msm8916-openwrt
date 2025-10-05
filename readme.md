@@ -85,6 +85,8 @@ Once you have selected your region, you'll find folders typically representing T
 - Reboot to edl/bootloader from linux/luci.
 - Swap? Zram?... expand ram with eMMC?
 - usb-gadget: HOST_MODE flag, to not enter gadget mode.
+  - `luci-app-gadget-mode`
+- SquashFS + Firstboot (strikes back!)
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916
