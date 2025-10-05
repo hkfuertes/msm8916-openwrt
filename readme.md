@@ -41,7 +41,6 @@ make -j$(nproc)
 ```
 
 ### How to flash from OEM
-The base partitions are in a folder called `base_partitions` on this repo:
 - Install `edl`: https://github.com/bkerler/edl
 - Put the device in `edl` mode: https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode
 - Do a full backup: `edl rf backup.bin`
