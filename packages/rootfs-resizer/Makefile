@@ -12,7 +12,7 @@ define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Resize rootfs (ext4 only)
-  DEPENDS:=+resize2fs +mount-utils +e2fsprogs +tune2fs
+  DEPENDS:=@TARGET_ROOTFS_EXT4FS +resize2fs +mount-utils +e2fsprogs +tune2fs
 endef
 
 define Package/$(PKG_NAME)/description
