@@ -33,8 +33,9 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl msm-firmware-dumper rmtfs msm8916-usb-gadget \
-                     kmod-fs-squashfs kmod-fs-overlayfs block-mount f2fs-tools e2fsprogs
+  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs msm8916-usb-gadget \
+                     block-mount f2fs-tools e2fsprogs \
+                     msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
   ARTIFACTS := gpt_both0.bin flash.sh firmware.zip rootfs_data.img
   ARTIFACT/gpt_both0.bin := generate-gpt
