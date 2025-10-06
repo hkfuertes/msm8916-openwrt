@@ -19,6 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/firmware-default
   SECTION:=firmware
   CATEGORY:=Firmware
+  DEPENDS:=@TARGET_ROOTFS_SQUASHFS
 endef
 
 define Build/Compile
