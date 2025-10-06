@@ -59,7 +59,6 @@ CONFIG_PACKAGE_mtools=y
 CONFIG_PACKAGE_nano=y
 CONFIG_PACKAGE_resize2fs=y
 CONFIG_PACKAGE_resolveip=y
-CONFIG_PACKAGE_rootfs-resizer=y
 CONFIG_PACKAGE_rpcd=y
 CONFIG_PACKAGE_rpcd-mod-file=y
 CONFIG_PACKAGE_rpcd-mod-iwinfo=y
