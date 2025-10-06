@@ -1,0 +1,51 @@
+#!/bin/sh
+# target/linux/msm89xx/base-files/lib/preinit/79-format-rootfs-data
+# Format rootfs_data if it has no filesystem
+
+ROOTFS_DATA="/dev/mmcblk0p15"
+
+led() { 
+    command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true
+}
+
+has_valid_ext4() {
+    # Check for ext4 magic number at offset 0x438 (1080 decimal)
+    # Ext4 magic is 0xEF53
+    local magic=""
+    magic=$(dd if="$1" bs=1 skip=1080 count=2 2>/dev/null | hexdump -e '1/2 "%04x"')
+    [ "$magic" = "ef53" ]
+}
+
+preinit_format_rootfs_data() {
+    [ -b "$ROOTFS_DATA" ] || return 0
+    
+    echo "Checking filesystem on $ROOTFS_DATA..." > /dev/kmsg
+    
+    # Try multiple checks
+    if has_valid_ext4 "$ROOTFS_DATA"; then
+        echo "Valid ext4 filesystem detected" > /dev/kmsg
+        led green on
+        sleep 1
+        led green off
+        return 0
+    fi
+    
+    # No valid filesystem, format it
+    echo "No valid filesystem, formatting..." > /dev/kmsg
+    led blue blink
+    
+    if mkfs.ext4 -F -L rootfs_data -O ^has_journal "$ROOTFS_DATA" > /dev/null 2>&1; then
+        echo "Format complete" > /dev/kmsg
+        led blue off
+        led green on
+        sleep 2
+        led green off
+    else
+        echo "ERROR: Format failed" > /dev/kmsg
+        led red on
+        sleep 2
+        led red off
+    fi
+}
+
+boot_hook_add preinit_mount_root preinit_format_rootfs_data

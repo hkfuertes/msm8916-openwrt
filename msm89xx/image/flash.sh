@@ -156,7 +156,7 @@ fastboot flash tz    "$firmware_dir/tz.mbn"    || { echo "[-] Error flashing tz"
 echo "[*] Flashing OpenWrt images..."
 fastboot flash boot       "$boot_path"         || { echo "[-] Error flashing boot"; exit 1; }
 fastboot flash rootfs     "$system_path"       || { echo "[-] Error flashing rootfs"; exit 1; }
-fastboot flash rootfs_data "$rootfs_data_path" || { echo "[-] Error flashing rootfs_data"; exit 1; }
+# fastboot flash rootfs_data "$rootfs_data_path" || { echo "[-] Error flashing rootfs_data"; exit 1; }
 
 # Reboot back to EDL to restore radio-cal data partitions.
 echo "[*] Rebooting to EDL mode..."
