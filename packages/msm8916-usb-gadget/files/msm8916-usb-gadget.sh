@@ -2,8 +2,6 @@
 # /etc/msm8916-usb-gadget.sh
 # Main script for MSM8916 USB Gadget
 
-#SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-#CONFIG_FILE="${SCRIPT_DIR}/msm8916-usb-gadget.conf"
 CONFIG_FILE="/etc/msm8916-usb-gadget.conf"
 GADGET_PATH="/sys/kernel/config/usb_gadget/msm8916"
 
@@ -107,41 +105,32 @@ create_storage_image() {
     log "Storage image created successfully (raw format)"
 }
 
-setup_serial_consoles() {
-    if [ "${ENABLE_ACM}" != "1" ]; then
-        return
+manage_serial_shell() {
+    local inittab_line="ttyGS0::askfirst:/usr/libexec/login.sh"
+    
+    # First, always remove any existing ttyGS0 line
+    if grep -q "ttyGS0" /etc/inittab 2>/dev/null; then
+        log "Removing existing ttyGS0 line from inittab"
+        sed -i "/ttyGS0/d" /etc/inittab
     fi
     
-    # Check if shell is enabled
-    if [ "${ACM_SHELL:-0}" != "1" ]; then
-        log "Serial ports configured as raw TTY (no shell)"
-        return
+    # Then add it back only if ACM is enabled AND shell is requested
+    if [ "${ENABLE_ACM}" = "1" ] && [ "${ACM_SHELL:-0}" = "1" ]; then
+        log "Adding serial shell to inittab"
+        echo "${inittab_line}" >> /etc/inittab
     fi
     
-    log "Configuring serial console shells"
-    
-    # Wait for devices to appear
-    sleep 2
-    
-    acm_count="${ACM_COUNT:-1}"
-    for i in $(seq 0 $((acm_count - 1))); do
-        if [ -c "/dev/ttyGS${i}" ]; then
-            log "Starting console shell on ttyGS${i}"
-            # Check if already in inittab
-            if ! grep -q "ttyGS${i}" /etc/inittab 2>/dev/null; then
-                echo "ttyGS${i}::askfirst:/usr/libexec/login.sh" >> /etc/inittab
-            fi
-        else
-            log "Warning: /dev/ttyGS${i} not found yet"
-        fi
-    done
-    
-    # Reload procd to pick up changes
-    killall -HUP procd 2>/dev/null || true
+    # Reload procd to apply changes
+    kill -HUP 1 2>/dev/null
 }
+
 
 setup_gadget() {
     log "Setting up USB gadget"
+
+    # Check and manage serial shell configuration BEFORE setting up gadget
+    # This handles cases where device rebooted with different ACM_SHELL setting
+    manage_serial_shell
 
     # Load required modules
     modprobe libcomposite
@@ -207,18 +196,13 @@ setup_gadget() {
         has_wakeup=1
     fi
 
-    # ACM Serial ports
+    # ACM Serial port (single port)
     if [ "${ENABLE_ACM}" = "1" ]; then
-        log "Enabling ACM serial (${ACM_COUNT:-1} ports)"
+        log "Enabling ACM serial"
+        cfg_str="${cfg_str}+ACM"
 
-        # Create multiple ACM ports if requested
-        acm_count="${ACM_COUNT:-1}"
-        for i in $(seq 0 $((acm_count - 1))); do
-            cfg_str="${cfg_str}+ACM"
-            mkdir -p functions/acm.GS${i}
-            # Link directly to config
-            ln -sf functions/acm.GS${i} "${cfg}"
-        done
+        mkdir -p functions/acm.GS0
+        ln -sf functions/acm.GS0 "${cfg}"
     fi
 
     # ECM
@@ -276,8 +260,19 @@ setup_gadget() {
     log "Using UDC: ${udc}"
     echo "${udc}" > UDC || error "Failed to enable UDC"
 
-    # Configure serial console shells (only if ACM_SHELL=1)
-    setup_serial_consoles
+    # Wait for ttyGS0 to appear if ACM is enabled (to confirm device is ready)
+    if [ "${ENABLE_ACM}" = "1" ]; then
+        log "Waiting for ttyGS0 device..."
+        # Wait for device to appear (max 10 seconds)
+        for i in $(seq 1 10); do
+            [ -c "/dev/ttyGS0" ] && break
+            sleep 1
+        done
+        
+        if [ ! -c "/dev/ttyGS0" ]; then
+            log "Warning: /dev/ttyGS0 not found after waiting"
+        fi
+    fi
 
     # Configure network interfaces via UCI
     setup_network
@@ -293,21 +288,21 @@ setup_network() {
     if [ "${ENABLE_RNDIS}" = "1" ] && [ -f functions/rndis.usb0/ifname ]; then
         rndis_if="$(cat functions/rndis.usb0/ifname)"
         log "Adding ${rndis_if} to LAN"
-        uci del_list network.@device[0].ports="${rndis_if}"
+        uci del_list network.@device[0].ports="${rndis_if}" 2>/dev/null
         uci add_list network.@device[0].ports="${rndis_if}"
     fi
 
     if [ "${ENABLE_ECM}" = "1" ] && [ -f functions/ecm.usb0/ifname ]; then
         ecm_if="$(cat functions/ecm.usb0/ifname)"
         log "Adding ${ecm_if} to LAN"
-        uci del_list network.@device[0].ports="${ecm_if}"
+        uci del_list network.@device[0].ports="${ecm_if}" 2>/dev/null
         uci add_list network.@device[0].ports="${ecm_if}"
     fi
 
     if [ "${ENABLE_NCM}" = "1" ] && [ -f functions/ncm.usb0/ifname ]; then
         ncm_if="$(cat functions/ncm.usb0/ifname)"
         log "Adding ${ncm_if} to LAN"
-        uci del_list network.@device[0].ports="${ncm_if}"
+        uci del_list network.@device[0].ports="${ncm_if}" 2>/dev/null
         uci add_list network.@device[0].ports="${ncm_if}"
     fi
 
@@ -317,6 +312,10 @@ setup_network() {
 
 teardown_gadget() {
     log "Tearing down USB gadget"
+
+    # Check inittab status and clean up if needed BEFORE tearing down
+    # This ensures proper cleanup even if device is being shut down
+    manage_serial_shell
 
     # Check if configfs is mounted
     if ! mountpoint -q /sys/kernel/config; then
@@ -341,20 +340,11 @@ teardown_gadget() {
     # Disable gadget
     echo "" > UDC || true
 
-    # Remove serial consoles from inittab (if shell was enabled)
-    if [ "${ENABLE_ACM}" = "1" ] && [ "${ACM_SHELL:-0}" = "1" ]; then
-        acm_count="${ACM_COUNT:-1}"
-        for i in $(seq 0 $((acm_count - 1))); do
-            sed -i "/ttyGS${i}/d" /etc/inittab 2>/dev/null || true
-        done
-        killall -HUP procd 2>/dev/null || true
-    fi
-
     # Remove network interfaces from LAN
     for func in functions/*/ifname; do
         if [ -f "${func}" ]; then
             iface="$(cat "${func}")"
-            uci del_list network.@device[0].ports="${iface}"
+            uci del_list network.@device[0].ports="${iface}" 2>/dev/null
         fi
     done
 
@@ -390,19 +380,16 @@ status() {
         # Show serial console status
         if [ "${ENABLE_ACM}" = "1" ]; then
             echo ""
-            echo "Serial consoles:"
-            acm_count="${ACM_COUNT:-1}"
-            for i in $(seq 0 $((acm_count - 1))); do
-                if [ -c "/dev/ttyGS${i}" ]; then
-                    if [ "${ACM_SHELL:-0}" = "1" ]; then
-                        echo "  /dev/ttyGS${i} - available (with shell)"
-                    else
-                        echo "  /dev/ttyGS${i} - available (raw TTY)"
-                    fi
+            echo "Serial console:"
+            if [ -c "/dev/ttyGS0" ]; then
+                if [ "${ACM_SHELL:-0}" = "1" ]; then
+                    echo "  /dev/ttyGS0 - available (with shell)"
                 else
-                    echo "  /dev/ttyGS${i} - not found"
+                    echo "  /dev/ttyGS0 - available (raw TTY)"
                 fi
-            done
+            else
+                echo "  /dev/ttyGS0 - not found"
+            fi
         fi
         return 0
     else
