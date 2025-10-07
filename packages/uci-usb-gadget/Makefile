@@ -57,7 +57,7 @@ define Package/$(PKG_NAME)/install
 	
 	# Install init script
 	$(INSTALL_DIR) $(1)/etc/init.d
-	# $(INSTALL_BIN) ./files/usb-gadget.init $(1)/etc/init.d/usb-gadget
+	$(INSTALL_BIN) ./files/usb-gadget.init $(1)/etc/init.d/usb-gadget
 	
 	# Install UCI config
 	$(INSTALL_DIR) $(1)/etc/config
