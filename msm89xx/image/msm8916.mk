@@ -17,11 +17,6 @@ define Build/generate-firmware
   $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@
 endef
 
-define Build/generate-empty-rootfs-data
-  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_rootfs_data.sh
-  $(TOPDIR)/target/linux/$(BOARD)/image/generate_rootfs_data.sh $@
-endef
-
 define Device/msm8916
   SOC := msm8916
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
