@@ -13,7 +13,7 @@ define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=UCI-based USB Gadget Manager for OpenWrt
-	DEPENDS:=@USB_GADGET_SUPPORT +kmod-fs-configfs +kmod-usb-gadget +kmod-usb-lib-composite +kmod-usb-gadget-serial +kmod-usb-gadget-mass-storage +kmod-usb-gadget-ncm +coreutils-truncate +coreutils-shuf +coreutils-dd
+	DEPENDS:=@USB_GADGET_SUPPORT +bash +kmod-fs-configfs +kmod-usb-gadget +kmod-usb-lib-composite +kmod-usb-gadget-serial +kmod-usb-gadget-mass-storage +kmod-usb-gadget-ncm +coreutils-truncate +coreutils-shuf +coreutils-dd
   PKGARCH:=all
 endef
 
@@ -62,9 +62,6 @@ define Package/$(PKG_NAME)/install
 	# Install UCI config
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/usbgadget.config $(1)/etc/config/usbgadget
-	
-	# Create storage directory
-	$(INSTALL_DIR) $(1)/var/lib/usb-gadget
 endef
 
 define Package/$(PKG_NAME)/postinst
