@@ -236,6 +236,13 @@ setup_gadget() {
     
     # Load configuration
     load_config
+
+    # Check if gadget is enabled
+    if [[ "${CFG[enabled]}" != "1" ]]; then
+        log "USB Gadget is disabled in config (usb.enabled=0)"
+        log "USB port available for host mode"
+        return 0
+    fi
     
     log "Gadget name: ${CFG[gadget_name]}"
     log "Gadget path: ${CFG[gadget_path]}"
@@ -382,6 +389,15 @@ teardown_gadget() {
 
 status() {
     load_config
+
+    # Check if globally disabled
+    if [[ "${CFG[enabled]}" != "1" ]]; then
+        echo "USB Gadget: Disabled in configuration"
+        echo "Status: Inactive (host mode available)"
+        echo ""
+        echo "To enable: uci set usbgadget.usb.enabled='1' && uci commit"
+        return 1
+    fi
     
     if [[ -d "${CFG[gadget_path]}" ]] && [[ -s "${CFG[gadget_path]}/UDC" ]]; then
         echo "USB Gadget: ${CFG[gadget_name]}"

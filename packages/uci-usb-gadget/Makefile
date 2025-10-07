@@ -13,7 +13,7 @@ define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=UCI-based USB Gadget Manager for OpenWrt
-  DEPENDS:=@USB_GADGET_SUPPORT +bash +kmod-usb-gadget +kmod-usb-gadget-eth +kmod-usb-configfs
+	DEPENDS:=@USB_GADGET_SUPPORT +kmod-fs-configfs +kmod-usb-gadget +kmod-usb-lib-composite +kmod-usb-gadget-serial +kmod-usb-gadget-mass-storage +kmod-usb-gadget-ncm +coreutils-truncate +coreutils-shuf +coreutils-dd
   PKGARCH:=all
 endef
 
