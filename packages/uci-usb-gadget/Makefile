@@ -12,16 +12,36 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=Universal USB Gadget Manager
+  TITLE:=UCI-based USB Gadget Manager for OpenWrt
   DEPENDS:=@USB_GADGET_SUPPORT +bash +kmod-usb-gadget +kmod-usb-gadget-eth +kmod-usb-configfs
   PKGARCH:=all
 endef
 
 define Package/$(PKG_NAME)/description
-  Universal USB Gadget Manager for OpenWrt using configfs.
-  Supports RNDIS, ECM, NCM, ACM serial, and mass storage functions.
-  Works on any Linux device with USB gadget support (Raspberry Pi, MSM8916, etc).
+  UCI-based USB Gadget Manager for OpenWrt using the kernel configfs interface.
+  
+  Provides easy configuration and management of USB gadget functions through UCI,
+  making OpenWrt devices appear as various USB peripherals when connected to a host.
+  
+  Supported functions:
+   - RNDIS: Windows-compatible USB ethernet (plug-and-play)
+   - ECM: CDC Ethernet for macOS and Linux
+   - NCM: Modern high-performance USB ethernet
+   - ACM: Serial console (with optional login shell)
+   - Mass Storage: Expose storage image as USB drive
+  
+  Features:
+   - Hardware-agnostic: auto-detects UDC controller (works on Raspberry Pi, MSM8916,
+     Orange Pi, and any device with USB gadget support)
+   - Network integration: automatically adds USB ethernet interfaces to LAN bridge
+   - Configurable via UCI: /etc/config/usbgadget
+   - Persistent serial numbers based on machine-id
+   - Deterministic MAC address generation
+  
+  Perfect for creating USB-based network access, serial consoles, or mass storage
+  devices from OpenWrt routers and embedded devices.
 endef
+
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/usbgadget
