@@ -82,6 +82,7 @@ Once you have selected your region, you'll find folders typically representing T
 3. Reboot the device.
 
 ### Future:
+- Recover `msm-firmware-dumper`.
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
   - Feed:  `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb` has been removed from distfeeds file.
