@@ -1,7 +1,6 @@
 #!/bin/bash
-# Universal USB Gadget Manager for Linux
-# Requires: bash, UCI (OpenWrt)
-# Compatible: OpenWrt, Raspberry Pi, any device with USB gadget support
+# Universal USB Gadget Manager for OpenWrt
+# Requires: bash, UCI, USB gadget kernel support
 
 set -e
 
@@ -29,7 +28,7 @@ load_config() {
     config_get CFG[vendor_id] usb vendor_id "0x1d6b"
     config_get CFG[product_id] usb product_id "0x0104"
     config_get CFG[device_version] usb device_version "0x0100"
-    config_get CFG[manufacturer] usb manufacturer "Linux"
+    config_get CFG[manufacturer] usb manufacturer "OpenWrt"
     config_get CFG[product] usb product "USB Gadget"
     config_get CFG[udc_device] usb udc_device ""
     
@@ -97,7 +96,6 @@ find_udc() {
     # - Raspberry Pi (dwc2): 20980000.usb, fe980000.usb, 1000480000.usb
     # - MSM8916 (ci_hdrc): ci_hdrc.0
     # - Orange Pi (musb): musb-hdrc.4.auto
-    # - etc...
     local udc="$(ls /sys/class/udc/ 2>/dev/null | head -1)"
     
     [[ -n "$udc" ]] || error "No UDC device found. Is USB gadget support enabled?"
@@ -166,13 +164,17 @@ setup_acm() {
     mkdir -p "$func"
     ln -sf "$func" "${CFG[config_path]}/"
     
-    # Manage shell (OpenWrt specific)
-    if [[ -f /etc/inittab ]]; then
+    # Manage shell in inittab
+    if [[ "${CFG[acm_shell]}" == "1" ]]; then
+        log "Enabling serial shell on ttyGS0"
         sed -i '/ttyGS0/d' /etc/inittab
-        [[ "${CFG[acm_shell]}" == "1" ]] && \
-            echo "ttyGS0::askfirst:/usr/libexec/login.sh" >> /etc/inittab
-        kill -HUP 1 2>/dev/null || true
+        echo "ttyGS0::askfirst:/usr/libexec/login.sh" >> /etc/inittab
+    else
+        log "ACM in raw TTY mode (removing shell from inittab)"
+        sed -i '/ttyGS0/d' /etc/inittab
     fi
+    
+    kill -HUP 1 2>/dev/null || true
     
     echo "+ACM"
 }
@@ -200,7 +202,7 @@ setup_ums() {
 }
 
 # ============================================================================
-# Network Configuration (OpenWrt specific)
+# Network Configuration
 # ============================================================================
 
 add_to_bridge() {
@@ -215,12 +217,6 @@ add_to_bridge() {
 }
 
 setup_network() {
-    # Skip if not OpenWrt
-    command -v uci &>/dev/null || {
-        log "Not OpenWrt, skipping network configuration"
-        return
-    }
-    
     sleep 1
     
     [[ "${CFG[rndis]}" == "1" ]] && add_to_bridge "${CFG[functions_path]}/rndis.usb0/ifname"
@@ -327,7 +323,7 @@ setup_gadget() {
         [[ ! -c /dev/ttyGS0 ]] && log "Warning: /dev/ttyGS0 not found after 10s"
     fi
     
-    # Configure network (OpenWrt only)
+    # Configure network
     setup_network
     
     log "USB Gadget setup complete"
@@ -349,17 +345,15 @@ teardown_gadget() {
     # Disable gadget
     echo "" > UDC 2>/dev/null || true
     
-    # Remove from network bridge (OpenWrt)
-    if command -v uci &>/dev/null; then
-        for ifname in functions/*/ifname; do
-            [[ -f "$ifname" ]] && {
-                local iface="$(cat "$ifname")"
-                uci -q delete "network.@device[0].ports=$iface" 2>/dev/null || true
-            }
-        done
-        uci commit network
-        /etc/init.d/network reload
-    fi
+    # Remove from network bridge
+    for ifname in functions/*/ifname; do
+        [[ -f "$ifname" ]] && {
+            local iface="$(cat "$ifname")"
+            uci -q delete "network.@device[0].ports=$iface" 2>/dev/null || true
+        }
+    done
+    uci commit network
+    /etc/init.d/network reload
     
     # Remove configuration links
     rm -f configs/c.1/* 2>/dev/null || true
@@ -380,10 +374,8 @@ teardown_gadget() {
     rmdir "${CFG[gadget_name]}" 2>/dev/null || true
     
     # Clean shell from inittab
-    if [[ -f /etc/inittab ]]; then
-        sed -i '/ttyGS0/d' /etc/inittab
-        kill -HUP 1 2>/dev/null || true
-    fi
+    sed -i '/ttyGS0/d' /etc/inittab
+    kill -HUP 1 2>/dev/null || true
     
     log "Teardown complete"
 }
@@ -455,8 +447,8 @@ case "${1:-}" in
     *)
         echo "Usage: $0 {start|stop|restart|status}"
         echo ""
-        echo "Universal USB Gadget Manager"
-        echo "Compatible with any Linux device with USB gadget support"
+        echo "Universal USB Gadget Manager for OpenWrt"
+        echo "Configure via: uci set usbgadget.<option>=<value>"
         exit 1
         ;;
 esac
