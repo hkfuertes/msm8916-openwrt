@@ -11,7 +11,7 @@ define Package/$(PKG_NAME)
 	SECTION:=utils
 	CATEGORY:=Utilities
 	TITLE:=One-shot dump of Qualcomm firmware partitions into /lib/firmware
-	DEPENDS:=@TARGET_ROOTFS_EXT4FS +kmod-fs-vfat +kmod-fs-ext4 +kmod-nls-cp437 +kmod-nls-iso8859-1
+	DEPENDS:=+kmod-fs-vfat +kmod-fs-ext4 +kmod-nls-cp437 +kmod-nls-iso8859-1
 endef
 
 define Build/Configure

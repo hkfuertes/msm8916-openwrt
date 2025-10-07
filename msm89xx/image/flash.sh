@@ -31,15 +31,15 @@ echo
 
 # Detect required OpenWrt images.
 echo "[*] Detecting OpenWrt images..."
-gpt_path=$(find_image "$openwrt_dir" "*-gpt_both0.bin") || exit 1
+gpt_path=$(find_image "$openwrt_dir" "*-squashfs-gpt_both0.bin") || exit 1
 boot_path=$(find_image "$openwrt_dir" "*-squashfs-boot.img") || exit 1
 system_path=$(find_image "$openwrt_dir" "*-squashfs-system.img") || exit 1
-rootfs_data_path=$(find_image "$openwrt_dir" "*-rootfs_data.img") || exit 1
+# rootfs_data_path=$(find_image "$openwrt_dir" "*-rootfs_data.img") || exit 1
 
 echo "[+] GPT: $(basename "$gpt_path")"
 echo "[+] Boot: $(basename "$boot_path")"
 echo "[+] Rootfs: $(basename "$system_path")"
-echo "[+] Rootfs_data: $(basename "$rootfs_data_path")"
+# echo "[+] Rootfs_data: $(basename "$rootfs_data_path")"
 
 # Detect firmware ZIP and extract .mbn files.
 echo

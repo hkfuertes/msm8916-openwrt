@@ -2,9 +2,9 @@
 
 ifeq ($(SUBTARGET),msm8916)
 
-define Build/generate-gpt
-  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_gpt.sh
-  $(TOPDIR)/target/linux/$(BOARD)/image/generate_gpt.sh $@
+define Build/generate-squashfs-gpt
+  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_squahsfs_gpt.sh
+  $(TOPDIR)/target/linux/$(BOARD)/image/generate_squahsfs_gpt.sh $@
 endef
 
 define Build/install-flasher
@@ -34,14 +34,13 @@ define Device/yiming-uz801v3
   DEVICE_MODEL := uz801v3
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs msm8916-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data rootfs-resizer \
-                     msm-firmware-dumper msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
-  ARTIFACTS := gpt_both0.bin flash.sh firmware.zip rootfs_data.img
-  ARTIFACT/gpt_both0.bin := generate-gpt
+  ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
+  ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
   ARTIFACT/flash.sh := install-flasher
   ARTIFACT/firmware.zip := generate-firmware
-  ARTIFACT/rootfs_data.img := generate-empty-rootfs-data
 endef
 TARGET_DEVICES += yiming-uz801v3
 
