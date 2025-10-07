@@ -1,0 +1,182 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "USB Gadget"
+msgstr ""
+
+msgid "USB Gadget Status"
+msgstr ""
+
+msgid "View current USB gadget configuration and status"
+msgstr ""
+
+msgid "USB Gadget Configuration"
+msgstr ""
+
+msgid "Configure USB gadget functions to make OpenWrt appear as various USB devices when connected to a host computer."
+msgstr ""
+
+msgid "Device Settings"
+msgstr ""
+
+msgid "Enable USB Gadget"
+msgstr ""
+
+msgid "Enable USB gadget mode. Disable to use USB port in host mode (for USB storage, etc.)"
+msgstr ""
+
+msgid "Gadget Name"
+msgstr ""
+
+msgid "Internal gadget identifier. Can be any string."
+msgstr ""
+
+msgid "Manufacturer String"
+msgstr ""
+
+msgid "USB manufacturer string shown to the host computer"
+msgstr ""
+
+msgid "Product String"
+msgstr ""
+
+msgid "USB product string shown to the host computer"
+msgstr ""
+
+msgid "Vendor ID"
+msgstr ""
+
+msgid "USB Vendor ID in hexadecimal format (0x1d6b = Linux Foundation)"
+msgstr ""
+
+msgid "Product ID"
+msgstr ""
+
+msgid "USB Product ID in hexadecimal format"
+msgstr ""
+
+msgid "Device Version"
+msgstr ""
+
+msgid "USB device version in BCD format"
+msgstr ""
+
+msgid "UDC Device"
+msgstr ""
+
+msgid "USB Device Controller. Leave empty for auto-detection."
+msgstr ""
+
+msgid "Auto-detect"
+msgstr ""
+
+msgid "USB Functions"
+msgstr ""
+
+msgid "Enable one or more USB functions. Only one network function (RNDIS/ECM/NCM) should be enabled at a time."
+msgstr ""
+
+msgid "Network Functions"
+msgstr ""
+
+msgid "Serial Console"
+msgstr ""
+
+msgid "Mass Storage"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "RNDIS - Windows compatible USB ethernet (plug-and-play on all Windows versions)"
+msgstr ""
+
+msgid "ECM - CDC Ethernet for macOS (≤10.14) and Linux. Do not enable with NCM."
+msgstr ""
+
+msgid "NCM - Modern high-performance USB ethernet for Windows 11+, macOS ≥10.15, Linux. Best performance."
+msgstr ""
+
+msgid "Enable Serial Console"
+msgstr ""
+
+msgid "Enable Login Shell"
+msgstr ""
+
+msgid "Provide login shell on serial console. Disable for raw TTY mode."
+msgstr ""
+
+msgid "Connection Info"
+msgstr ""
+
+msgid "Access via /dev/ttyACM0 on Linux/macOS or COMx on Windows. Use: screen /dev/ttyACM0 115200"
+msgstr ""
+
+msgid "Enable Mass Storage"
+msgstr ""
+
+msgid "Image File Path"
+msgstr ""
+
+msgid "Path to storage image file. Created automatically if it doesn't exist."
+msgstr ""
+
+msgid "Image Size"
+msgstr ""
+
+msgid "Size of image file when created (e.g., 512M, 1G, 2G)"
+msgstr ""
+
+msgid "Read-Only Mode"
+msgstr ""
+
+msgid "Mount storage as read-only on the host"
+msgstr ""
+
+msgid "Gadget Status"
+msgstr ""
+
+msgid "Active (Device Mode)"
+msgstr ""
+
+msgid "Disabled (Host Mode)"
+msgstr ""
+
+msgid "Enabled Functions"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Service Control"
+msgstr ""
+
+msgid "Restart Service"
+msgstr ""
+
+msgid "USB Gadget service restarted"
+msgstr ""
+
+msgid "Failed to restart service: %s"
+msgstr ""
+
+msgid "Detailed Status"
+msgstr ""
+
+msgid "Status Output"
+msgstr ""
+
+msgid "Must be a 4-digit hexadecimal number (e.g., 0x1d6b)"
+msgstr ""
+
+msgid "Must be a 4-digit hexadecimal number (e.g., 0x0104)"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
