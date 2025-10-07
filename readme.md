@@ -22,11 +22,15 @@ Modern version of OpenWrt working on UZ801v3:
   - On default Linux Kernel `dts`, leds are swapped!
   - Wifi Led: [packages/ledcontrol/files/99-modem-led](packages/ledcontrol/files/99-modem-led)
   - Modem Led: [packages/ledcontrol/files/99-wifi-led](packages/ledcontrol/files/99-wifi-led)
-- Firmware is dumped on first boot from modem/persist partition:
-  - Uses the binaries/firmware from the own device.
+- ~~Firmware is dumped on first boot from modem/persist partition:~~
+  - ~~Uses the binaries/firmware from the own device.~~
+  - __*This will return eventually...*__
 - Leaves the `luci-app-tailscale` package in `/root` ready to be installed:
   - It is not auto installed as it will install `tailscale` that is a heavy package and not everyone is using tailscale.
   - `apk add --allow-untrusted /root/luci-app-tailscale*.apk`
+- **SquashFS and OverlayFS**:
+  - The image no longer uses `ext4` for rootfs, instead it uses `squashfs`.
+  - This allows for an overlay `ext4` partition to be used and enables `firstboot` (factory reset) mechanism.
 
 
 ### How to build OpenWrt
@@ -78,6 +82,7 @@ Once you have selected your region, you'll find folders typically representing T
 3. Reboot the device.
 
 ### Future:
+- Recover `msm-firmware-dumper`.
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
   - Feed:  `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb` has been removed from distfeeds file.
@@ -86,7 +91,6 @@ Once you have selected your region, you'll find folders typically representing T
 - Swap? Zram?... expand ram with eMMC?
 - usb-gadget: HOST_MODE flag, to not enter gadget mode.
   - `luci-app-gadget-mode`
-- SquashFS + Firstboot (strikes back!)
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916

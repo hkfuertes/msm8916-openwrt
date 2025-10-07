@@ -20,8 +20,8 @@ find_image() {
     echo "$file"
 }
 
-echo "=== OpenWrt EXT4 Flash Script ==="
-echo "[*] Filesystem: EXT4 (full writable)"
+echo "=== OpenWrt SquashFS Flash Script ==="
+echo "[*] Filesystem: SquashFS"
 echo
 
 # Use current directory for images.
@@ -31,9 +31,9 @@ echo
 
 # Detect required OpenWrt images.
 echo "[*] Detecting OpenWrt images..."
-gpt_path=$(find_image "$openwrt_dir" "*-gpt_both0.bin") || exit 1
-boot_path=$(find_image "$openwrt_dir" "*-ext4-boot.img") || exit 1
-system_path=$(find_image "$openwrt_dir" "*-ext4-system.img") || exit 1
+gpt_path=$(find_image "$openwrt_dir" "*-squashfs-gpt_both0.bin") || exit 1
+boot_path=$(find_image "$openwrt_dir" "*-squashfs-boot.img") || exit 1
+system_path=$(find_image "$openwrt_dir" "*-squashfs-system.img") || exit 1
 
 echo "[+] GPT: $(basename "$gpt_path")"
 echo "[+] Boot: $(basename "$boot_path")"
@@ -152,8 +152,8 @@ fastboot flash sbl1  "$firmware_dir/sbl1.mbn"  || { echo "[-] Error flashing sbl
 fastboot flash tz    "$firmware_dir/tz.mbn"    || { echo "[-] Error flashing tz"; exit 1; }
 
 echo "[*] Flashing OpenWrt images..."
-fastboot flash boot   "$boot_path"   || { echo "[-] Error flashing boot"; exit 1; }
-fastboot flash rootfs "$system_path" || { echo "[-] Error flashing rootfs"; exit 1; }
+fastboot flash boot       "$boot_path"         || { echo "[-] Error flashing boot"; exit 1; }
+fastboot flash rootfs     "$system_path"       || { echo "[-] Error flashing rootfs"; exit 1; }
 
 # Reboot back to EDL to restore radio-cal data partitions.
 echo "[*] Rebooting to EDL mode..."
@@ -173,3 +173,5 @@ done
 
 echo
 echo "[+] Process completed successfully"
+echo "[*] Rebooting device..."
+edl reset || { echo "[-] Error resetting device"; exit 1; }
