@@ -14,8 +14,8 @@ Modern version of OpenWrt working on UZ801v3:
 - Modem Working
   - ModemManager not showing Rx/Tx in Luci
 - Wifi Working
-- USB gadget working (NCM, RNDIS, MASS, ACM Shell)
-  - Edit [/etc/msm8916-usb-gadget.conf](packages/msm8916-usb-gadget/files/msm8916-usb-gadget.conf) to manage modes.
+- USB gadget (NCM, RNDIS, MASS, ACM Shell)
+  - Configure via [uci](packages/uci-usb-gadget/readme.md) or `luci` app.
 - TUN installed
 - Wireguard Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
