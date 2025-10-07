@@ -30,7 +30,7 @@ return view.extend({
 
         o = s.option(form.Flag, 'enabled', _('Enable USB Gadget'));
         o.description = _('Disable to use USB port in host mode.') + '<br>' +
-            '<strong>May disconnect USB. Ensure alternative access.</strong>';
+            '<strong>' + _('Ensure alternative access.') + '</strong>';
         o.rmempty = false;
 
         o = s.option(form.Value, 'gadget_name', _('Gadget Name'));
@@ -159,3 +159,4 @@ return view.extend({
         });
     }
 });
+
