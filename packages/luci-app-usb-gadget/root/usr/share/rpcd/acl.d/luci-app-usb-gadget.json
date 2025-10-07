@@ -26,11 +26,10 @@
                 ]
             },
             "file": {
-                "/etc/config/usbgadget": ["write"]
+                "/etc/config/usbgadget": ["write"],
+                "/etc/init.d/usb-gadget": ["exec"]
             },
             "cgi-io": [
-                "upload",
-                "download",
                 "exec"
             ]
         }

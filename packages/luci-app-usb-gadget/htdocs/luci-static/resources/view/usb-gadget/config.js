@@ -3,6 +3,7 @@
 'require form';
 'require uci';
 'require fs';
+'require ui';
 
 return view.extend({
     load: function() {
@@ -27,8 +28,9 @@ return view.extend({
         s.anonymous = true;
         s.addremove = false;
 
-        o = s.option(form.Flag, 'enabled', _('Enable USB Gadget'),
-            _('Disable to use USB port in host mode'));
+        o = s.option(form.Flag, 'enabled', _('Enable USB Gadget'));
+        o.description = _('Disable to use USB port in host mode.') + '<br>' +
+            '<strong>May disconnect USB. Ensure alternative access.</strong>';
         o.rmempty = false;
 
         o = s.option(form.Value, 'gadget_name', _('Gadget Name'));
@@ -71,14 +73,9 @@ return view.extend({
             _('RNDIS (Windows Ethernet)'),
             _('Windows-compatible USB ethernet. Works on all Windows versions.'));
 
-        o = s.option(form.Flag, 'enabled', _('Enable RNDIS'));
+        o = s.option(form.Flag, 'enabled', _('Enable RNDIS'),
+            _('Plug-and-play on Windows. Automatically adds to LAN bridge.'));
         o.rmempty = false;
-
-        o = s.option(form.DummyValue, '_desc', _('Description'));
-        o.rawhtml = true;
-        o.cfgvalue = function() {
-            return _('Plug-and-play on Windows. Automatically adds to LAN bridge.');
-        };
 
         // =================================================================
         // ECM
@@ -87,14 +84,9 @@ return view.extend({
             _('ECM (macOS/Linux Ethernet)'),
             _('For macOS ≤10.14 and Linux. Do not enable with NCM.'));
 
-        o = s.option(form.Flag, 'enabled', _('Enable ECM'));
+        o = s.option(form.Flag, 'enabled', _('Enable ECM'),
+            _('CDC Ethernet for macOS and Linux. Disable RNDIS when using.'));
         o.rmempty = false;
-
-        o = s.option(form.DummyValue, '_desc', _('Description'));
-        o.rawhtml = true;
-        o.cfgvalue = function() {
-            return _('CDC Ethernet for macOS and Linux. Disable RNDIS when using.');
-        };
 
         // =================================================================
         // NCM
@@ -103,14 +95,9 @@ return view.extend({
             _('NCM (Modern Ethernet)'),
             _('Best performance. For Windows 11+, macOS ≥10.15, Linux.'));
 
-        o = s.option(form.Flag, 'enabled', _('Enable NCM'));
+        o = s.option(form.Flag, 'enabled', _('Enable NCM'),
+            _('Modern high-speed USB ethernet. Best choice for new systems.'));
         o.rmempty = false;
-
-        o = s.option(form.DummyValue, '_desc', _('Description'));
-        o.rawhtml = true;
-        o.cfgvalue = function() {
-            return _('Modern high-speed USB ethernet. Best choice for new systems.');
-        };
 
         // =================================================================
         // ACM Serial
@@ -138,7 +125,7 @@ return view.extend({
         // =================================================================
         s = m.section(form.NamedSection, 'ums', 'function', 
             _('Mass Storage'),
-            _('Expose storage image as USB drive.'));
+            _('Expose storage image as USB drive. Does not provide access to the device.'));
 
         o = s.option(form.Flag, 'enabled', _('Enable Mass Storage'));
         o.rmempty = false;
@@ -161,7 +148,14 @@ return view.extend({
 
     handleSaveApply: function(ev, mode) {
         return this.super('handleSaveApply', [ev, mode]).then(function() {
-            return fs.exec('/etc/init.d/usb-gadget', ['restart']);
+            ui.addNotification(null, 
+                E('p', _('Configuration saved. Restarting USB Gadget service...')), 
+                'info');
+            return fs.exec('/etc/init.d/usb-gadget', ['restart']).then(function() {
+                ui.addNotification(null, 
+                    E('p', _('USB Gadget service restarted successfully')), 
+                    'info');
+            });
         });
     }
 });

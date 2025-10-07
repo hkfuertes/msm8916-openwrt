@@ -4,19 +4,20 @@
 'require ui';
 'require uci';
 'require poll';
+'require network';
 
 return view.extend({
     load: function() {
         return Promise.all([
             uci.load('usbgadget'),
-            L.resolveDefault(fs.exec('/etc/init.d/usb-gadget', ['status']), null),
-            L.resolveDefault(fs.list('/sys/class/udc'), [])
+            L.resolveDefault(fs.list('/sys/class/udc'), []),
+            network.getDevices()
         ]);
     },
 
     render: function(data) {
-        var status_result = data[1];
-        var udc_devices = data[2];
+        var udc_devices = data[1];
+        var net_devices = data[2];
         
         var enabled = uci.get('usbgadget', 'usb', 'enabled');
         var gadget_name = uci.get('usbgadget', 'usb', 'gadget_name') || 'g1';
@@ -28,6 +29,21 @@ return view.extend({
             if (uci.get('usbgadget', func, 'enabled') == '1') {
                 var desc = uci.get('usbgadget', func, 'description') || func.toUpperCase();
                 functions.push(desc);
+            }
+        });
+
+        // Buscar interfaces USB y crear elementos con puntitos de colores
+        var usb_interface_elements = [];
+        net_devices.forEach(function(dev) {
+            var name = dev.getName();
+            if (name && name.match(/^usb\d+$/)) {
+                var isUp = dev.isUp();
+                usb_interface_elements.push(
+                    E('span', { 'style': 'margin-right: 10px;' }, [
+                        E('span', { 'style': 'color:' + (isUp ? 'green' : 'red') }, '● '),
+                        name
+                    ])
+                );
             }
         });
 
@@ -61,9 +77,17 @@ return view.extend({
 
         // Añadir fila UDC solo si hay dispositivos
         if (udc_devices.length > 0) {
-            tableRows.splice(3, 0, E('tr', { 'class': 'tr' }, [
+            tableRows.push(E('tr', { 'class': 'tr' }, [
                 E('td', { 'class': 'td left' }, E('strong', {}, _('USB Controller'))),
                 E('td', { 'class': 'td left' }, udc_devices.map(function(d) { return d.name; }).join(', '))
+            ]));
+        }
+
+        // Añadir interfaces de red USB con puntitos
+        if (usb_interface_elements.length > 0) {
+            tableRows.push(E('tr', { 'class': 'tr' }, [
+                E('td', { 'class': 'td left' }, E('strong', {}, _('Network Interfaces'))),
+                E('td', { 'class': 'td left', 'id': 'usb_interfaces' }, usb_interface_elements)
             ]));
         }
 
@@ -77,11 +101,11 @@ return view.extend({
                 E('table', { 'class': 'table' }, tableRows)
             ]),
             
+            // Botón alineado a la derecha
             E('div', { 'class': 'cbi-section' }, [
                 E('div', { 'class': 'cbi-section-node' }, [
                     E('div', { 'class': 'cbi-value' }, [
-                        E('label', { 'class': 'cbi-value-title' }, _('Service Control')),
-                        E('div', { 'class': 'cbi-value-field' }, [
+                        E('div', { 'class': 'cbi-value-field', 'style': 'text-align: right;' }, [
                             E('button', {
                                 'class': 'cbi-button cbi-button-apply',
                                 'click': function() {
@@ -110,23 +134,14 @@ return view.extend({
             ])
         ];
 
-        // Añadir output detallado solo si existe
-        if (status_result && status_result.stdout) {
-            viewElements.push(
-                E('div', { 'class': 'cbi-section' }, [
-                    E('h3', {}, _('Detailed Output')),
-                    E('pre', { 
-                        'style': 'background:#f9f9f9; padding:10px; overflow:auto; max-height:400px; border:1px solid #ddd'
-                    }, status_result.stdout)
-                ])
-            );
-        }
-
         var view = E('div', { 'class': 'cbi-map' }, viewElements);
 
         // Polling cada 5 segundos
         poll.add(function() {
-            return uci.load('usbgadget').then(function() {
+            return Promise.all([
+                uci.load('usbgadget'),
+                network.getDevices()
+            ]).then(function(pollData) {
                 var newEnabled = uci.get('usbgadget', 'usb', 'enabled');
                 var statusEl = document.getElementById('status_value');
                 if (statusEl) {
@@ -136,6 +151,34 @@ return view.extend({
                             E('span', { 'style': 'color:green' }, '● ' + _('Active (Device Mode)')) :
                             E('span', { 'style': 'color:red' }, '● ' + _('Disabled (Host Mode)'))
                     );
+                }
+
+                // Actualizar interfaces USB con puntitos
+                var ifacesEl = document.getElementById('usb_interfaces');
+                if (ifacesEl) {
+                    var newDevices = pollData[1];
+                    var newUsbElements = [];
+                    newDevices.forEach(function(dev) {
+                        var name = dev.getName();
+                        if (name && name.match(/^usb\d+$/)) {
+                            var isUp = dev.isUp();
+                            newUsbElements.push(
+                                E('span', { 'style': 'margin-right: 10px;' }, [
+                                    E('span', { 'style': 'color:' + (isUp ? 'green' : 'red') }, '● '),
+                                    name
+                                ])
+                            );
+                        }
+                    });
+                    
+                    ifacesEl.innerHTML = '';
+                    if (newUsbElements.length > 0) {
+                        newUsbElements.forEach(function(el) {
+                            ifacesEl.appendChild(el);
+                        });
+                    } else {
+                        ifacesEl.appendChild(E('em', {}, _('None')));
+                    }
                 }
             });
         }, 5);
