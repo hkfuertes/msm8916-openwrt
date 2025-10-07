@@ -1,0 +1,216 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: es\n"
+"Language-Team: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Accept DNS"
+msgstr "Aceptar DNS"
+
+msgid "Accept DNS configuration from the Tailscale admin console."
+msgstr "Aceptar configuración DNS desde la consola de administración de Tailscale."
+
+msgid "Accept Routes"
+msgstr "Aceptar Rutas"
+
+msgid "Accept subnet routes that other nodes advertise."
+msgstr "Aceptar rutas de subred que anuncian otros nodos."
+
+msgid "Access Control"
+msgstr "Control de Acceso"
+
+msgid "Additional Flags"
+msgstr "Flags Adicionales"
+
+msgid "Advanced Settings"
+msgstr "Configuración Avanzada"
+
+msgid "Are you sure you want to log out and unbind the current device?"
+msgstr "¿Estás seguro de que quieres cerrar sesión y desvincular el dispositivo actual?"
+
+msgid "Auth Key"
+msgstr "Clave de Autenticación"
+
+msgid "Available flags"
+msgstr "Flags disponibles"
+
+msgid "Basic Settings"
+msgstr "Configuración Básica"
+
+msgid "Collecting data ..."
+msgstr "Recopilando datos..."
+
+msgid "Custom Server Settings"
+msgstr "Configuración de Servidor Personalizado"
+
+msgid "Device Name"
+msgstr "Nombre del Dispositivo"
+
+msgid "Enable"
+msgstr "Habilitar"
+
+msgid "Error parsing interface info: %s."
+msgstr "Error al analizar información de interfaz: %s."
+
+msgid "Exit Node"
+msgstr "Nodo de Salida"
+
+msgid "Expose Subnets"
+msgstr "Exponer Subredes"
+
+msgid "Expose physical network routes into Tailscale, e.g. <code>10.0.0.0/24</code>."
+msgstr "Exponer rutas de red física en Tailscale, ej. <code>10.0.0.0/24</code>."
+
+msgid "Extra Settings"
+msgstr "Configuración Extra"
+
+msgid "Firewall Mode"
+msgstr "Modo Firewall"
+
+msgid "Global Settings"
+msgstr "Configuración Global"
+
+msgid "Grant access to Tailscale configuration"
+msgstr "Conceder acceso a la configuración de Tailscale"
+
+msgid "IPv4 Address"
+msgstr "Dirección IPv4"
+
+msgid "IPv6 Address"
+msgstr "Dirección IPv6"
+
+msgid "Interface Info"
+msgstr "Información de Interfaz"
+
+msgid "Interface Name"
+msgstr "Nombre de Interfaz"
+
+msgid "LAN access Tailscale"
+msgstr "LAN accede a Tailscale"
+
+msgid "Leave blank to use the device's hostname."
+msgstr "Deja en blanco para usar el nombre del dispositivo."
+
+msgid "List of extra flags. Format: --flags=value, e.g. <code>--exit-node=10.0.0.1</code>. <br> %s for enabling settings upon the initiation of Tailscale."
+msgstr "Lista de flags extra. Formato: --flags=valor, ej. <code>--exit-node=10.0.0.1</code>. <br> %s para habilitar ajustes al iniciar Tailscale."
+
+msgid "Log out and Unbind"
+msgstr "Cerrar Sesión y Desvincular"
+
+msgid "Logging program activities."
+msgstr "Registrando actividades del programa."
+
+msgid "Logging program errors and exceptions."
+msgstr "Registrando errores y excepciones del programa."
+
+msgid "Login Status"
+msgstr "Estado de Sesión"
+
+msgid "Logs"
+msgstr "Registros"
+
+msgid "MTU"
+msgstr "MTU"
+
+msgid "NOT RUNNING"
+msgstr "NO EJECUTÁNDOSE"
+
+msgid "Need to log in"
+msgstr "Necesita iniciar sesión"
+
+msgid "Network Interface Information"
+msgstr "Información de Interfaz de Red"
+
+msgid "No Available Exit Nodes"
+msgstr "No hay Nodos de Salida Disponibles"
+
+msgid "No Available Subnet Routes"
+msgstr "No hay Rutas de Subred Disponibles"
+
+msgid "No interface online."
+msgstr "Ninguna interfaz en línea."
+
+msgid "Offer to be an exit node for outbound internet traffic from the Tailscale network."
+msgstr "Ofrecer ser un nodo de salida para tráfico de internet saliente de la red Tailscale."
+
+msgid "Online Exit Nodes"
+msgstr "Nodos de Salida en Línea"
+
+msgid "Port"
+msgstr "Puerto"
+
+msgid "RUNNING"
+msgstr "EJECUTÁNDOSE"
+
+msgctxt "scroll to top (the head) of the log file"
+msgid "Scroll to head"
+msgstr "Ir al inicio"
+
+msgctxt "scroll to bottom (the tail) of the log file"
+msgid "Scroll to tail"
+msgstr "Ir al final"
+
+msgid "Select an online machine name to use as an exit node."
+msgstr "Selecciona un nombre de máquina en línea para usar como nodo de salida."
+
+msgid "Select subnet routes advertised by other nodes in Tailscale network."
+msgstr "Selecciona rutas de subred anunciadas por otros nodos en la red Tailscale."
+
+msgid "Server Address"
+msgstr "Dirección del Servidor"
+
+msgid "Set the Tailscale port number."
+msgstr "Establece el número de puerto de Tailscale."
+
+msgid "Site To Site"
+msgstr "Sitio a Sitio"
+
+msgid "StdErr Log"
+msgstr "Registro StdErr"
+
+msgid "StdOut Log"
+msgstr "Registro StdOut"
+
+msgid "Subnet Routes"
+msgstr "Rutas de Subred"
+
+msgid "Tailscale"
+msgstr "Tailscale"
+
+msgid "Tailscale access LAN"
+msgstr "Tailscale accede a LAN"
+
+msgid "Tailscale access WAN"
+msgstr "Tailscale accede a WAN"
+
+msgid "Tailscale is a cross-platform and easy to use virtual LAN."
+msgstr "Tailscale es una LAN virtual multiplataforma y fácil de usar."
+
+msgid "The working directory contains config files, audit logs, and runtime info."
+msgstr "El directorio de trabajo contiene archivos de configuración, registros de auditoría e información de ejecución."
+
+msgid "Total Download"
+msgstr "Descarga Total"
+
+msgid "Total Upload"
+msgstr "Subida Total"
+
+msgid "Unable to get interface info: %s."
+msgstr "No se puede obtener información de interfaz: %s."
+
+msgid "Unable to load log data:"
+msgstr "No se pueden cargar datos de registro:"
+
+msgid "Use %s to deploy a private server."
+msgstr "Usa %s para desplegar un servidor privado."
+
+msgid "Use site-to-site layer 3 networking to connect subnets on the Tailscale network."
+msgstr "Usa redes capa 3 sitio a sitio para conectar subredes en la red Tailscale."
+
+msgid "WAN access Tailscale"
+msgstr "WAN accede a Tailscale"
+
+msgid "Workdir"
+msgstr "Directorio de Trabajo"
