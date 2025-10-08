@@ -1,0 +1,40 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2025 OpenWrt.org
+
+START=99
+STOP=10
+
+USE_PROCD=1
+
+PROG=/usr/sbin/usb-gadget
+
+start_service() {
+	# Check if USB gadget support is available
+	[ -d /sys/kernel/config ] || {
+		logger -t usb-gadget "ERROR: configfs not available"
+		return 1
+	}
+	
+	# Run setup
+	$PROG start
+}
+
+stop_service() {
+	$PROG stop
+}
+
+restart() {
+	$PROG restart
+}
+
+status_service() {
+	$PROG status
+}
+
+service_triggers() {
+	procd_add_reload_trigger "usbgadget"
+}
+
+reload_service() {
+	restart
+}

@@ -1,0 +1,37 @@
+{
+    "luci-app-usb-gadget": {
+        "description": "Grant access to USB Gadget configuration",
+        "read": {
+            "uci": [
+                "usbgadget"
+            ],
+            "ubus": {
+                "service": [
+                    "list"
+                ]
+            },
+            "file": {
+                "/etc/config/usbgadget": ["read"],
+                "/sys/class/udc/*": ["list", "read"],
+                "/sys/kernel/config/usb_gadget/*": ["list", "read"]
+            }
+        },
+        "write": {
+            "uci": [
+                "usbgadget"
+            ],
+            "ubus": {
+                "service": [
+                    "list"
+                ]
+            },
+            "file": {
+                "/etc/config/usbgadget": ["write"],
+                "/etc/init.d/usb-gadget": ["exec"]
+            },
+            "cgi-io": [
+                "exec"
+            ]
+        }
+    }
+}

@@ -14,8 +14,8 @@ Modern version of OpenWrt working on UZ801v3:
 - Modem Working
   - ModemManager not showing Rx/Tx in Luci
 - Wifi Working
-- USB gadget working (NCM, RNDIS, MASS, ACM Shell)
-  - Edit [/etc/msm8916-usb-gadget.conf](packages/msm8916-usb-gadget/files/msm8916-usb-gadget.conf) to manage modes.
+- USB gadget (NCM, RNDIS, MASS, ACM Shell)
+  - Configure via [uci](packages/uci-usb-gadget/readme.md) or `luci` app.
 - TUN installed
 - Wireguard Installed
 - `hotplug.d` scripts to manage leds, only on/off if iface, no blinking:
@@ -83,14 +83,13 @@ Once you have selected your region, you'll find folders typically representing T
 
 ### Future:
 - Recover `msm-firmware-dumper`.
+- Clean up overview page (`eth0` does not need to be there...)
 - Custom package server for msm89xx/msm8916
   - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
   - Feed:  `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb` has been removed from distfeeds file.
 - Investigate `lpac` and eSIM.
 - Reboot to edl/bootloader from linux/luci.
 - Swap? Zram?... expand ram with eMMC?
-- usb-gadget: HOST_MODE flag, to not enter gadget mode.
-  - `luci-app-gadget-mode`
 
 ## Credits
 - @ghosthgy https://github.com/ghosthgy/openwrt-msm8916

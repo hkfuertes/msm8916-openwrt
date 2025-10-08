@@ -1,0 +1,181 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: es\n"
+"Language-Team: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# config.js
+msgid "USB Gadget Configuration"
+msgstr "Configuración USB Gadget"
+
+msgid "Configure USB gadget functions. Changes take effect after saving and restarting the service."
+msgstr "Configura las funciones USB gadget. Los cambios tienen efecto tras guardar y reiniciar el servicio."
+
+msgid "Device Settings"
+msgstr "Configuración del Dispositivo"
+
+msgid "Enable USB Gadget"
+msgstr "Habilitar USB Gadget"
+
+msgid "Disable to use USB port in host mode."
+msgstr "Deshabilita para usar el puerto USB en modo host."
+
+msgid "Ensure alternative access."
+msgstr "Asegura acceso alternativo."
+
+msgid "Gadget Name"
+msgstr "Nombre del Gadget"
+
+msgid "Manufacturer"
+msgstr "Fabricante"
+
+msgid "Product"
+msgstr "Producto"
+
+msgid "Vendor ID"
+msgstr "ID del Proveedor"
+
+msgid "Must be hex format: 0x1234"
+msgstr "Debe estar en formato hexadecimal: 0x1234"
+
+msgid "Product ID"
+msgstr "ID del Producto"
+
+msgid "UDC Device"
+msgstr "Dispositivo UDC"
+
+msgid "Auto-detect"
+msgstr "Auto-detectar"
+
+msgid "RNDIS (Windows Ethernet)"
+msgstr "RNDIS (Ethernet Windows)"
+
+msgid "Windows-compatible USB ethernet. Works on all Windows versions."
+msgstr "Ethernet USB compatible con Windows. Funciona en todas las versiones de Windows."
+
+msgid "Enable RNDIS"
+msgstr "Habilitar RNDIS"
+
+msgid "Plug-and-play on Windows. Automatically adds to LAN bridge."
+msgstr "Plug-and-play en Windows. Se añade automáticamente al puente LAN."
+
+msgid "ECM (macOS/Linux Ethernet)"
+msgstr "ECM (Ethernet macOS/Linux)"
+
+msgid "For macOS ≤10.14 and Linux. Do not enable with NCM."
+msgstr "Para macOS ≤10.14 y Linux. No habilitar con NCM."
+
+msgid "Enable ECM"
+msgstr "Habilitar ECM"
+
+msgid "CDC Ethernet for macOS and Linux. Disable RNDIS when using."
+msgstr "CDC Ethernet para macOS y Linux. Deshabilita RNDIS al usar."
+
+msgid "NCM (Modern Ethernet)"
+msgstr "NCM (Ethernet Moderno)"
+
+msgid "Best performance. For Windows 11+, macOS ≥10.15, Linux."
+msgstr "Mejor rendimiento. Para Windows 11+, macOS ≥10.15, Linux."
+
+msgid "Enable NCM"
+msgstr "Habilitar NCM"
+
+msgid "Modern high-speed USB ethernet. Best choice for new systems."
+msgstr "Ethernet USB moderno de alta velocidad. Mejor opción para sistemas nuevos."
+
+msgid "ACM (Serial Console)"
+msgstr "ACM (Consola Serie)"
+
+msgid "Provides /dev/ttyACM0 on host. Access: screen /dev/ttyACM0 115200"
+msgstr "Proporciona /dev/ttyACM0 en el host. Acceso: screen /dev/ttyACM0 115200"
+
+msgid "Enable Serial Console"
+msgstr "Habilitar Consola Serie"
+
+msgid "Enable Login Shell"
+msgstr "Habilitar Shell de Login"
+
+msgid "Provide shell access. Disable for raw TTY."
+msgstr "Proporciona acceso shell. Deshabilita para TTY sin procesar."
+
+msgid "Connection Info"
+msgstr "Información de Conexión"
+
+msgid "Mass Storage"
+msgstr "Almacenamiento Masivo"
+
+msgid "Expose storage image as USB drive. Does not provide access to the device."
+msgstr "Expone imagen de almacenamiento como unidad USB. No proporciona acceso al dispositivo."
+
+msgid "Enable Mass Storage"
+msgstr "Habilitar Almacenamiento Masivo"
+
+msgid "Image Path"
+msgstr "Ruta de la Imagen"
+
+msgid "File will be created automatically if it doesn't exist."
+msgstr "El archivo se creará automáticamente si no existe."
+
+msgid "Image Size"
+msgstr "Tamaño de la Imagen"
+
+msgid "Used when creating (e.g., 512M, 1G, 2G)"
+msgstr "Se usa al crear (ej., 512M, 1G, 2G)"
+
+msgid "Read-Only"
+msgstr "Solo Lectura"
+
+msgid "Mount as read-only on the host computer"
+msgstr "Montar como solo lectura en el ordenador host"
+
+msgid "Configuration saved. Restarting USB Gadget service..."
+msgstr "Configuración guardada. Reiniciando servicio USB Gadget..."
+
+msgid "USB Gadget service restarted successfully"
+msgstr "Servicio USB Gadget reiniciado exitosamente"
+
+# overview.js
+msgid "Gadget Status"
+msgstr "Estado del Gadget"
+
+msgid "Active (Device Mode)"
+msgstr "Activo (Modo Dispositivo)"
+
+msgid "Disabled (Host Mode)"
+msgstr "Deshabilitado (Modo Host)"
+
+msgid "Enabled Functions"
+msgstr "Funciones Habilitadas"
+
+msgid "None"
+msgstr "Ninguna"
+
+msgid "USB Controller"
+msgstr "Controlador USB"
+
+msgid "Network Interfaces"
+msgstr "Interfaces de Red"
+
+msgid "USB Gadget Status"
+msgstr "Estado USB Gadget"
+
+msgid "View current USB gadget configuration and status"
+msgstr "Ver configuración y estado actual del USB gadget"
+
+msgid "Current Status"
+msgstr "Estado Actual"
+
+msgid "Restarting service..."
+msgstr "Reiniciando servicio..."
+
+msgid "Please wait..."
+msgstr "Por favor espera..."
+
+msgid "Failed to restart: %s"
+msgstr "Error al reiniciar: %s"
+
+msgid "Restart Service"
+msgstr "Reiniciar Servicio"

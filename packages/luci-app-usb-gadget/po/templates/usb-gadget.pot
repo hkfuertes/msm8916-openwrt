@@ -1,0 +1,175 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+# config.js
+msgid "USB Gadget Configuration"
+msgstr ""
+
+msgid "Configure USB gadget functions. Changes take effect after saving and restarting the service."
+msgstr ""
+
+msgid "Device Settings"
+msgstr ""
+
+msgid "Enable USB Gadget"
+msgstr ""
+
+msgid "Disable to use USB port in host mode."
+msgstr ""
+
+msgid "Ensure alternative access."
+msgstr ""
+
+msgid "Gadget Name"
+msgstr ""
+
+msgid "Manufacturer"
+msgstr ""
+
+msgid "Product"
+msgstr ""
+
+msgid "Vendor ID"
+msgstr ""
+
+msgid "Must be hex format: 0x1234"
+msgstr ""
+
+msgid "Product ID"
+msgstr ""
+
+msgid "UDC Device"
+msgstr ""
+
+msgid "Auto-detect"
+msgstr ""
+
+msgid "RNDIS (Windows Ethernet)"
+msgstr ""
+
+msgid "Windows-compatible USB ethernet. Works on all Windows versions."
+msgstr ""
+
+msgid "Enable RNDIS"
+msgstr ""
+
+msgid "Plug-and-play on Windows. Automatically adds to LAN bridge."
+msgstr ""
+
+msgid "ECM (macOS/Linux Ethernet)"
+msgstr ""
+
+msgid "For macOS ≤10.14 and Linux. Do not enable with NCM."
+msgstr ""
+
+msgid "Enable ECM"
+msgstr ""
+
+msgid "CDC Ethernet for macOS and Linux. Disable RNDIS when using."
+msgstr ""
+
+msgid "NCM (Modern Ethernet)"
+msgstr ""
+
+msgid "Best performance. For Windows 11+, macOS ≥10.15, Linux."
+msgstr ""
+
+msgid "Enable NCM"
+msgstr ""
+
+msgid "Modern high-speed USB ethernet. Best choice for new systems."
+msgstr ""
+
+msgid "ACM (Serial Console)"
+msgstr ""
+
+msgid "Provides /dev/ttyACM0 on host. Access: screen /dev/ttyACM0 115200"
+msgstr ""
+
+msgid "Enable Serial Console"
+msgstr ""
+
+msgid "Enable Login Shell"
+msgstr ""
+
+msgid "Provide shell access. Disable for raw TTY."
+msgstr ""
+
+msgid "Connection Info"
+msgstr ""
+
+msgid "Mass Storage"
+msgstr ""
+
+msgid "Expose storage image as USB drive. Does not provide access to the device."
+msgstr ""
+
+msgid "Enable Mass Storage"
+msgstr ""
+
+msgid "Image Path"
+msgstr ""
+
+msgid "File will be created automatically if it doesn't exist."
+msgstr ""
+
+msgid "Image Size"
+msgstr ""
+
+msgid "Used when creating (e.g., 512M, 1G, 2G)"
+msgstr ""
+
+msgid "Read-Only"
+msgstr ""
+
+msgid "Mount as read-only on the host computer"
+msgstr ""
+
+msgid "Configuration saved. Restarting USB Gadget service..."
+msgstr ""
+
+msgid "USB Gadget service restarted successfully"
+msgstr ""
+
+# overview.js
+msgid "Gadget Status"
+msgstr ""
+
+msgid "Active (Device Mode)"
+msgstr ""
+
+msgid "Disabled (Host Mode)"
+msgstr ""
+
+msgid "Enabled Functions"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "USB Controller"
+msgstr ""
+
+msgid "Network Interfaces"
+msgstr ""
+
+msgid "USB Gadget Status"
+msgstr ""
+
+msgid "View current USB gadget configuration and status"
+msgstr ""
+
+msgid "Current Status"
+msgstr ""
+
+msgid "Restarting service..."
+msgstr ""
+
+msgid "Please wait..."
+msgstr ""
+
+msgid "Failed to restart: %s"
+msgstr ""
+
+msgid "Restart Service"
+msgstr ""

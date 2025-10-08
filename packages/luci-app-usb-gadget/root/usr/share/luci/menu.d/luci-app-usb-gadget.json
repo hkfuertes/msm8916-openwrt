@@ -1,0 +1,28 @@
+{
+    "admin/services/usb-gadget": {
+        "title": "USB Gadget",
+        "order": 60,
+        "action": {
+            "type": "firstchild"
+        },
+        "depends": {
+            "acl": ["luci-app-usb-gadget"]
+        }
+    },
+    "admin/services/usb-gadget/overview": {
+        "title": "Overview",
+        "order": 1,
+        "action": {
+            "type": "view",
+            "path": "usb-gadget/overview"
+        }
+    },
+    "admin/services/usb-gadget/config": {
+        "title": "Configuration",
+        "order": 2,
+        "action": {
+            "type": "view",
+            "path": "usb-gadget/config"
+        }
+    }
+}
