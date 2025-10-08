@@ -30,7 +30,8 @@ define Device/yiming-uz801v3
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
+                     msm-firmware-dumper
+                     # msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
   IMAGE/system.img := append-rootfs | append-metadata | sparse-img
   ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
   ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
