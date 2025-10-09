@@ -26,8 +26,10 @@ define Build/Compile
 	mcopy -i ./files/modem.bin -p -m -n -v \
 		::image/mba.mbn ::image/modem.* ::image/wcnss.* \
 		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)
-	debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin" ./files/uz801/persist.bin
-	debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/sp9070_WCNSS_qcom_wlan_nv.bin" ./files/sp9070/persist.bin
+	# debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin" ./files/uz801/persist.bin
+	# debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/sp9070_WCNSS_qcom_wlan_nv.bin" ./files/sp9070/persist.bin
+	cp ./files/uz801/WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin
+	cp ./files/sp9070/WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/sp9070_WCNSS_qcom_wlan_nv.bin
 endef
 
 define Package/msm8916-wcnss-firmware
