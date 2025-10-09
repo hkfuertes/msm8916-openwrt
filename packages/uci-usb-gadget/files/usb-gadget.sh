@@ -246,7 +246,8 @@ add_to_bridge() {
     local iface="$(cat "$ifname_file")"
     log "Adding $iface to bridge"
     
-    uci -q delete "network.@device[0].ports=$iface" 2>/dev/null || true
+    # Add the inteface to bridge
+    uci -q del_list "network.@device[0].ports=$iface" 2>/dev/null || true
     uci add_list "network.@device[0].ports=$iface"
 }
 
@@ -407,7 +408,7 @@ teardown_gadget() {
     for ifname in functions/*/ifname; do
         if [ -f "$ifname" ]; then
             local iface="$(cat "$ifname")"
-            uci -q delete "network.@device[0].ports=$iface" 2>/dev/null || true
+            uci -q del_list "network.@device[0].ports=$iface" 2>/dev/null || true
         fi
     done
     uci commit network
