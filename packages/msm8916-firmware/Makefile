@@ -26,7 +26,8 @@ define Build/Compile
 	mcopy -i ./files/modem.bin -p -m -n -v \
 		::image/mba.mbn ::image/modem.* ::image/wcnss.* \
 		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)
-	debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/WCNSS_qcom_wlan_nv.bin" ./files/persist.bin
+	debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin" ./files/uz801/persist.bin
+	debugfs -R "dump WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/sp9070_WCNSS_qcom_wlan_nv.bin" ./files/sp9070/persist.bin
 endef
 
 define Package/msm8916-wcnss-firmware
@@ -34,9 +35,14 @@ define Package/msm8916-wcnss-firmware
   TITLE:=MSM8916 WIFI & Bluetooth firmware
 endef
 
-define Package/msm8916-wcnss-nv
+define Package/msm8916-uz801-wcnss-nv
   $(Package/firmware-default)
-  TITLE:=Qualcomm msm8916 WIFI nv data
+  TITLE:=Qualcomm msm8916 WIFI nv data (UZ801)
+endef
+
+define Package/msm8916-sp9070-wcnss-nv
+  $(Package/firmware-default)
+  TITLE:=Qualcomm msm8916 WIFI nv data (SP9070)
 endef
 
 define Package/msm8916-modem-firmware
@@ -51,10 +57,17 @@ define Package/msm8916-wcnss-firmware/install
 		$(1)/lib/firmware
 endef
 
-define Package/msm8916-wcnss-nv/install
+define Package/msm8916-uz801-wcnss-nv/install
 	$(INSTALL_DIR) $(1)/lib/firmware/wlan/prima
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/WCNSS_qcom_wlan_nv.bin \
+		$(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin \
+		$(1)/lib/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
+endef
+
+define Package/msm8916-sp9070-wcnss-nv/install
+	$(INSTALL_DIR) $(1)/lib/firmware/wlan/prima
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/sp9070_WCNSS_qcom_wlan_nv.bin \
 		$(1)/lib/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 endef
 
@@ -72,5 +85,6 @@ define Package/msm8916-modem-firmware/install
 endef
 
 $(eval $(call BuildPackage,msm8916-wcnss-firmware))
-$(eval $(call BuildPackage,msm8916-wcnss-nv))
+$(eval $(call BuildPackage,msm8916-uz801-wcnss-nv))
+$(eval $(call BuildPackage,msm8916-sp9070-wcnss-nv))
 $(eval $(call BuildPackage,msm8916-modem-firmware))
