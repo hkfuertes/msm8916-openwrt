@@ -8,91 +8,26 @@ CONFIG_MODEMMANAGER_WITH_MBIM=y
 CONFIG_MODEMMANAGER_WITH_NETIFD=y
 CONFIG_MODEMMANAGER_WITH_QMI=y
 CONFIG_MODEMMANAGER_WITH_QRTR=y
-# CONFIG_PACKAGE_base-files is not set
 CONFIG_PACKAGE_bash=y
-# CONFIG_PACKAGE_blkid is not set
-# CONFIG_PACKAGE_block-mount is not set
-# CONFIG_PACKAGE_busybox is not set
-# CONFIG_PACKAGE_ca-bundle is not set
 CONFIG_PACKAGE_cgi-io=y
 CONFIG_PACKAGE_dbus=y
-# CONFIG_PACKAGE_dnsmasq is not set
-# CONFIG_PACKAGE_dropbear is not set
-# CONFIG_PACKAGE_f2fs-tools is not set
-# CONFIG_PACKAGE_f2fsck is not set
-CONFIG_PACKAGE_firewall=y
-# CONFIG_PACKAGE_firewall4 is not set
-# CONFIG_PACKAGE_fstools is not set
-# CONFIG_PACKAGE_fwtool is not set
-# CONFIG_PACKAGE_getrandom is not set
 CONFIG_PACKAGE_glib2=y
-# CONFIG_PACKAGE_hostapd-common is not set
 CONFIG_PACKAGE_ip-tiny=y
-# CONFIG_PACKAGE_iw is not set
-# CONFIG_PACKAGE_jansson is not set
-# CONFIG_PACKAGE_jshn is not set
-# CONFIG_PACKAGE_jsonfilter is not set
-# CONFIG_PACKAGE_kmod-ath is not set
-# CONFIG_PACKAGE_kmod-bam-dmux is not set
-# CONFIG_PACKAGE_kmod-cfg80211 is not set
-# CONFIG_PACKAGE_kmod-crypto-aead is not set
-# CONFIG_PACKAGE_kmod-crypto-ccm is not set
-# CONFIG_PACKAGE_kmod-crypto-cmac is not set
-# CONFIG_PACKAGE_kmod-crypto-crc32c is not set
-# CONFIG_PACKAGE_kmod-crypto-ctr is not set
-# CONFIG_PACKAGE_kmod-crypto-gcm is not set
-# CONFIG_PACKAGE_kmod-crypto-gf128 is not set
-# CONFIG_PACKAGE_kmod-crypto-ghash is not set
-# CONFIG_PACKAGE_kmod-crypto-hmac is not set
 CONFIG_PACKAGE_kmod-crypto-kpp=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=y
 CONFIG_PACKAGE_kmod-crypto-lib-curve25519=y
 CONFIG_PACKAGE_kmod-crypto-lib-poly1305=y
-# CONFIG_PACKAGE_kmod-crypto-manager is not set
-# CONFIG_PACKAGE_kmod-crypto-null is not set
-# CONFIG_PACKAGE_kmod-crypto-rng is not set
-# CONFIG_PACKAGE_kmod-crypto-seqiv is not set
-# CONFIG_PACKAGE_kmod-crypto-sha3 is not set
-# CONFIG_PACKAGE_kmod-crypto-sha512 is not set
-CONFIG_PACKAGE_kmod-ipt-conntrack=y
-CONFIG_PACKAGE_kmod-ipt-core=y
-CONFIG_PACKAGE_kmod-ipt-nat=y
-# CONFIG_PACKAGE_kmod-lib-crc32c is not set
-# CONFIG_PACKAGE_kmod-mac80211 is not set
-# CONFIG_PACKAGE_kmod-nf-flow is not set
-CONFIG_PACKAGE_kmod-nf-ipt=y
-# CONFIG_PACKAGE_kmod-nf-log6 is not set
-# CONFIG_PACKAGE_kmod-nf-reject6 is not set
-# CONFIG_PACKAGE_kmod-nfnetlink is not set
-# CONFIG_PACKAGE_kmod-nft-core is not set
-# CONFIG_PACKAGE_kmod-nft-fib is not set
-# CONFIG_PACKAGE_kmod-nft-nat is not set
-# CONFIG_PACKAGE_kmod-nft-offload is not set
-# CONFIG_PACKAGE_kmod-pppoe is not set
-# CONFIG_PACKAGE_kmod-pppox is not set
-# CONFIG_PACKAGE_kmod-qcom-rproc is not set
-# CONFIG_PACKAGE_kmod-qcom-rproc-modem is not set
-# CONFIG_PACKAGE_kmod-qcom-rproc-wcnss is not set
-# CONFIG_PACKAGE_kmod-rpmsg-wwan-ctrl is not set
 CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-udptunnel4=y
 CONFIG_PACKAGE_kmod-udptunnel6=y
-# CONFIG_PACKAGE_kmod-wcn36xx is not set
 CONFIG_PACKAGE_kmod-wireguard=y
-# CONFIG_PACKAGE_kmod-wwan is not set
 CONFIG_PACKAGE_ledcontrol=y
 CONFIG_PACKAGE_libattr=y
 CONFIG_PACKAGE_libdbus=y
-# CONFIG_PACKAGE_libevdev is not set
 CONFIG_PACKAGE_libexpat=y
-# CONFIG_PACKAGE_libf2fs is not set
 CONFIG_PACKAGE_libfdisk=y
 CONFIG_PACKAGE_libffi=y
-CONFIG_PACKAGE_libip4tc=y
-CONFIG_PACKAGE_libip6tc=y
-CONFIG_PACKAGE_libiptext=y
-CONFIG_PACKAGE_libiptext6=y
 CONFIG_PACKAGE_libiwinfo=y
 CONFIG_PACKAGE_libiwinfo-data=y
 CONFIG_PACKAGE_liblua=y
@@ -100,22 +35,13 @@ CONFIG_PACKAGE_liblucihttp=y
 CONFIG_PACKAGE_liblucihttp-lua=y
 CONFIG_PACKAGE_liblucihttp-ucode=y
 CONFIG_PACKAGE_libmbim=y
-# CONFIG_PACKAGE_libmnl is not set
 CONFIG_PACKAGE_libmount=y
 CONFIG_PACKAGE_libncurses=y
-# CONFIG_PACKAGE_libnftnl is not set
 CONFIG_PACKAGE_libpcre2=y
 CONFIG_PACKAGE_libqmi=y
-# CONFIG_PACKAGE_libqrtr is not set
 CONFIG_PACKAGE_libqrtr-glib=y
 CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_libubus-lua=y
-# CONFIG_PACKAGE_libudebug is not set
-# CONFIG_PACKAGE_libudev-zero is not set
-# CONFIG_PACKAGE_libustream-mbedtls is not set
-# CONFIG_PACKAGE_libwolfssl is not set
-CONFIG_PACKAGE_libxtables=y
-# CONFIG_PACKAGE_logd is not set
 CONFIG_PACKAGE_lsblk=y
 CONFIG_PACKAGE_lua=y
 CONFIG_PACKAGE_luci=y
@@ -141,30 +67,12 @@ CONFIG_PACKAGE_luci-proto-modemmanager=y
 CONFIG_PACKAGE_luci-proto-ppp=y
 CONFIG_PACKAGE_luci-proto-wireguard=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
-# CONFIG_PACKAGE_mkf2fs is not set
 CONFIG_PACKAGE_modemmanager=y
 CONFIG_PACKAGE_mount-utils=y
-# CONFIG_PACKAGE_msm8916-modem-firmware is not set
-# CONFIG_PACKAGE_msm8916-sp9070-wcnss-nv is not set
-# CONFIG_PACKAGE_msm8916-wcnss-firmware is not set
-# CONFIG_PACKAGE_mtd is not set
 CONFIG_PACKAGE_mtools=y
 CONFIG_PACKAGE_nano=y
-# CONFIG_PACKAGE_netifd is not set
-# CONFIG_PACKAGE_nftables-json is not set
-# CONFIG_PACKAGE_odhcp6c is not set
-# CONFIG_PACKAGE_odhcpd-ipv6only is not set
-# CONFIG_PACKAGE_openwrt-keyring is not set
-# CONFIG_PACKAGE_partx-utils is not set
-# CONFIG_PACKAGE_ppp-mod-pppoe is not set
-# CONFIG_PACKAGE_prepare-rootfs-data is not set
-# CONFIG_PACKAGE_procd is not set
-# CONFIG_PACKAGE_procd-seccomp is not set
-# CONFIG_PACKAGE_procd-ujail is not set
-# CONFIG_PACKAGE_qrtr-utils is not set
 CONFIG_PACKAGE_resize2fs=y
 CONFIG_PACKAGE_resolveip=y
-# CONFIG_PACKAGE_rmtfs is not set
 CONFIG_PACKAGE_rpcd=y
 CONFIG_PACKAGE_rpcd-mod-file=y
 CONFIG_PACKAGE_rpcd-mod-iwinfo=y
@@ -174,27 +82,11 @@ CONFIG_PACKAGE_rpcd-mod-ucode=y
 CONFIG_PACKAGE_sfdisk=y
 CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_tune2fs=y
-# CONFIG_PACKAGE_ubox is not set
-# CONFIG_PACKAGE_ubus is not set
-# CONFIG_PACKAGE_ubusd is not set
-# CONFIG_PACKAGE_uci is not set
-# CONFIG_PACKAGE_ucode-mod-digest is not set
 CONFIG_PACKAGE_ucode-mod-html=y
 CONFIG_PACKAGE_ucode-mod-log=y
 CONFIG_PACKAGE_ucode-mod-lua=y
 CONFIG_PACKAGE_ucode-mod-math=y
-# CONFIG_PACKAGE_ucode-mod-nl80211 is not set
-# CONFIG_PACKAGE_ucode-mod-rtnl is not set
-# CONFIG_PACKAGE_ucode-mod-uloop is not set
 CONFIG_PACKAGE_uhttpd=y
 CONFIG_PACKAGE_uhttpd-mod-ubus=y
-# CONFIG_PACKAGE_urandom-seed is not set
-# CONFIG_PACKAGE_urngd is not set
-# CONFIG_PACKAGE_usign is not set
-# CONFIG_PACKAGE_uz801-tweaks is not set
-# CONFIG_PACKAGE_wifi-scripts is not set
 CONFIG_PACKAGE_wireguard-tools=y
-# CONFIG_PACKAGE_wireless-regdb is not set
-# CONFIG_PACKAGE_wpad-basic-wolfssl is not set
 # CONFIG_TARGET_ROOTFS_EXT4FS is not set
-# CONFIG_WPA_WOLFSSL is not set
