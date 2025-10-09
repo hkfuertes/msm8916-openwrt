@@ -39,15 +39,15 @@ define Device/yiming-uz801v3
 endef
 TARGET_DEVICES += yiming-uz801v3
 
-define Device/generic-sp9070
+define Device/generic-sp970
   $(Device/msm8916)
   DEVICE_VENDOR := Generic
-  DEVICE_MODEL := SP9070
+  DEVICE_MODEL := SP970
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm8916-wcnss-firmware msm8916-sp9070-wcnss-nv msm8916-modem-firmware
+                     msm8916-wcnss-firmware msm8916-sp970-wcnss-nv msm8916-modem-firmware
 endef
-TARGET_DEVICES += generic-sp9070
+TARGET_DEVICES += generic-sp970
 
 endif
