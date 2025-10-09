@@ -21,6 +21,11 @@ define Device/msm8916
   SOC := msm8916
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
   FEATURES := squashfs
+  IMAGE/system.img := append-rootfs | append-metadata | sparse-img
+  ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
+  ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
+  ARTIFACT/flash.sh := install-flasher
+  ARTIFACT/firmware.zip := generate-firmware
 endef
 
 define Device/yiming-uz801v3
@@ -31,12 +36,18 @@ define Device/yiming-uz801v3
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
-  IMAGE/system.img := append-rootfs | append-metadata | sparse-img
-  ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
-  ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
-  ARTIFACT/flash.sh := install-flasher
-  ARTIFACT/firmware.zip := generate-firmware
 endef
 TARGET_DEVICES += yiming-uz801v3
+
+define Device/generic-sp9070
+  $(Device/msm8916)
+  DEVICE_VENDOR := Generic
+  DEVICE_MODEL := SP9070
+  FILESYSTEMS := squashfs
+  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm8916-wcnss-firmware msm8916-wcnss-nv msm8916-modem-firmware
+endef
+TARGET_DEVICES += generic-sp9070
 
 endif
