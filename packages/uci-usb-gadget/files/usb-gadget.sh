@@ -408,7 +408,7 @@ teardown_gadget() {
     for ifname in functions/*/ifname; do
         if [ -f "$ifname" ]; then
             local iface="$(cat "$ifname")"
-            uci -q del_list "network.@device[0].ports=$iface" 2>/dev/null
+            uci -q del_list "network.@device[0].ports=$iface" 2>/dev/null || true
         fi
     done
     uci commit network
