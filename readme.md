@@ -72,71 +72,13 @@ make -j$(nproc)
 
 ### Flashing from OEM Firmware
 
-1. **Install EDL tool**: https://github.com/bkerler/edl
-2. **Enter EDL mode**: See [PostmarketOS wiki guide](https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode)
-
-3. **Backup original firmware**:
-   ```
-   edl rf backup.bin
-   ```
-
-4. **Flash OpenWrt**:
-   ```
-   ./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
-   ```
-   > The script automatically backs up device-specific partitions, flashes the firmware, and restores critical data.
-
-### Accessing Boot Modes
-
-- **Fastboot mode**: Insert device while holding the button
-- **EDL mode**: Boot to fastboot first, then execute: `fastboot oem reboot-edl`
-
-## Troubleshooting
-
-### No Network / Modem Stuck at Searching
-
-The modem requires region-specific MCFG configuration files.
-
-#### Extract MCFG from Your Firmware
-
-1. **Dump modem partition**:
-   ```
-   edl r modem modem.bin
-   ```
-
-2. **Mount and navigate**:
-   ```
-   # Mount modem.bin (it's a standard Linux image)
-   cd image/modem_pr/mcfg/configs/mcfg_sw/generic/
-   ```
-
-3. **Select your region**:
-   - `APAC` - Asia Pacific
-   - `CHINA` - China
-   - `COMMON` - Generic/fallback
-   - `EU` - Europe
-   - `NA` - North America
-   - `SA` - South America
-   - `SEA` - South East Asia
-
-4. **Locate your carrier's MCFG**: Navigate to your telco's folder and find `mcfg_sw.mbn`. If your carrier isn't listed, use a generic configuration from the `common` folder.
-
-#### Apply the Configuration
-
-**Transfer to device** (capitalization matters!):
-   ```
-   scp -O mcfg_sw.mbn root@192.168.1.1:/lib/firmware/MCFG_SW.MBN
-   # ... and reboot the device ...
-   ```
-
-
-## Roadmap
-
-- [ ] Custom package server for msm89xx/msm8916
-  - Note: Target-specific modules may require building from source via `make menuconfig`
-  - Removed feed: `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb`
-- [ ] Investigate `lpac` for eSIM support
-- [ ] Memory expansion: swap/zram configuration
+### Future:
+- Recover `msm-firmware-dumper`.
+- Investigate `lpac` and eSIM.
+- Investigate `SWAP`, `ZRAM`.
+- Custom package server for msm89xx/msm8916
+  - Any target specific module not present might require to be built from sources. This repo can be used to do that, run `make menuconfig` before `make -j$(nproc)` and select it from the menu.
+  - Feed:  `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb` has been removed from distfeeds file.
 
 ## Credits
 
