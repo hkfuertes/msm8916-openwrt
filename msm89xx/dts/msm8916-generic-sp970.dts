@@ -4,8 +4,8 @@
 	interrupt-parent = <0x01>;
 	#address-cells = <0x02>;
 	#size-cells = <0x02>;
-	model = "Handsome Openstick";
-	compatible = "handsome,openstick\0qcom,msm8916";
+	model = "Generic SP970 4G LTE WiFi Modem";
+	compatible = "generic,sp970", "qcom,msm8916";
 
 	aliases {
 		sdhc1 = "/soc/sdhci@7824000";
