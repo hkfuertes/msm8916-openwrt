@@ -86,7 +86,7 @@ make -j$(nproc)
    ```
    ./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
    ```
-   The script automatically backs up device-specific partitions, flashes the firmware, and restores critical data.
+   > The script automatically backs up device-specific partitions, flashes the firmware, and restores critical data.
 
 ### Accessing Boot Modes
 
