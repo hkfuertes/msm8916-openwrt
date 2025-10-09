@@ -30,8 +30,7 @@ define Build/Compile
 
 	mkdir -p $(PKG_BUILD_DIR)/sp970
 	mcopy -i ./files/sp970/modem.bin -p -m -n -v \
-		::image/mba.mbn ::image/modem.* ::image/wcnss.* \
-		::image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default/mcfg_sw.mbn $(PKG_BUILD_DIR)/sp970/
+		::image/mba.mbn ::image/modem.* ::image/wcnss.* $(PKG_BUILD_DIR)/sp970/
 	cp ./files/sp970/WCNSS_qcom_wlan_nv.bin $(PKG_BUILD_DIR)/sp970/WCNSS_qcom_wlan_nv.bin
 endef
 
@@ -82,14 +81,14 @@ endef
 define Package/msm8916-uz801-wcnss-nv/install
 	$(INSTALL_DIR) $(1)/lib/firmware/wlan/prima
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/uz801_WCNSS_qcom_wlan_nv.bin \
+		$(PKG_BUILD_DIR)/uz801/WCNSS_qcom_wlan_nv.bin \
 		$(1)/lib/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 endef
 
 define Package/msm8916-sp970-wcnss-nv/install
 	$(INSTALL_DIR) $(1)/lib/firmware/wlan/prima
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/sp970_WCNSS_qcom_wlan_nv.bin \
+		$(PKG_BUILD_DIR)/sp970/WCNSS_qcom_wlan_nv.bin \
 		$(1)/lib/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 endef
 
