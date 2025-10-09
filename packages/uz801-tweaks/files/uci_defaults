@@ -16,6 +16,11 @@ uci set network.modem.ifname='wwan0'
 uci del_list firewall.@zone[1].network='modem'
 uci add_list firewall.@zone[1].network='modem'
 
+# We don't have eth0
+uci -q del_list "network.@device[0].ports=eth0" 2>/dev/null || true
+sed -i 's/"device": "eth0"/"device": "br-lan"/g' /etc/board.json
+
+
 # Commit all changes
 uci commit
 
