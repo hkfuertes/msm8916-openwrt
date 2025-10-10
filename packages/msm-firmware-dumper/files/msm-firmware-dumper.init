@@ -19,7 +19,7 @@ start() {
 	done
 	
 	if [ $timeout -eq 0 ]; then
-		logger -t "$NAME" "ERROR: Overlay not mounted after 30s"
+		logger -t "$NAME" "ERROR: Overlay not mounted after ${timeout}s"
 		return 1
 	fi
 
