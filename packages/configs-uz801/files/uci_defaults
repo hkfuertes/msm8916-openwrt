@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Enabling WiFi 
+uci set wireless.@wifi-device[0].disabled='0'
+uci set wireless.@wifi-iface[0].disabled='0'
+
+# Create modem interface
+uci set network.modem=interface
+uci set network.modem.proto='modemmanager'
+uci set network.modem.device='qcom-soc'
+uci set network.modem.auth='none'
+uci set network.modem.apn='internet'
+uci set network.modem.allowedmode='4g|3g'
+uci set network.modem.preferredmode='4g'
+uci set network.modem.ifname='wwan0'
+uci del_list firewall.@zone[1].network='modem'
+uci add_list firewall.@zone[1].network='modem'
+
+# We don't have eth0
+uci -q del_list "network.@device[0].ports=eth0" 2>/dev/null || true
+sed -i 's/"device": "eth0"/"device": "br-lan"/g' /etc/board.json
+
+# Commit all changes
+uci commit
+
+# Apply network and wireless configuration
+wifi reload
+/etc/init.d/network restart
+
+exit 0
