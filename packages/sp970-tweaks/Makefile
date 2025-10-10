@@ -33,6 +33,9 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/root/
 	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/uim_selection $(1)/etc/init.d/
 endef
 
 define Package/$(PKG_NAME)/postinst
