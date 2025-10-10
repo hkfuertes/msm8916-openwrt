@@ -2,7 +2,7 @@
 START=95
 NAME=msm-firmware-dumper
 PROG="/usr/bin/msm-firmware-dumper"
-FLAG="/overlay/.msm_firmware_dumped"
+FLAG="/lib/firmware/DUMPED"
 
 led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
 
