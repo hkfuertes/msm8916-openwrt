@@ -44,7 +44,7 @@ define Device/generic-sp970
   DEVICE_VENDOR := Generic
   DEVICE_MODEL := SP970
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := sp970-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm8916-sp970-wcnss-firmware msm8916-sp970-wcnss-nv msm8916-sp970-modem-firmware
 endef
