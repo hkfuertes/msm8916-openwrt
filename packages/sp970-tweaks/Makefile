@@ -32,10 +32,13 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
 
 	$(INSTALL_DIR) $(1)/root/
-	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
+	$(INSTALL_DATA) ./files/luci-app-tailscale*.apk $(1)/root/
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/uim_selection $(1)/etc/init.d/
+
+	$(INSTALL_DIR) $(1)/lib/firmware
+	$(INSTALL_DATA) ./files/mcfg_sw.mbn $(1)/lib/firmware/MCFG_SW.MBN
 endef
 
 define Package/$(PKG_NAME)/postinst
