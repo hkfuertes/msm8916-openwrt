@@ -1,27 +1,38 @@
 #!/bin/sh /etc/rc.common
+
 START=95
+STOP=10
+
 NAME=msm-firmware-dumper
 PROG="/usr/bin/msm-firmware-dumper"
 FLAG="/lib/firmware/DUMPED"
 
-led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
-
 start() {
-    [ -f "$FLAG" ] && return 0
-    led red off
+	local timeout=30
+	while [ $timeout -gt 0 ]; do
+		if mount | grep -q "overlayfs:/overlay"; then
+			logger -t "$NAME" "Overlay mounted, proceeding"
+			break
+		fi
+		sleep 1
+		timeout=$((timeout - 1))
+	done
+	
+	if [ $timeout -eq 0 ]; then
+		logger -t "$NAME" "ERROR: Overlay not mounted after 30s"
+		return 1
+	fi
 
-    logger -t "$NAME" "Starting firmware dump"
-    led blue blink
-    
-    if $PROG; then
-        logger -t "$NAME" "Firmware dump successful, rebooting"
-		led blue off
-        led green on; sleep 2
-        led green blink; sleep 1
-        reboot
-    else
-        logger -t "$NAME" "Firmware dump FAILED"
-        led red on
-        return 1
-    fi
+    [ -f "$FLAG" ] && return 0
+	
+	logger -t "$NAME" "Starting firmware dump"
+	
+	if $PROG; then
+		logger -t "$NAME" "Firmware dump successful, rebooting"
+		sleep 1
+		reboot
+	else
+		logger -t "$NAME" "Firmware dump FAILED"
+		return 1
+	fi
 }
