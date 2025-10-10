@@ -5,7 +5,7 @@
 # env var to override the MCFG relative path within modem/persist.
 
 set -e
-DEFAULT_MARKER="/lib/firmware/DUMPED"
+FLAG="/overlay/.msm_firmware_dumped"
 DEFAULT_MCFG_PATH="image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default"
 
 MARKER="${MSM_DUMPER_FLAG_FILE:-$DEFAULT_MARKER}"

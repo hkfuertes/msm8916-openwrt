@@ -35,7 +35,7 @@ define Device/yiming-uz801v3
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm8916-uz801-wcnss-firmware msm8916-uz801-wcnss-nv msm8916-uz801-modem-firmware
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += yiming-uz801v3
 
@@ -46,7 +46,7 @@ define Device/generic-sp970
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := sp970-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm8916-sp970-wcnss-firmware msm8916-sp970-wcnss-nv msm8916-sp970-modem-firmware
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += generic-sp970
 

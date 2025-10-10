@@ -1,8 +1,8 @@
 #!/bin/sh /etc/rc.common
-START=16
+START=95
 NAME=msm-firmware-dumper
 PROG="/usr/bin/msm-firmware-dumper"
-FLAG="/lib/firmware/DUMPED"
+FLAG="/overlay/.msm_firmware_dumped"
 
 led() { command -v ledcontrol >/dev/null 2>&1 && ledcontrol "$@" || true; }
 
