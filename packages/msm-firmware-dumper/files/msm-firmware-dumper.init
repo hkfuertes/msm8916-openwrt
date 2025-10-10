@@ -27,7 +27,7 @@ start() {
 	
 	logger -t "$NAME" "Starting firmware dump"
 	
-	if $PROG; then
+	if FLAG="$FLAG" $PROG; then
 		logger -t "$NAME" "Firmware dump successful, rebooting"
 		sleep 1
 		reboot
