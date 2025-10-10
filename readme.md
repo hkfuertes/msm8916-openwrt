@@ -1,6 +1,6 @@
 ![OpenWrt logo](https://raw.githubusercontent.com/openwrt/openwrt/refs/heads/main/include/logo.png)
 
-Modern OpenWrt build targeting the UZ801v3 LTE dongle with full modem and USB gadget support.
+Modern OpenWrt build targeting the msm8916 platform (uz801 and sp970 Chineese 4g Dongles) with full modem and USB gadget support.
 
 ## Table of Contents
 
@@ -55,14 +55,15 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 ## Building
 
 1. Enter the build environment:
-```
+```shell
 cd devenv
 docker compose run --rm builder
 ```
 
 2. Configure and build:
-```
-cp /repo/diffconfig .config
+```shell
+cp /repo/uz801_diffconfig .config
+# cp /repo/sp970_diffconfig .config
 echo "# CONFIG_SIGNED_PACKAGES is not set" >> .config  # Optional: disable signature verification
 make defconfig
 make -j$(nproc)
@@ -76,20 +77,25 @@ make -j$(nproc)
 2. **Enter EDL mode**: See [PostmarketOS wiki guide](https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode)
 
 3. **Backup original firmware**:
-   ```
-   edl rf backup.bin
-   ```
+  ```shell
+  edl rf backup.bin
+  ```
 
 4. **Flash OpenWrt**:
-   ```
-   ./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
-   ```
+  ```shell
+  ./openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
+  # ./openwrt-msm89xx-msm8916-generic-sp970-flash.sh
+  ```
    > The script automatically backs up device-specific partitions, flashes the firmware, and restores critical data.
 
 ### Accessing Boot Modes
 
+**UZ801**:
 - **Fastboot mode**: Insert device while holding the button
 - **EDL mode**: Boot to fastboot first, then execute: `fastboot oem reboot-edl`
+
+**SP970**: 
+- The only other mode you can enter is **EDL Mode**. To do so just short usb's `gnd` the data pin closest to it.
 
 ## Troubleshooting
 
@@ -145,8 +151,4 @@ The modem requires region-specific MCFG configuration files.
 - **[@Mio-sha512](https://github.com/Mio-sha512/OpenStick-Builder)** - USB gadget and firmware loader concepts
 - **[@AlienWolfX](https://github.com/AlienWolfX/UZ801-USB_MODEM/wiki/Troubleshooting)** - Carrier policy troubleshooting guide
 - **[@gw826943555](https://github.com/gw826943555/luci-app-tailscale) & [@asvow](https://github.com/asvow)** - Tailscale LuCI application
-
----
-
-# TODO:
-- Cleanup msm-firmware
+- **[@HandsomeMod](https://github.com/HandsomeMod/linux-msm/blob/main/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-sp970.dts)** - Base for the `sp970` dts.
