@@ -74,8 +74,9 @@ make -j$(nproc)
 ### Flashing from OEM Firmware
 
 1. **Install EDL tool**: https://github.com/bkerler/edl
-2. **Enter EDL mode**: See [PostmarketOS wiki guide](https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode)
-
+2. **Enter EDL mode**: 
+    - **UZ801**: See [PostmarketOS wiki guide](https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode)
+    - **SP970**: Via [EDL cable](https://wiki.bananahackers.net/en/guides/boot/edl/cable). Shorting GND and DATA pins in USB cable.
 3. **Backup original firmware**:
   ```shell
   edl rf backup.bin
