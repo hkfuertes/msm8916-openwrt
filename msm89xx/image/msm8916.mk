@@ -33,7 +33,7 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := configs-uz801 wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm-firmware-dumper
 endef
@@ -44,21 +44,10 @@ define Device/generic-sp970
   DEVICE_VENDOR := Generic
   DEVICE_MODEL := SP970
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := sp970-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := configs-sp970 wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm-firmware-dumper
 endef
 TARGET_DEVICES += generic-sp970
-
-define Device/xiaoxun-jz0145-v33
-  $(Device/msm8916)
-  DEVICE_VENDOR := Xiaoxun
-  DEVICE_MODEL := JZ0145-v33
-  FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper
-endef
-TARGET_DEVICES += xiaoxun-jz0145-v33
 
 endif

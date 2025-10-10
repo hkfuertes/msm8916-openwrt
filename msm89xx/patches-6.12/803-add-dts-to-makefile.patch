@@ -2,12 +2,11 @@ Index: linux-6.12.50/arch/arm64/boot/dts/qcom/Makefile
 ===================================================================
 --- linux-6.12.50.orig/arch/arm64/boot/dts/qcom/Makefile
 +++ linux-6.12.50/arch/arm64/boot/dts/qcom/Makefile
-@@ -59,6 +59,8 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingt
+@@ -59,6 +59,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingt
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingtech-wt86528.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingtech-wt88047.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-yiming-uz801v3.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-sp970.dtb
-+dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-xiaoxun-jz0145-v33.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8929-wingtech-wt82918hd.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-huawei-kiwi.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-longcheer-l9100.dtb
