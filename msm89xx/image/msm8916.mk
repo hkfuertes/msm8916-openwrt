@@ -50,4 +50,15 @@ define Device/generic-sp970
 endef
 TARGET_DEVICES += generic-sp970
 
+define Device/xiaoxun-jz0145-v33
+  $(Device/msm8916)
+  DEVICE_VENDOR := Xiaoxun
+  DEVICE_MODEL := JZ0145-v33
+  FILESYSTEMS := squashfs
+  DEVICE_PACKAGES := uz801-tweaks wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm-firmware-dumper
+endef
+TARGET_DEVICES += xiaoxun-jz0145-v33
+
 endif
