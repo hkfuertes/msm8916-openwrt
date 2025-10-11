@@ -1,5 +1,5 @@
 # From: hkfuertes <hkfuertes@example.com>
-# Date: Sat, 11 Oct 2025 18:25:00 +0200
+# Date: Sat, 11 Oct 2025 18:35:00 +0200
 # Subject: [PATCH] arm64: dts: qcom: Add MF68E MiFi router with ST7735S SPI display
 # 
 # Add device tree for MF68E 4G LTE MiFi router based on MSM8916.
@@ -9,7 +9,7 @@
 
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,129 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -70,7 +70,7 @@
 +};
 +
 +/* ST7735S 128x128 SPI Display Panel */
-+&spi5 {
++&spi0 {
 +	status = "okay";
 +	
 +	panel@0 {
