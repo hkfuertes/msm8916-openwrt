@@ -1,0 +1,54 @@
+<%-
+local sys = require "luci.sys"
+local utl = require "luci.util"
+
+local bms_path = "/sys/class/power_supply/pm8916-bms-vm"
+local charger_path = "/sys/class/power_supply/pm8916-lbc-chgr"
+
+local function read_file(path)
+	local f = io.open(path, "r")
+	if f then
+		local val = f:read("*all")
+		f:close()
+		return utl.trim(val)
+	end
+	return nil
+end
+
+local capacity = read_file(bms_path .. "/capacity")
+local voltage = read_file(bms_path .. "/voltage_now")
+local current = read_file(bms_path .. "/current_now")
+local online = read_file(charger_path .. "/online")
+-%>
+
+<% if capacity then %>
+<div class="cbi-section">
+	<legend><%:Battery Status%></legend>
+	<div class="table">
+		<div class="tr cbi-section-table-titles">
+			<div class="th"><%:Property%></div>
+			<div class="th"><%:Value%></div>
+		</div>
+		<div class="tr">
+			<div class="td left"><%:Capacity%></div>
+			<div class="td left"><strong><%=capacity%>%</strong></div>
+		</div>
+		<% if voltage then %>
+		<div class="tr">
+			<div class="td left"><%:Voltage%></div>
+			<div class="td left"><%=string.format("%.2f V", tonumber(voltage)/1000000)%></div>
+		</div>
+		<% end %>
+		<% if current then %>
+		<div class="tr">
+			<div class="td left"><%:Current%></div>
+			<div class="td left"><%=string.format("%.2f mA", tonumber(current)/1000)%></div>
+		</div>
+		<% end %>
+		<div class="tr">
+			<div class="td left"><%:Charging%></div>
+			<div class="td left"><%=online == "1" and "Yes" or "No"%></div>
+		</div>
+	</div>
+</div>
+<% end %>
