@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=configs-uz801
+PKG_NAME:=configs-mf68e
 PKG_VERSION:=1.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -10,13 +10,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=Utilities
   CATEGORY:=Utilities
-  TITLE:=Defaults Setting For mf68e
+  TITLE:=Default Settings For mf68e
   DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager
 endef
 
-# (Opcional) Descripción
+# Optional description
 define Package/$(PKG_NAME)/description
-Tweaks y defaults para mf68e, incluyendo limpieza de feeds APK problemáticos y widget de batería LuCI.
+Tweaks and defaults for mf68e, including cleanup of problematic APK feeds and LuCI battery widget.
 endef
 
 define Build/Configure
@@ -25,7 +25,7 @@ endef
 define Build/Compile
 endef
 
-# Instala ficheros de configuración y payload que ya tenías
+# Install configuration files and payload you already had
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
@@ -33,6 +33,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/root/
 	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
 
+	# Battery widget for LuCI
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/admin_status/index
 	$(INSTALL_DATA) ./files/battery.htm $(1)/usr/lib/lua/luci/view/admin_status/index/20_battery.htm
 endef
