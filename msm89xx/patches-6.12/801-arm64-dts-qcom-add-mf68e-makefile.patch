@@ -1,8 +1,8 @@
 From: hkfuertes <hkfuertes@example.com>
-Date: Sat, 11 Oct 2025 11:25:00 +0200
-Subject: [PATCH] arm64: dts: qcom: Add MF68E MiFi to Makefile
+Date: Sat, 11 Oct 2025 11:49:00 +0200
+Subject: [PATCH] arm64: dts: qcom: Add MF68E to Makefile
 
-Add msm8916-mf68e.dtb to Makefile.
+Add msm8916-generic-mf68e.dtb to Makefile.
 
 Signed-off-by: hkfuertes <hkfuertes@example.com>
 ---
@@ -11,11 +11,11 @@ Signed-off-by: hkfuertes <hkfuertes@example.com>
 
 --- a/arch/arm64/boot/dts/qcom/Makefile
 +++ b/arch/arm64/boot/dts/qcom/Makefile
-@@ -50,6 +50,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-longc
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-a3u-eur.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-a5u-eur.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-thwc-ufi001c.dtb
+@@ -23,6 +23,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsu
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-gt58.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j3ltetw.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-mf68e.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingtech-wt88047.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-yiming-uz801-v3.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-xiaomi-daisy.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5x.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-rossa.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-serranove.dtb
