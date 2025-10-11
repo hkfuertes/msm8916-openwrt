@@ -1,15 +1,15 @@
 # From: hkfuertes <hkfuertes@example.com>
-# Date: Sat, 11 Oct 2025 15:45:00 +0200
-# Subject: [PATCH] arm64: dts: qcom: Add MF68E MiFi router
+# Date: Sat, 11 Oct 2025 18:25:00 +0200
+# Subject: [PATCH] arm64: dts: qcom: Add MF68E MiFi router with ST7735S SPI display
 # 
 # Add device tree for MF68E 4G LTE MiFi router based on MSM8916.
+# Includes ST7735S 128x128 SPI display panel configuration.
 # 
 # Signed-off-by: hkfuertes <hkfuertes@example.com>
-Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-===================================================================
+
 --- /dev/null
-+++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,70 @@
++++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+@@ -0,0 +1,130 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -48,6 +48,12 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&usb_id_default>;
 +	};
++
++	backlight: backlight {
++		compatible = "gpio-backlight";
++		gpios = <&tlmm 98 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
 +};
 +
 +&pm8916_bms {
@@ -61,6 +67,32 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	monitored-battery = <&bat>;
 +	qcom,fast-charge-safe-current = <900000>;
 +	qcom,fast-charge-safe-voltage = <4350000>;
++};
++
++/* ST7735S 128x128 SPI Display Panel */
++&spi5 {
++	status = "okay";
++	
++	panel@0 {
++		compatible = "sitronix,st7735r";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		
++		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&tlmm 24 GPIO_ACTIVE_HIGH>;
++		backlight = <&backlight>;
++		
++		width = <128>;
++		height = <128>;
++		rotation = <0>;
++		
++		vdd-supply = <&pm8916_l17>;
++		vddio-supply = <&pm8916_l6>;
++		
++		pinctrl-names = "default", "sleep";
++		pinctrl-0 = <&panel_default>;
++		pinctrl-1 = <&panel_sleep>;
++	};
 +};
 +
 +&usb {
@@ -78,5 +110,38 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-pull-up;
++	};
++	
++	panel_default: panel-default-state {
++		reset-pins {
++			pins = "gpio25";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++			output-high;
++		};
++		
++		dc-pins {
++			pins = "gpio24";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++		};
++		
++		enable-pins {
++			pins = "gpio97";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++			output-high;
++		};
++	};
++	
++	panel_sleep: panel-sleep-state {
++		pins = "gpio24", "gpio25", "gpio97";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
++		output-low;
 +	};
 +};
