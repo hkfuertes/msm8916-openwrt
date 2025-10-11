@@ -1,57 +1,44 @@
 #!/bin/sh
 
 DEVICE="/dev/input/event0"
-LONG_PRESS_TIME=3  # seconds to trigger poweroff
+LONG_PRESS_TIME=3
 
-echo "Power button monitor started"
-echo "Hold button for ${LONG_PRESS_TIME}s to shutdown"
+echo "Power button monitor started - Hold ${LONG_PRESS_TIME}s to shutdown"
 logger -t pwrkey "Daemon started"
 
-PRESS_START=0
-
-# Background checker
-check_long_press() {
-    while true; do
-        if [ "$PRESS_START" -ne 0 ]; then
+# Monitor button events and check duration in real-time
+evtest "$DEVICE" 2>/dev/null | while read -r line; do
+    # Button pressed - start background timer
+    if echo "$line" | grep -q "code 116.*value 1"; then
+        PRESS_START=$(date +%s)
+        logger -t pwrkey "Button pressed"
+        
+        # Background timer to trigger poweroff
+        (
+            sleep "$LONG_PRESS_TIME"
+            # Check if button is still pressed (no release event yet)
+            echo "Long press ${LONG_PRESS_TIME}s reached - Shutting down!"
+            logger -t pwrkey "Long press ${LONG_PRESS_TIME}s: poweroff triggered"
+            poweroff
+        ) &
+        TIMER_PID=$!
+    fi
+    
+    # Button released - cancel timer
+    if echo "$line" | grep -q "code 116.*value 0"; then
+        if [ -n "$TIMER_PID" ]; then
+            # Kill the background timer if button released early
+            kill "$TIMER_PID" 2>/dev/null
+            
             CURRENT_TIME=$(date +%s)
             PRESS_DURATION=$((CURRENT_TIME - PRESS_START))
             
-            if [ "$PRESS_DURATION" -ge "$LONG_PRESS_TIME" ]; then
-                echo "Long press detected (${PRESS_DURATION}s) - Shutting down NOW!"
-                logger -t pwrkey "Long press ${PRESS_DURATION}s: poweroff triggered"
-                poweroff
-                exit 0
+            if [ "$PRESS_DURATION" -lt "$LONG_PRESS_TIME" ]; then
+                echo "Button released after ${PRESS_DURATION}s - Ignored"
+                logger -t pwrkey "Short press ${PRESS_DURATION}s - Ignored"
             fi
+            
+            TIMER_PID=""
         fi
-        sleep 0.2
-    done
-}
-
-# Start background checker
-check_long_press &
-CHECKER_PID=$!
-
-# Monitor button events
-evtest "$DEVICE" 2>/dev/null | while read -r line; do
-    # Button pressed
-    if echo "$line" | grep -q "code 116.*value 1"; then
-        PRESS_START=$(date +%s)
-        export PRESS_START
-        logger -t pwrkey "Button pressed at $PRESS_START"
-    fi
-    
-    # Button released
-    if echo "$line" | grep -q "code 116.*value 0"; then
-        if [ "$PRESS_START" -ne 0 ]; then
-            CURRENT_TIME=$(date +%s)
-            PRESS_DURATION=$((CURRENT_TIME - PRESS_START))
-            echo "Button released after ${PRESS_DURATION}s"
-            logger -t pwrkey "Button released: ${PRESS_DURATION}s"
-        fi
-        PRESS_START=0
-        export PRESS_START
     fi
 done
-
-# Cleanup
-kill $CHECKER_PID 2>/dev/null
