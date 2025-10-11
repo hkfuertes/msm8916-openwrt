@@ -9,7 +9,7 @@
 
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,145 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
