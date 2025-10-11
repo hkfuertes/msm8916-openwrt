@@ -44,7 +44,7 @@ define Device/generic-mf68e
   DEVICE_VENDOR := Generic
   DEVICE_MODEL := MF68E
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-uz801 wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := configs-mf68e wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm-firmware-dumper
 endef

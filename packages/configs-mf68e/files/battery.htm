@@ -15,13 +15,28 @@ local function read_file(path)
 	return nil
 end
 
-local capacity = read_file(bms_path .. "/capacity")
 local voltage = read_file(bms_path .. "/voltage_now")
-local current = read_file(bms_path .. "/current_now")
+local status = read_file(bms_path .. "/status")
+local health = read_file(bms_path .. "/health")
+local vmax = read_file(bms_path .. "/voltage_max_design")
+local vmin = read_file(bms_path .. "/voltage_min_design")
 local online = read_file(charger_path .. "/online")
+
+-- Calcular porcentaje aproximado basado en voltaje
+local percentage = "N/A"
+if voltage and vmax and vmin then
+	local v = tonumber(voltage)
+	local vmax_n = tonumber(vmax)
+	local vmin_n = tonumber(vmin)
+	if v and vmax_n and vmin_n then
+		local pct = ((v - vmin_n) / (vmax_n - vmin_n)) * 100
+		pct = math.max(0, math.min(100, pct))
+		percentage = string.format("%.0f%%", pct)
+	end
+end
 -%>
 
-<% if capacity then %>
+<% if voltage then %>
 <div class="cbi-section">
 	<legend><%:Battery Status%></legend>
 	<div class="table">
@@ -30,24 +45,24 @@ local online = read_file(charger_path .. "/online")
 			<div class="th"><%:Value%></div>
 		</div>
 		<div class="tr">
-			<div class="td left"><%:Capacity%></div>
-			<div class="td left"><strong><%=capacity%>%</strong></div>
+			<div class="td left"><%:Estimated Capacity%></div>
+			<div class="td left"><strong><%=percentage%></strong></div>
 		</div>
-		<% if voltage then %>
 		<div class="tr">
 			<div class="td left"><%:Voltage%></div>
 			<div class="td left"><%=string.format("%.2f V", tonumber(voltage)/1000000)%></div>
 		</div>
-		<% end %>
-		<% if current then %>
 		<div class="tr">
-			<div class="td left"><%:Current%></div>
-			<div class="td left"><%=string.format("%.2f mA", tonumber(current)/1000)%></div>
+			<div class="td left"><%:Status%></div>
+			<div class="td left"><%=status%></div>
 		</div>
-		<% end %>
 		<div class="tr">
-			<div class="td left"><%:Charging%></div>
-			<div class="td left"><%=online == "1" and "Yes" or "No"%></div>
+			<div class="td left"><%:Health%></div>
+			<div class="td left"><%=health%></div>
+		</div>
+		<div class="tr">
+			<div class="td left"><%:Charger%></div>
+			<div class="td left"><%=online == "1" and "Connected" or "Disconnected"%></div>
 		</div>
 	</div>
 </div>
