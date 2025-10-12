@@ -1,4 +1,3 @@
-# https://www.spinics.net/lists/kernel/msg4923281.html
 Index: drivers/gpu/drm/tiny/Kconfig
 ===================================================================
 --- a/drivers/gpu/drm/tiny/Kconfig
@@ -30,19 +29,20 @@ Index: drivers/gpu/drm/tiny/Makefile
  obj-$(CONFIG_TINYDRM_ST7586)		+= st7586.o
  obj-$(CONFIG_TINYDRM_ST7735R)		+= st7735r.o
 +obj-$(CONFIG_TINYDRM_ST7735S)		+= st7735s.o
-Index: drivers/gpu/drm/tiny/st7735s.c
+Index: b/drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,253 @@
+@@ -0,0 +1,248 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * DRM driver for Sitronix ST7735S display controller
++ * DRM driver for Sitronix ST7735S / GalaxyCore GC9106 display controller
++ * 
++ * Adapted for GC9106 128x128 panels commonly mislabeled as ST7735S
 + */
 +
 +#include <linux/backlight.h>
 +#include <linux/delay.h>
-+#include <linux/dma-buf.h>
 +#include <linux/gpio/consumer.h>
 +#include <linux/module.h>
 +#include <linux/property.h>
@@ -56,19 +56,6 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +#include <drm/drm_gem_dma_helper.h>
 +#include <drm/drm_managed.h>
 +#include <drm/drm_mipi_dbi.h>
-+
-+#define ST7735S_FRMCTR1		0xb1
-+#define ST7735S_FRMCTR2		0xb2
-+#define ST7735S_FRMCTR3		0xb3
-+#define ST7735S_INVCTR		0xb4
-+#define ST7735S_PWCTR1		0xc0
-+#define ST7735S_PWCTR2		0xc1
-+#define ST7735S_PWCTR3		0xc2
-+#define ST7735S_PWCTR4		0xc3
-+#define ST7735S_PWCTR5		0xc4
-+#define ST7735S_VMCTR1		0xc5
-+#define ST7735S_GAMCTRP1	0xe0
-+#define ST7735S_GAMCTRN1	0xe1
 +
 +#define ST7735S_MY		BIT(7)
 +#define ST7735S_MX		BIT(6)
@@ -96,58 +83,64 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +	struct st7735s_priv *priv = container_of(dbidev, struct st7735s_priv, dbidev);
 +	struct mipi_dbi *dbi = &dbidev->dbi;
 +	int ret, idx;
-+	u8 addr_mode;
 +
 +	if (!drm_dev_enter(pipe->crtc.dev, &idx))
 +		return;
++
++	DRM_DEBUG_KMS("\n");
 +
 +	ret = mipi_dbi_poweron_reset(dbidev);
 +	if (ret)
 +		goto out_exit;
 +
++	/* GC9106 Inter Register Enable sequence */
++	mipi_dbi_command(dbi, 0xfe);
++	mipi_dbi_command(dbi, 0xfe);
++	mipi_dbi_command(dbi, 0xfe);
++	mipi_dbi_command(dbi, 0xef);
++
++	/* GC9106 Configuration */
++	mipi_dbi_command(dbi, 0xb3, 0x03);       /* Frame rate control */
++	mipi_dbi_command(dbi, 0x36, 0x00);       /* Memory access control: normal */
++	mipi_dbi_command(dbi, 0x3a, 0x05);       /* Pixel format: 16-bit */
++	mipi_dbi_command(dbi, 0xb6, 0x11);       /* Display function control */
++	mipi_dbi_command(dbi, 0xac, 0x0b);       /* Internal setting */
++	mipi_dbi_command(dbi, 0xb4, 0x21);       /* Display inversion control */
++	mipi_dbi_command(dbi, 0xb1, 0xc0);       /* Frame rate normal mode */
++	mipi_dbi_command(dbi, 0xe6, 0x50, 0x43); /* Internal register */
++	mipi_dbi_command(dbi, 0xe7, 0x56, 0x43); /* Internal register */
++
++	/* Positive Gamma */
++	mipi_dbi_command(dbi, 0xF0, 0x1f, 0x41, 0x1B, 0x55, 0x36, 0x3d, 0x3e,
++			 0x0, 0x16, 0x08, 0x09, 0x15, 0x14, 0xf);
++	
++	/* Negative Gamma */
++	mipi_dbi_command(dbi, 0xF1, 0x1f, 0x41, 0x1B, 0x55, 0x36, 0x3d, 0x3e,
++			 0x0, 0x16, 0x08, 0x09, 0x15, 0x14, 0xf);
++
++	/* Exit inter-register mode */
++	mipi_dbi_command(dbi, 0xfe);
++	mipi_dbi_command(dbi, 0xff);
++
++	/* Tearing effect line on */
++	mipi_dbi_command(dbi, 0x35, 0x00);
++
++	/* Exit sleep mode */
 +	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
 +	msleep(120);
 +
-+	mipi_dbi_command(dbi, ST7735S_FRMCTR1, 0x05, 0x3c, 0x3c);
-+	mipi_dbi_command(dbi, ST7735S_FRMCTR2, 0x05, 0x3c, 0x3c);
-+	mipi_dbi_command(dbi, ST7735S_FRMCTR3, 0x05, 0x3c, 0x3c, 0x05, 0x3c, 0x3c);
-+	mipi_dbi_command(dbi, ST7735S_INVCTR, 0x07);
-+	mipi_dbi_command(dbi, ST7735S_PWCTR1, 0xe9, 0x09, 0x04);
-+	mipi_dbi_command(dbi, ST7735S_PWCTR2, 0xc5);
-+	mipi_dbi_command(dbi, ST7735S_PWCTR3, 0x0d, 0x00);
-+	mipi_dbi_command(dbi, ST7735S_PWCTR4, 0x8d, 0x6a);
-+	mipi_dbi_command(dbi, ST7735S_PWCTR5, 0x8a, 0xee);
-+	mipi_dbi_command(dbi, ST7735S_VMCTR1, 0x15);
-+	mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE);
++	/* Display on */
++	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
++	msleep(20);
 +
-+	switch (dbidev->rotation) {
-+	default:
-+		addr_mode = ST7735S_MX | ST7735S_MY;
-+		break;
-+	case 90:
-+		addr_mode = ST7735S_MX | ST7735S_MV;
-+		break;
-+	case 180:
-+		addr_mode = 0;
-+		break;
-+	case 270:
-+		addr_mode = ST7735S_MY | ST7735S_MV;
-+		break;
-+	}
-+
-+	if (priv->cfg->rgb)
-+		addr_mode |= ST7735S_RGB;
-+
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, addr_mode);
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT);
++	/* Set window address for 128x128 display 
++	 * Column: 0-127 (128 pixels)
++	 * Page: 0-127 (128 pixels) - try offset 16 if display is shifted
++	 */
 +	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
 +	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
-+	mipi_dbi_command(dbi, ST7735S_GAMCTRP1, 0x07, 0x0e, 0x08, 0x07, 0x10,
-+			 0x07, 0x02, 0x07, 0x09, 0x0f, 0x25, 0x36, 0x00, 0x08, 0x04, 0x10);
-+	mipi_dbi_command(dbi, ST7735S_GAMCTRN1, 0x0a, 0x0d, 0x08, 0x07, 0x0f,
-+			 0x07, 0x02, 0x07, 0x09, 0x0f, 0x25, 0x35, 0x00, 0x09, 0x04, 0x10);
++	mipi_dbi_command(dbi, MIPI_DCS_WRITE_MEMORY_START);
 +
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 +	mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
 +
 +out_exit:
@@ -163,7 +156,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +	.left_offset = 0,
 +	.top_offset = 0,
 +	.write_only = true,
-+	.rgb = false,
++	.rgb = true,
 +};
 +
 +DEFINE_DRM_GEM_DMA_FOPS(st7735s_fops);
@@ -174,8 +167,8 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +	DRM_GEM_DMA_DRIVER_OPS_VMAP,
 +	.debugfs_init = mipi_dbi_debugfs_init,
 +	.name = "st7735s",
-+	.desc = "Sitronix ST7735S",
-+	.date = "20231006",
++	.desc = "Sitronix ST7735S / GC9106",
++	.date = "20231012",
 +	.major = 1,
 +	.minor = 0,
 +};
@@ -256,6 +249,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +		return ret;
 +
 +	spi_set_drvdata(spi, drm);
++
 +	drm_fbdev_dma_setup(drm, 0);
 +
 +	return 0;
@@ -285,6 +279,6 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +};
 +module_spi_driver(st7735s_spi_driver);
 +
-+MODULE_DESCRIPTION("Sitronix ST7735S DRM driver");
++MODULE_DESCRIPTION("Sitronix ST7735S / GalaxyCore GC9106 DRM driver");
 +MODULE_AUTHOR("Stefan x Nilsson <stefan.x.nilsson@axis.com>");
 +MODULE_LICENSE("GPL");
