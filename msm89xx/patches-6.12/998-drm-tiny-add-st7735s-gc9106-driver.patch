@@ -33,7 +33,7 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,248 @@
+@@ -0,0 +1,247 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * DRM driver for Sitronix ST7735S / GalaxyCore GC9106 display controller
@@ -80,7 +80,6 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 +				 struct drm_plane_state *plane_state)
 +{
 +	struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(pipe->crtc.dev);
-+	struct st7735s_priv *priv = container_of(dbidev, struct st7735s_priv, dbidev);
 +	struct mipi_dbi *dbi = &dbidev->dbi;
 +	int ret, idx;
 +
