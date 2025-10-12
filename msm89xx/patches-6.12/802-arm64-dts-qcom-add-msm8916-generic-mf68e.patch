@@ -1,21 +1,16 @@
-# From: hkfuertes <hkfuertes@example.com>
-# Date: Sun, 12 Oct 2025 00:18:00 +0200
-# Subject: [PATCH] arm64: dts: qcom: Add MF68E MiFi router with ST7735S SPI display
-# 
-# Add device tree for MF68E 4G LTE MiFi router based on MSM8916.
-# Includes ST7735S 128x128 SPI display panel configuration.
-# 
-# Signed-off-by: hkfuertes <hkfuertes@example.com>
-
+Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+===================================================================
 --- /dev/null
-+++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,145 @@
++++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+@@ -0,0 +1,293 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
 +
 +#include "msm8916-ufi.dtsi"
 +#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/leds/common.h>
 +
 +/ {
 +	model = "MF68E 4G LTE Mobile WiFi Router";
@@ -54,6 +49,151 @@
 +		gpios = <&tlmm 98 GPIO_ACTIVE_HIGH>;
 +		default-on;
 +	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&button_default>;
++
++		label = "GPIO Buttons";
++
++		button-wps {
++			label = "WPS";
++			gpios = <&tlmm 27 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_WPS_BUTTON>;
++			debounce-interval = <15>;
++		};
++
++		button-reset {
++			label = "Reset";
++			gpios = <&tlmm 102 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++			debounce-interval = <15>;
++		};
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&led_default>;
++
++		led-bat-1 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_CHARGING;
++			gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led-bat-2 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_CHARGING;
++			gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led-bat-3 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_CHARGING;
++			gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led-bat-4 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_CHARGING;
++			gpios = <&tlmm 100 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led-wifi {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_WLAN;
++			gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "phy0tx";
++		};
++
++		led-4g-1 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_WAN;
++			gpios = <&tlmm 84 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led-4g-2 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_WAN;
++			gpios = <&tlmm 85 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	esim-control {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&esim_default>;
++
++		esim1 {
++			gpios = <&tlmm 119 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		esim2 {
++			gpios = <&tlmm 112 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		esim3 {
++			gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	sim-detect {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&sim_default>;
++
++		sim-hotplug {
++			label = "SIM Hotplug";
++			gpios = <&tlmm 114 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_UNKNOWN>;
++			linux,input-type = <EV_SW>;
++		};
++	};
++
++	modem-detect {
++		compatible = "gpio-keys";
++
++		modem-type {
++			gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
++			linux,code = <KEY_UNKNOWN>;
++		};
++	};
++};
++
++&blsp_spi5 {
++	status = "okay";
++
++	panel@0 {
++		compatible = "sitronix,st7735r";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++
++		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
++		backlight = <&backlight>;
++
++		width = <128>;
++		height = <128>;
++		rotation = <0>;
++
++		vdd-supply = <&pm8916_l17>;
++		vddio-supply = <&pm8916_l6>;
++
++		pinctrl-names = "default", "sleep";
++		pinctrl-0 = <&panel_default>;
++		pinctrl-1 = <&panel_sleep>;
++	};
 +};
 +
 +&pm8916_bms {
@@ -69,33 +209,6 @@
 +	qcom,fast-charge-safe-voltage = <4350000>;
 +};
 +
-+/* ST7735S 128x128 SPI Display Panel */
-+&blsp_spi5 {
-+	status = "okay";
-+	
-+	panel@0 {
-+		compatible = "sitronix,st7735r";
-+		reg = <0>;
-+		spi-max-frequency = <16000000>;
-+		
-+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
-+		dc-gpios = <&tlmm 24 GPIO_ACTIVE_HIGH>;
-+		backlight = <&backlight>;
-+		
-+		width = <128>;
-+		height = <128>;
-+		rotation = <0>;
-+		
-+		vdd-supply = <&pm8916_l17>;
-+		vddio-supply = <&pm8916_l6>;
-+		
-+		pinctrl-names = "default", "sleep";
-+		pinctrl-0 = <&panel_default>;
-+		pinctrl-1 = <&panel_sleep>;
-+	};
-+};
-+
-+/* Define L17 regulator for display VDD (2.85V) */
 +&rpm_requests {
 +	pm8916-regulators {
 +		pm8916_l17: l17 {
@@ -115,29 +228,35 @@
 +};
 +
 +&tlmm {
-+	usb_id_default: usb-id-default-state {
-+		pins = "gpio110";
++	button_default: button-default-state {
++		pins = "gpio27", "gpio102";
 +		function = "gpio";
-+		drive-strength = <8>;
++		drive-strength = <2>;
 +		bias-pull-up;
 +	};
-+	
++
++	esim_default: esim-default-state {
++		pins = "gpio12", "gpio112", "gpio119";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	led_default: led-default-state {
++		pins = "gpio0", "gpio1", "gpio72", "gpio73", "gpio84", "gpio85", "gpio91", "gpio100";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
 +	panel_default: panel-default-state {
-+		reset-pins {
-+			pins = "gpio25";
-+			function = "gpio";
-+			drive-strength = <8>;
-+			bias-disable;
-+			output-high;
-+		};
-+		
 +		dc-pins {
-+			pins = "gpio24";
++			pins = "gpio30";
 +			function = "gpio";
 +			drive-strength = <8>;
 +			bias-disable;
 +		};
-+		
++
 +		enable-pins {
 +			pins = "gpio97";
 +			function = "gpio";
@@ -145,13 +264,35 @@
 +			bias-disable;
 +			output-high;
 +		};
++
++		reset-pins {
++			pins = "gpio25";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++			output-high;
++		};
 +	};
-+	
++
 +	panel_sleep: panel-sleep-state {
-+		pins = "gpio24", "gpio25", "gpio97";
++		pins = "gpio25", "gpio30", "gpio97";
 +		function = "gpio";
 +		drive-strength = <2>;
 +		bias-pull-down;
 +		output-low;
++	};
++
++	sim_default: sim-default-state {
++		pins = "gpio114";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-up;
++	};
++
++	usb_id_default: usb-id-default-state {
++		pins = "gpio110";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
 +	};
 +};
