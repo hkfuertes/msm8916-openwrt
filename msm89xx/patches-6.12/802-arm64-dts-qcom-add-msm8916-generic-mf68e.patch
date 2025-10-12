@@ -2,7 +2,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- /dev/null
 +++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,101 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -53,16 +53,13 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	status = "okay";
 +
 +	panel@0 {
-+		compatible = "sitronix,st7735r";
++		compatible = "okaya,rh128128t", "sitronix,st7715r";
 +		reg = <0>;
 +		spi-max-frequency = <32000000>;
 +
-+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
++		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
 +		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
 +		backlight = <&backlight>;
-+
-+		width = <128>;
-+		height = <128>;
 +
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&panel_default>;
@@ -93,7 +90,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +
 +&tlmm {
 +	panel_default: panel-default-state {
-+		pins = "gpio25", "gpio30", "gpio97";
++		pins = "gpio25", "gpio30", "gpio97", "gpio98";
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-disable;
