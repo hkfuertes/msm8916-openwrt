@@ -2,7 +2,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- /dev/null
 +++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,135 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -64,9 +64,24 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +        dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
 +        backlight = <&backlight>;
 +
++        vdd-supply = <&pm8916_l17>;
++        vddio-supply = <&pm8916_l6>;
++
 +        pinctrl-names = "default";
 +        pinctrl-0 = <&panel_default>;
 +    };
++};
++
++&pm8916_l17 {
++   regulator-min-microvolt = <2850000>;
++    regulator-max-microvolt = <2850000>;
++    regulator-always-on;
++};
++
++&pm8916_l6 {
++   regulator-min-microvolt = <1800000>;
++    regulator-max-microvolt = <1800000>;
++    regulator-always-on;
 +};
 +
 +&pm8916_pwm {
