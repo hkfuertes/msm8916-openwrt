@@ -1,7 +1,7 @@
-Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
---- /dev/null
-+++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+--- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
++++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 @@ -0,0 +1,135 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
