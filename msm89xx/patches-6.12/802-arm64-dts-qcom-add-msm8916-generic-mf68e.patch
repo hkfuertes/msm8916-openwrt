@@ -2,7 +2,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- /dev/null
 +++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,142 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -12,129 +12,135 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
 +
 +/ {
-+    model = "MF68E 4G LTE Mobile WiFi Router";
-+    compatible = "generic,mf68e", "qcom,msm8916";
++	model = "MF68E 4G LTE Mobile WiFi Router";
++	compatible = "generic,mf68e", "qcom,msm8916";
 +
-+    bat: battery {
-+        compatible = "simple-battery";
-+        voltage-min-design-microvolt = <3400000>;
-+        voltage-max-design-microvolt = <4350000>;
-+        energy-full-design-microwatt-hours = <11100000>;
-+        charge-full-design-microamp-hours = <3000000>;
++	bat: battery {
++		compatible = "simple-battery";
++		voltage-min-design-microvolt = <3400000>;
++		voltage-max-design-microvolt = <4350000>;
++		energy-full-design-microwatt-hours = <11100000>;
++		charge-full-design-microamp-hours = <3000000>;
 +
-+        ocv-capacity-celsius = <25>;
-+        ocv-capacity-table-0 = <4330000 100>, <4265000 95>,
-+            <4208000 90>, <4154000 85>, <4102000 80>,
-+            <4063000 75>, <4006000 70>, <3972000 65>,
-+            <3931000 60>, <3880000 55>, <3841000 50>,
-+            <3817000 45>, <3798000 40>, <3783000 35>,
-+            <3767000 30>, <3747000 25>, <3729000 20>,
-+            <3700000 16>, <3687000 13>, <3683000 11>,
-+            <3681000 10>, <3680000 9>, <3678000 8>,
-+            <3674000 7>, <3666000 6>, <3641000 5>,
-+            <3597000 4>, <3537000 3>, <3457000 2>,
-+            <3336000 1>, <3000000 0>;
-+    };
++		ocv-capacity-celsius = <25>;
++		ocv-capacity-table-0 = <4330000 100>, <4265000 95>,
++			<4208000 90>, <4154000 85>, <4102000 80>,
++			<4063000 75>, <4006000 70>, <3972000 65>,
++			<3931000 60>, <3880000 55>, <3841000 50>,
++			<3817000 45>, <3798000 40>, <3783000 35>,
++			<3767000 30>, <3747000 25>, <3729000 20>,
++			<3700000 16>, <3687000 13>, <3683000 11>,
++			<3681000 10>, <3680000 9>, <3678000 8>,
++			<3674000 7>, <3666000 6>, <3641000 5>,
++			<3597000 4>, <3537000 3>, <3457000 2>,
++			<3336000 1>, <3000000 0>;
++	};
 +
-+    usb_id: usb-id {
-+        compatible = "linux,extcon-usb-gpio";
-+        id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
-+        pinctrl-names = "default";
-+        pinctrl-0 = <&usb_id_default>;
-+    };
++	usb_id: usb-id {
++		compatible = "linux,extcon-usb-gpio";
++		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb_id_default>;
++	};
 +
-+    backlight: backlight {
-+        compatible = "pwm-backlight";
-+        pwms = <&pm8916_pwm 0 100000>;
-+        brightness-levels = <0 4 8 16 32 64 128 255>;
-+        default-brightness-level = <6>;
-+        inverted-polarity;
-+    };
++	backlight: backlight {
++		compatible = "pwm-backlight";
++		pwms = <&pm8916_pwm 0 100000>;
++		brightness-levels = <255 128 64 32 16 8 4 0>;
++		num-interpolated-steps = <255>;
++		default-brightness-level = <6>;
++	};
 +};
 +
 +&blsp_spi5 {
-+    status = "okay";
++	status = "okay";
 +
-+    panel@0 {
-+        compatible = "okaya,rh128128t", "sitronix,st7715r";
-+        reg = <0>;
-+        spi-max-frequency = <32000000>;
++	panel@0 {
++		compatible = "okaya,rh128128t", "sitronix,st7715r";
++		reg = <0>;
++		spi-max-frequency = <32000000>;
 +
-+        reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-+        dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
-+        backlight = <&backlight>;
++		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
++		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
++		backlight = <&backlight>;
 +
-+        vdd-supply = <&pm8916_l17>;
-+        vddio-supply = <&pm8916_l6>;
++		vdd-supply = <&pm8916_l17>;
++		vddio-supply = <&pm8916_l6>;
 +
-+        pinctrl-names = "default";
-+        pinctrl-0 = <&panel_default>;
-+    };
++		pinctrl-names = "default";
++		pinctrl-0 = <&panel_default>;
++	};
 +};
 +
-+&pm8916_l17 {
-+   regulator-min-microvolt = <2850000>;
-+    regulator-max-microvolt = <2850000>;
-+    regulator-always-on;
-+};
++&rpm_requests {
++	pm8916_rpm_regulators: regulators {
++		compatible = "qcom,rpm-pm8916-regulators";
 +
-+&pm8916_l6 {
-+   regulator-min-microvolt = <1800000>;
-+    regulator-max-microvolt = <1800000>;
-+    regulator-always-on;
++		pm8916_l6: l6 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++		};
++
++		pm8916_l17: l17 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2850000>;
++			regulator-always-on;
++		};
++	};
 +};
 +
 +&pm8916_pwm {
-+    status = "okay";
-+    pinctrl-names = "default";
-+    pinctrl-0 = <&pwm_out>;
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm_out>;
 +};
 +
 +&pm8916_mpps {
-+    pwm_out: mpp4-state {
-+        pins = "mpp4";
-+        function = "digital";
-+        output-low;
-+        qcom,dtest = <1>;
-+        power-source = <PM8916_MPP_VPH>;
-+    };
++	pwm_out: mpp4-state {
++		pins = "mpp4";
++		function = "digital";
++		output-low;
++		qcom,dtest = <1>;
++		power-source = <PM8916_MPP_VPH>;
++	};
 +};
 +
 +&pm8916_bms {
-+    status = "okay";
-+    monitored-battery = <&bat>;
-+    power-supplies = <&pm8916_charger>;
++	status = "okay";
++	monitored-battery = <&bat>;
++	power-supplies = <&pm8916_charger>;
 +};
 +
 +&pm8916_charger {
-+    status = "okay";
-+    monitored-battery = <&bat>;
-+    qcom,fast-charge-safe-current = <900000>;
-+    qcom,fast-charge-safe-voltage = <4350000>;
++	status = "okay";
++	monitored-battery = <&bat>;
++	qcom,fast-charge-safe-current = <900000>;
++	qcom,fast-charge-safe-voltage = <4350000>;
 +};
 +
 +&usb {
-+    status = "okay";
-+    extcon = <&usb_id>, <&usb_id>;
++	status = "okay";
++	extcon = <&usb_id>, <&usb_id>;
 +};
 +
 +&usb_hs_phy {
-+    extcon = <&usb_id>;
++	extcon = <&usb_id>;
 +};
 +
 +&tlmm {
-+    panel_default: panel-default-state {
-+        pins = "gpio25", "gpio30", "gpio97";
-+        function = "gpio";
-+        drive-strength = <8>;
-+        bias-disable;
-+        output-high;
-+    };
++	panel_default: panel-default-state {
++		pins = "gpio25", "gpio30", "gpio97";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-disable;
++		output-high;
++	};
 +
-+    usb_id_default: usb-id-default-state {
-+        pins = "gpio110";
-+        function = "gpio";
-+        drive-strength = <8>;
-+        bias-pull-up;
-+    };
++	usb_id_default: usb-id-default-state {
++		pins = "gpio110";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
 +};
