@@ -2,7 +2,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- /dev/null
 +++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,119 @@
+@@ -0,0 +1,120 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -48,6 +48,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +        pwms = <&pm8916_pwm 0 100000>;
 +        brightness-levels = <0 4 8 16 32 64 128 255>;
 +        default-brightness-level = <6>;
++        inverted-polarity;
 +    };
 +};
 +
