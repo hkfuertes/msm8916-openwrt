@@ -34,7 +34,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,253 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * DRM driver for Sitronix ST7735S display controller
@@ -51,6 +51,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +
 +#include <drm/drm_atomic_helper.h>
 +#include <drm/drm_drv.h>
++#include <drm/drm_fbdev_dma.h>
 +#include <drm/drm_gem_atomic_helper.h>
 +#include <drm/drm_gem_dma_helper.h>
 +#include <drm/drm_managed.h>
@@ -255,6 +256,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +		return ret;
 +
 +	spi_set_drvdata(spi, drm);
++	drm_fbdev_dma_setup(drm, 0);
 +
 +	return 0;
 +}
