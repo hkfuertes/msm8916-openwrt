@@ -1,0 +1,24 @@
+--- a/drivers/gpu/drm/tiny/st7735r.c
++++ b/drivers/gpu/drm/tiny/st7735r.c
+@@ -113,6 +113,8 @@ static void st7735r_pipe_enable(struct d
+ 	mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, addr_mode);
+ 	mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT,
+ 			 MIPI_DCS_PIXEL_FMT_16BIT);
++ 	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
++ 	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
+ 	mipi_dbi_command(dbi, ST7735R_GAMCTRP1, 0x02, 0x1c, 0x07, 0x12, 0x37,
+ 			 0x32, 0x29, 0x2d, 0x29, 0x25, 0x2b, 0x39, 0x00, 0x01,
+ 			 0x03, 0x10);
+@@ -144,9 +146,9 @@ static const struct st7735r_cfg jd_t1800
+ 
+ static const struct st7735r_cfg rh128128t_cfg = {
+ 	.mode		= { DRM_SIMPLE_MODE(128, 128, 25, 26) },
+-	.left_offset	= 2,
+-	.top_offset	= 3,
+-	.rgb		= true,
++	.left_offset	= 0,
++	.top_offset	= 0,
++	.rgb		= false,
+ };
+ 
+ DEFINE_DRM_GEM_DMA_FOPS(st7735r_fops);
