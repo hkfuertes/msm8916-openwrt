@@ -56,7 +56,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	status = "okay";
 +
 +	panel@0 {
-+		compatible = "okaya,rh128128t";
++		compatible = "sitronix,st7735s-128x128";
 +		reg = <0>;
 +		spi-max-frequency = <32000000>;
 +
