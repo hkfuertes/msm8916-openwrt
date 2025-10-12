@@ -1,3 +1,4 @@
+# https://www.spinics.net/lists/kernel/msg4923281.html
 Index: drivers/gpu/drm/tiny/Kconfig
 ===================================================================
 --- a/drivers/gpu/drm/tiny/Kconfig
