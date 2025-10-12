@@ -2,7 +2,7 @@ Index: linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- /dev/null
 +++ linux-6.12.51/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,141 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
