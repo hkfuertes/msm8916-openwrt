@@ -224,7 +224,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +
 +	cs-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>;
 +
-+	/* display@0 {
++	display@0 {
 +		compatible = "sitronix,st7735s";
 +		reg = <0>;
 +		spi-max-frequency = <16000000>;
@@ -242,7 +242,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +
 +		backlight = <&backlight>;
 +		rotation = <0>;
-+	};*/
++	};
 +
 +	/*
 +	 * SPIDEV for debugging - uncomment to enable direct SPI access
@@ -253,10 +253,10 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	 *   spi-tools test /dev/spidev0.0
 +	 */
 +	
-+	spidev@0 {
++	/* spidev@0 {
 +		compatible = "rohm,dh2228fv";
 +		reg = <0>;
 +		spi-max-frequency = <1000000>;
 +	};
-+	
++	*/
 +};
