@@ -32,13 +32,15 @@ Index: drivers/gpu/drm/tiny/Makefile
 Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,308 @@
++++ b/drivers/gpu/drm/tiny/st7735s.c
+@@ -0,0 +1,317 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * DRM driver for Sitronix ST7735S display panels
 + *
 + * Copyright 2025
 + * Based on st7735r driver by David Lechner <david@lechnology.com>
++ * Android MSM8916 initialization sequence
 + */
 +
 +#include <linux/backlight.h>
@@ -89,6 +91,10 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +	const struct st7735s_cfg *cfg;
 +};
 +
++/*
++ * Android DTS initialization sequence from MSM8916
++ * Order is critical - do not modify
++ */
 +static void st7735s_pipe_enable(struct drm_simple_display_pipe *pipe,
 +				struct drm_crtc_state *crtc_state,
 +				struct drm_plane_state *plane_state)
@@ -98,100 +104,106 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +						 dbidev);
 +	struct mipi_dbi *dbi = &dbidev->dbi;
 +	int ret, idx;
-+	u8 addr_mode;
 +
 +	if (!drm_dev_enter(pipe->crtc.dev, &idx))
 +		return;
 +
-+	DRM_DEBUG_KMS("\n");
++	pr_info("st7735s: === BEGIN ANDROID SEQUENCE ===\n");
 +
 +	ret = mipi_dbi_poweron_reset(dbidev);
-+	if (ret)
++	if (ret) {
++		pr_err("st7735s: poweron_reset failed: %d\n", ret);
 +		goto out_exit;
++	}
 +
-+	/* Initialization sequence based on Qualcomm MSM8916 Android DTS */
-+
-+	/* Exit sleep mode will be called by poweron_reset */
++	/* 1. EXIT_SLEEP_MODE (0x11) - delay 150ms (0x96) */
++	pr_info("st7735s: [1/19] EXIT_SLEEP_MODE (0x11)\n");
++	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
 +	msleep(150);
 +
-+	/* Frame rate control - normal mode */
++	/* 2. SET_ADDRESS_MODE (0x36) - 0x00 */
++	pr_info("st7735s: [2/19] SET_ADDRESS_MODE (0x36) = 0x00\n");
++	mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
++
++	/* 3. SET_COLUMN_ADDRESS (0x2a) - 0,0,0,131 */
++	pr_info("st7735s: [3/19] SET_COLUMN_ADDRESS (0x2a) = 0,0,0,131\n");
++	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS,
++			 0x00, 0x00, 0x00, 0x83);
++
++	/* 4. SET_PAGE_ADDRESS (0x2b) - 0,0,0,131 */
++	pr_info("st7735s: [4/19] SET_PAGE_ADDRESS (0x2b) = 0,0,0,131\n");
++	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS,
++			 0x00, 0x00, 0x00, 0x83);
++
++	/* 5. SET_PIXEL_FORMAT (0x3a) - 0x05 (16-bit RGB565) */
++	pr_info("st7735s: [5/19] SET_PIXEL_FORMAT (0x3a) = 0x05\n");
++	mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT, 0x05);
++
++	/* 6. FRMCTR1 (0xb1) - 0x05,0x3c,0x3c */
++	pr_info("st7735s: [6/19] FRMCTR1 (0xb1)\n");
 +	mipi_dbi_command(dbi, ST7735S_FRMCTR1, 0x05, 0x3c, 0x3c);
 +
-+	/* Frame rate control - idle mode */
++	/* 7. FRMCTR2 (0xb2) - 0x05,0x3c,0x3c */
++	pr_info("st7735s: [7/19] FRMCTR2 (0xb2)\n");
 +	mipi_dbi_command(dbi, ST7735S_FRMCTR2, 0x05, 0x3c, 0x3c);
 +
-+	/* Frame rate control - partial mode */
++	/* 8. FRMCTR3 (0xb3) - 0x05,0x3c,0x3c,0x05,0x3c,0x3c */
++	pr_info("st7735s: [8/19] FRMCTR3 (0xb3)\n");
 +	mipi_dbi_command(dbi, ST7735S_FRMCTR3, 0x05, 0x3c, 0x3c,
 +			 0x05, 0x3c, 0x3c);
 +
-+	/* Display inversion control */
++	/* 9. INVCTR (0xb4) - 0x03 */
++	pr_info("st7735s: [9/19] INVCTR (0xb4) = 0x03\n");
 +	mipi_dbi_command(dbi, ST7735S_INVCTR, 0x03);
 +
-+	/* Power control */
++	/* 10. PWCTR1 (0xc0) - 0x0e,0x0e,0x04 */
++	pr_info("st7735s: [10/19] PWCTR1 (0xc0)\n");
 +	mipi_dbi_command(dbi, ST7735S_PWCTR1, 0x0e, 0x0e, 0x04);
++
++	/* 11. PWCTR2 (0xc1) - 0xc0 */
++	pr_info("st7735s: [11/19] PWCTR2 (0xc1) = 0xc0\n");
 +	mipi_dbi_command(dbi, ST7735S_PWCTR2, 0xc0);
++
++	/* 12. PWCTR3 (0xc2) - 0x0d,0x00 */
++	pr_info("st7735s: [12/19] PWCTR3 (0xc2)\n");
 +	mipi_dbi_command(dbi, ST7735S_PWCTR3, 0x0d, 0x00);
++
++	/* 13. PWCTR4 (0xc3) - 0x8d,0x2a */
++	pr_info("st7735s: [13/19] PWCTR4 (0xc3)\n");
 +	mipi_dbi_command(dbi, ST7735S_PWCTR4, 0x8d, 0x2a);
++
++	/* 14. PWCTR5 (0xc4) - 0x8d,0xee */
++	pr_info("st7735s: [14/19] PWCTR5 (0xc4)\n");
 +	mipi_dbi_command(dbi, ST7735S_PWCTR5, 0x8d, 0xee);
 +
-+	/* VCOM control */
++	/* 15. VMCTR1 (0xc5) - 0x0c */
++	pr_info("st7735s: [15/19] VMCTR1 (0xc5) = 0x0c\n");
 +	mipi_dbi_command(dbi, ST7735S_VMCTR1, 0x0c);
 +
-+	/* Memory access control */
-+	switch (dbidev->rotation) {
-+	default:
-+		addr_mode = ST7735S_MX | ST7735S_MY;
-+		break;
-+	case 90:
-+		addr_mode = ST7735S_MX | ST7735S_MV;
-+		break;
-+	case 180:
-+		addr_mode = 0;
-+		break;
-+	case 270:
-+		addr_mode = ST7735S_MY | ST7735S_MV;
-+		break;
-+	}
-+
-+	if (priv->cfg->rgb)
-+		addr_mode |= ST7735S_RGB;
-+
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, addr_mode);
-+
-+	/* Pixel format: 16-bit color (RGB565) */
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT,
-+			 MIPI_DCS_PIXEL_FMT_16BIT);
-+
-+	/* Positive gamma correction */
++	/* 16. GAMCTRP1 (0xe0) - Positive Gamma */
++	pr_info("st7735s: [16/19] GAMCTRP1 (0xe0)\n");
 +	mipi_dbi_command(dbi, ST7735S_GAMCTRP1,
 +			 0x0c, 0x1c, 0x0f, 0x18, 0x36, 0x2f, 0x27, 0x2a,
 +			 0x27, 0x25, 0x2d, 0x3c, 0x00, 0x05, 0x03, 0x10);
 +
-+	/* Negative gamma correction */
++	/* 17. GAMCTRN1 (0xe1) - Negative Gamma */
++	pr_info("st7735s: [17/19] GAMCTRN1 (0xe1)\n");
 +	mipi_dbi_command(dbi, ST7735S_GAMCTRN1,
 +			 0x0c, 0x1a, 0x09, 0x09, 0x26, 0x22, 0x1e, 0x25,
 +			 0x25, 0x25, 0x2e, 0x3b, 0x00, 0x05, 0x03, 0x10);
 +
-+	/* Display inversion ON */
++	/* 18. ENTER_INVERT_MODE (0x21) */
++	pr_info("st7735s: [18/19] ENTER_INVERT_MODE (0x21)\n");
 +	mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE);
 +
-+	/* Column address set: 0-131 (132 pixels physical) */
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS,
-+			 0x00, 0x00, 0x00, 0x83);
-+
-+	/* Page address set: 0-131 (132 pixels physical) */
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS,
-+			 0x00, 0x00, 0x00, 0x83);
-+
-+	/* Exit sleep mode */
-+	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
-+	msleep(120);
-+
-+	/* Display on */
++	/* 19. SET_DISPLAY_ON (0x29) - delay 120ms (0x78) */
++	pr_info("st7735s: [19/19] SET_DISPLAY_ON (0x29)\n");
 +	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 +	msleep(120);
 +
++	pr_info("st7735s: === SEQUENCE COMPLETE, calling flush ===\n");
 +	mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
++	pr_info("st7735s: === FLUSH DONE ===\n");
 +
 +out_exit:
 +	drm_dev_exit(idx);
@@ -203,16 +215,14 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +
 +/*
 + * Configuration for 128x128 visible area on 132x132 physical panel
-+ * Offsets calculated to center the visible area:
-+ * left_offset = (132 - 128) / 2 = 2
-+ * top_offset = 1 (fine-tuned for alignment)
++ * Offsets calculated to center the visible area
 + */
 +static const struct st7735s_cfg st7735s_128x128_cfg = {
 +	.mode		= { DRM_SIMPLE_MODE(128, 128, 22, 22) },
 +	.left_offset	= 2,
 +	.top_offset	= 1,
 +	.write_only	= false,
-+	.rgb		= false,  /* BGR order by default */
++	.rgb		= false,
 +};
 +
 +DEFINE_DRM_GEM_DMA_FOPS(st7735s_fops);

@@ -2,14 +2,14 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,139 @@
+@@ -0,0 +1,257 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
 +
 +#include "msm8916-ufi.dtsi"
 +#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
++#include <dt-bindings/leds/common.h>
 +
 +/ {
 +	model = "MF68E 4G LTE Mobile WiFi Router";
@@ -28,117 +28,235 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +			<4063000 75>, <4006000 70>, <3972000 65>,
 +			<3931000 60>, <3880000 55>, <3841000 50>,
 +			<3817000 45>, <3798000 40>, <3783000 35>,
-+			<3767000 30>, <3747000 25>, <3729000 20>,
-+			<3700000 16>, <3687000 13>, <3683000 11>,
-+			<3681000 10>, <3680000 9>, <3678000 8>,
-+			<3674000 7>, <3666000 6>, <3641000 5>,
-+			<3597000 4>, <3537000 3>, <3457000 2>,
-+			<3336000 1>, <3000000 0>;
-+	};
-+
-+	usb_id: usb-id {
-+		compatible = "linux,extcon-usb-gpio";
-+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&usb_id_default>;
++			<3767000 30>, <3752000 25>, <3732000 20>,
++			<3712000 16>, <3694000 13>, <3681000 11>,
++			<3675000 10>, <3673000 9>, <3664000 8>,
++			<3655000 7>, <3642000 6>, <3628000 5>,
++			<3611000 4>, <3573000 3>, <3531000 2>,
++			<3495000 1>, <3400000 0>;
 +	};
 +
 +	backlight: backlight {
 +		compatible = "pwm-backlight";
 +		pwms = <&pm8916_pwm 0 100000>;
-+		brightness-levels = <255 128 64 32 16 8 4 0>;
++		brightness-levels = <0 255>;
 +		num-interpolated-steps = <255>;
-+		default-brightness-level = <1>;
++		default-brightness-level = <128>;
 +	};
-+};
 +
-+&blsp_spi3 {
-+	status = "okay";
++	gpio-keys {
++		compatible = "gpio-keys";
 +
-+	panel@0 {
-+		compatible = "sitronix,st7735s";
-+		reg = <0>;
-+		spi-max-frequency = <32000000>;
-+
-+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-+		dc-gpios = <&tlmm 23 GPIO_ACTIVE_HIGH>;
-+		backlight = <&backlight>;
-+
-+		vdd-supply = <&pm8916_l17>;
-+		vddio-supply = <&pm8916_l6>;
-+
++		pinctrl-0 = <&button_default>;
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&panel_default>;
++
++		label = "GPIO Buttons";
++
++		button-reset {
++			label = "Reset";
++			gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++		};
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		pinctrl-0 = <&gpio_leds_default>;
++		pinctrl-names = "default";
++
++		led-0 {
++			gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
++			color = <LED_COLOR_ID_BLUE>;
++			function = LED_FUNCTION_WLAN;
++			default-state = "off";
++		};
++
++		led-1 {
++			gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
++			color = <LED_COLOR_ID_BLUE>;
++			function = LED_FUNCTION_WAN;
++			default-state = "off";
++		};
++
++		led-2 {
++			gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_POWER;
++			default-state = "on";
++		};
 +	};
 +};
 +
-+&pm8916_l6 {
-+	regulator-always-on;
++&battery {
++	monitored-battery = <&bat>;
 +};
 +
-+&pm8916_rpm_regulators {
-+	pm8916_l17: l17 {
-+		regulator-min-microvolt = <2850000>;
-+		regulator-max-microvolt = <2850000>;
-+		regulator-always-on;
-+	};
++&button_default {
++	pins = "gpio37";
++	function = "gpio";
++	drive-strength = <2>;
++	bias-pull-up;
++};
++
++&gpio_leds_default {
++	pins = "gpio20", "gpio21", "gpio22";
++	function = "gpio";
++	drive-strength = <2>;
++	bias-disable;
++};
++
++&mpss_mem {
++	reg = <0x0 0x86800000 0x0 0x5500000>;
 +};
 +
 +&pm8916_pwm {
-+	status = "okay";
-+	pinctrl-names = "default";
 +	pinctrl-0 = <&pwm_out>;
-+};
-+
-+&pm8916_mpps {
-+	pwm_out: mpp4-state {
-+		pins = "mpp4";
-+		function = "digital";
-+		output-low;
-+		qcom,dtest = <1>;
-+		power-source = <PM8916_MPP_VPH>;
-+	};
-+};
-+
-+&pm8916_bms {
++	pinctrl-names = "default";
 +	status = "okay";
-+	monitored-battery = <&bat>;
-+	power-supplies = <&pm8916_charger>;
 +};
 +
-+&pm8916_charger {
++&pm8916_codec {
++	qcom,micbias-lvl = <2800>;
++	qcom,mbhc-vthreshold-low = <75 150 237 450 500>;
++	qcom,mbhc-vthreshold-high = <75 150 237 450 500>;
++	qcom,hphl-jack-type-normally-open;
++};
++
++&sdhc_1 {
 +	status = "okay";
-+	monitored-battery = <&bat>;
-+	qcom,fast-charge-safe-current = <900000>;
-+	qcom,fast-charge-safe-voltage = <4350000>;
++};
++
++&sdhc_2 {
++	status = "okay";
++	non-removable;
++};
++
++&sound {
++	audio-routing =
++		"AMIC1", "MIC BIAS Internal1",
++		"AMIC2", "MIC BIAS External1",
++		"AMIC3", "MIC BIAS External1";
 +};
 +
 +&usb {
-+	status = "okay";
-+	extcon = <&usb_id>, <&usb_id>;
++	dr_mode = "peripheral";
++	extcon = <&usb_id>;
 +};
 +
 +&usb_hs_phy {
 +	extcon = <&usb_id>;
 +};
 +
-+&sdhc_1 {
-+   status = "okay";
++&wcnss {
++	status = "okay";
++};
++
++&wcnss_iris {
++	compatible = "qcom,wcn3620";
 +};
 +
 +&tlmm {
-+	panel_default: panel-default-state {
-+		pins = "gpio25", "gpio23";
++	/*
++	 * GPIO 0,1,2,3: SPI0 for ST7735S display
++	 * GPIO 23: DC (Data/Command) for display
++	 * GPIO 25: Reset for display
++	 */
++	spi0_default: spi0-default-state {
++		pins = "gpio0", "gpio1", "gpio3";
++		function = "blsp_spi1";
++		drive-strength = <8>;
++		bias-disable;
++	};
++
++	spi0_cs_default: spi0-cs-default-state {
++		pins = "gpio2";
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-disable;
-+       output-high;
++		output-high;
 +	};
 +
-+	usb_id_default: usb-id-default-state {
-+		pins = "gpio110";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-pull-up;
++	display_pins: display-state {
++		reset-pins {
++			pins = "gpio25";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++			output-high;
++		};
++
++		dc-pins {
++			pins = "gpio23";
++			function = "gpio";
++			drive-strength = <8>;
++			bias-disable;
++			output-high;
++		};
 +	};
++};
++
++&pm8916_mpps {
++	/*
++	 * MPP4 is used for PWM backlight control
++	 * Configured for digital output to drive PWM
++	 */
++	pwm_out: mpp4-state {
++		pins = "mpp4";
++		function = "digital";
++		power-source = <PM8916_MPP_VPH>;
++		output-low;
++		qcom,dtest = <1>;
++	};
++};
++
++/*
++ * SPI0 Bus - ST7735S Display Controller
++ * Physical panel: 132x132 pixels
++ * Visible area: 128x128 pixels
++ * Interface: 4-wire SPI (MOSI, MISO, SCK, CS)
++ * Additional: DC (GPIO23), Reset (GPIO25)
++ */
++&spi0 {
++	status = "okay";
++	pinctrl-0 = <&spi0_default &spi0_cs_default &display_pins>;
++	pinctrl-names = "default";
++
++	cs-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>;
++
++	/* display@0 {
++		compatible = "sitronix,st7735s";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++
++		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
++		dc-gpios = <&tlmm 23 GPIO_ACTIVE_HIGH>;
++
++		/*
++		 * Power supplies from PM8916
++		 * L17: 2.85V for display VDD
++		 * L6: 1.8V for display VDDIO
++		 */
++		VDD-supply = <&pm8916_l17>;
++		VDDIO-supply = <&pm8916_l6>;
++
++		backlight = <&backlight>;
++		rotation = <0>;
++	};*/
++
++	/*
++	 * SPIDEV for debugging - uncomment to enable direct SPI access
++	 * WARNING: Comment out display@0 node above when using spidev
++	 *
++	 * Usage:
++	 *   ls /dev/spidev0.0
++	 *   spi-tools test /dev/spidev0.0
++	 */
++	
++	spidev@0 {
++		compatible = "rohm,dh2228fv";
++		reg = <0>;
++		spi-max-frequency = <1000000>;
++	};
++	
 +};
