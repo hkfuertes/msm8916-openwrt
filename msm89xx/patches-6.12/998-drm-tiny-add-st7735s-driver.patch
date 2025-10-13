@@ -29,11 +29,11 @@ Index: drivers/gpu/drm/tiny/Makefile
  obj-$(CONFIG_TINYDRM_ST7586)		+= st7586.o
  obj-$(CONFIG_TINYDRM_ST7735R)		+= st7735r.o
 +obj-$(CONFIG_TINYDRM_ST7735S)		+= st7735s.o
-Index: b/drivers/gpu/drm/tiny/st7735s.c
+Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,247 @@
+@@ -0,0 +1,226 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * DRM driver for Sitronix ST7735S / GalaxyCore GC9106 display controller
@@ -76,75 +76,54 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 +};
 +
 +static void st7735s_pipe_enable(struct drm_simple_display_pipe *pipe,
-+				 struct drm_crtc_state *crtc_state,
-+				 struct drm_plane_state *plane_state)
++                struct drm_crtc_state *crtc_state,
++                struct drm_plane_state *plane_state)
 +{
-+	struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(pipe->crtc.dev);
-+	struct mipi_dbi *dbi = &dbidev->dbi;
-+	int ret, idx;
++   struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(pipe->crtc.dev);
++   struct mipi_dbi *dbi = &dbidev->dbi;
++   int ret, idx;
 +
-+	if (!drm_dev_enter(pipe->crtc.dev, &idx))
-+		return;
++   if (!drm_dev_enter(pipe->crtc.dev, &idx))
++       return;
 +
-+	DRM_DEBUG_KMS("\n");
++   DRM_DEBUG_KMS("\n");
 +
-+	ret = mipi_dbi_poweron_reset(dbidev);
-+	if (ret)
-+		goto out_exit;
++   ret = mipi_dbi_poweron_reset(dbidev);
++   if (ret)
++       goto out_exit;
 +
-+	/* GC9106 Inter Register Enable sequence */
-+	mipi_dbi_command(dbi, 0xfe);
-+	mipi_dbi_command(dbi, 0xfe);
-+	mipi_dbi_command(dbi, 0xfe);
-+	mipi_dbi_command(dbi, 0xef);
++   msleep(120);
 +
-+	/* GC9106 Configuration */
-+	mipi_dbi_command(dbi, 0xb3, 0x03);       /* Frame rate control */
-+	mipi_dbi_command(dbi, 0x36, 0x00);       /* Memory access control: normal */
-+	mipi_dbi_command(dbi, 0x3a, 0x05);       /* Pixel format: 16-bit */
-+	mipi_dbi_command(dbi, 0xb6, 0x11);       /* Display function control */
-+	mipi_dbi_command(dbi, 0xac, 0x0b);       /* Internal setting */
-+	mipi_dbi_command(dbi, 0xb4, 0x21);       /* Display inversion control */
-+	mipi_dbi_command(dbi, 0xb1, 0xc0);       /* Frame rate normal mode */
-+	mipi_dbi_command(dbi, 0xe6, 0x50, 0x43); /* Internal register */
-+	mipi_dbi_command(dbi, 0xe7, 0x56, 0x43); /* Internal register */
++   mipi_dbi_command(dbi, 0xB1, 0x05, 0x3C, 0x3C);
++   mipi_dbi_command(dbi, 0xB2, 0x05, 0x3C, 0x3C);
++   mipi_dbi_command(dbi, 0xB3, 0x05, 0x3C, 0x3C, 0x05, 0x3C, 0x3C);
++   mipi_dbi_command(dbi, 0xB4, 0x03);
++   mipi_dbi_command(dbi, 0xC0, 0x0E, 0x0E, 0x04);
++   mipi_dbi_command(dbi, 0xC1, 0xC0);
++   mipi_dbi_command(dbi, 0xC2, 0x0D, 0x00);
++   mipi_dbi_command(dbi, 0xC3, 0x8D, 0x2A);
++   mipi_dbi_command(dbi, 0xC4, 0x8D, 0xEE);
++   mipi_dbi_command(dbi, 0xC5, 0x0C);
++   mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, 0xD8);
++   mipi_dbi_command(dbi, 0xE0, 0x0C, 0x1C, 0x0F, 0x18, 0x36, 0x2F, 0x27, 0x2A,
++            0x27, 0x25, 0x2D, 0x3C, 0x00, 0x05, 0x03, 0x10);
++   mipi_dbi_command(dbi, 0xE1, 0x0C, 0x1A, 0x09, 0x09, 0x26, 0x22, 0x1E, 0x25,
++            0x25, 0x25, 0x2E, 0x3B, 0x00, 0x05, 0x03, 0x10);
++   mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT);
++   mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
++   msleep(120);
++   mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
++   msleep(20);
++   mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
++   mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x20, 0x00, 0x9F);
++   mipi_dbi_command(dbi, MIPI_DCS_WRITE_MEMORY_START);
 +
-+	/* Positive Gamma */
-+	mipi_dbi_command(dbi, 0xF0, 0x1f, 0x41, 0x1B, 0x55, 0x36, 0x3d, 0x3e,
-+			 0x0, 0x16, 0x08, 0x09, 0x15, 0x14, 0xf);
-+	
-+	/* Negative Gamma */
-+	mipi_dbi_command(dbi, 0xF1, 0x1f, 0x41, 0x1B, 0x55, 0x36, 0x3d, 0x3e,
-+			 0x0, 0x16, 0x08, 0x09, 0x15, 0x14, 0xf);
-+
-+	/* Exit inter-register mode */
-+	mipi_dbi_command(dbi, 0xfe);
-+	mipi_dbi_command(dbi, 0xff);
-+
-+	/* Tearing effect line on */
-+	mipi_dbi_command(dbi, 0x35, 0x00);
-+
-+	/* Exit sleep mode */
-+	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
-+	msleep(120);
-+
-+	/* Display on */
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
-+	msleep(20);
-+
-+	/* Set window address for 128x128 display 
-+	 * Column: 0-127 (128 pixels)
-+	 * Page: 0-127 (128 pixels) - try offset 16 if display is shifted
-+	 */
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
-+	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
-+	mipi_dbi_command(dbi, MIPI_DCS_WRITE_MEMORY_START);
-+
-+	mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
++   mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
 +
 +out_exit:
-+	drm_dev_exit(idx);
++   drm_dev_exit(idx);
 +}
++
 +
 +static const struct drm_simple_display_pipe_funcs st7735s_pipe_funcs = {
 +	DRM_MIPI_DBI_SIMPLE_DISPLAY_PIPE_FUNCS(st7735s_pipe_enable),
@@ -153,7 +132,7 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 +static const struct st7735s_cfg mf68e_128x128_cfg = {
 +	.mode = { DRM_SIMPLE_MODE(128, 128, 25, 26) },
 +	.left_offset = 0,
-+	.top_offset = 0,
++	.top_offset = 32,
 +	.write_only = true,
 +	.rgb = true,
 +};
@@ -173,13 +152,13 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 +};
 +
 +static const struct of_device_id st7735s_of_match[] = {
-+	{ .compatible = "sitronix,st7735s-128x128", .data = &mf68e_128x128_cfg },
++	{ .compatible = "sitronix,st7735s", .data = &mf68e_128x128_cfg },
 +	{ },
 +};
 +MODULE_DEVICE_TABLE(of, st7735s_of_match);
 +
 +static const struct spi_device_id st7735s_id[] = {
-+	{ "st7735s-128x128", (uintptr_t)&mf68e_128x128_cfg },
++	{ "st7735s", (uintptr_t)&mf68e_128x128_cfg },
 +	{ },
 +};
 +MODULE_DEVICE_TABLE(spi, st7735s_id);
@@ -278,6 +257,6 @@ Index: b/drivers/gpu/drm/tiny/st7735s.c
 +};
 +module_spi_driver(st7735s_spi_driver);
 +
-+MODULE_DESCRIPTION("Sitronix ST7735S / GalaxyCore GC9106 DRM driver");
++MODULE_DESCRIPTION("Sitronix ST7735S DRM driver for MSM8916");
 +MODULE_AUTHOR("Stefan x Nilsson <stefan.x.nilsson@axis.com>");
 +MODULE_LICENSE("GPL");
