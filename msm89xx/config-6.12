@@ -1008,3 +1008,35 @@ CONFIG_ZONE_DMA32=y
 CONFIG_ZSTD_COMMON=y
 CONFIG_ZSTD_COMPRESS=y
 CONFIG_ZSTD_DECOMPRESS=y
+
+
+# Framebuffer support
+CONFIG_FB=y
+CONFIG_FB_DEFERRED_IO=y
+CONFIG_FB_SYS_FILLRECT=y
+CONFIG_FB_SYS_COPYAREA=y
+CONFIG_FB_SYS_IMAGEBLIT=y
+CONFIG_FB_SYS_FOPS=y
+
+# FBTFT - Framebuffer for small TFT displays
+CONFIG_FB_TFT=m
+CONFIG_FB_TFT_ST7735R=m
+
+# Backlight support
+CONFIG_BACKLIGHT_CLASS_DEVICE=y
+CONFIG_BACKLIGHT_PWM=y
+
+# SPI support (probablemente ya lo tengas)
+CONFIG_SPI=y
+CONFIG_SPI_MASTER=y
+CONFIG_SPI_QUP=y
+
+# DMA support for FB
+CONFIG_FB_DMAMEM_HELPERS=y
+
+# Font support (opcional pero recomendado)
+CONFIG_FONTS=y
+CONFIG_FONT_8x16=y
+
+# Staging drivers (donde está fbtft)
+CONFIG_STAGING=y

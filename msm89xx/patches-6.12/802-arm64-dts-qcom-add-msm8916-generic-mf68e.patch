@@ -2,7 +2,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,139 @@
+@@ -0,0 +1,147 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -55,21 +55,29 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +&blsp_spi3 {
 +	status = "okay";
 +
-+	panel@0 {
-+		compatible = "sitronix,st7735s-fb";
-+		reg = <0>;
-+		spi-max-frequency = <16000000>;
-+
-+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-+		dc-gpios = <&tlmm 23 GPIO_ACTIVE_HIGH>;
-+		/* backlight = <&backlight>; */
-+
-+		vdd-supply = <&pm8916_l17>;
-+		vddio-supply = <&pm8916_l6>;
-+
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&panel_default>;
-+	};
++   panel@0 {
++       compatible = "sitronix,st7735r";
++       reg = <0>;
++       spi-max-frequency = <16000000>;
++ 
++       reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
++       dc-gpios = <&tlmm 23 GPIO_ACTIVE_HIGH>;
++       backlight = <&backlight>;
++ 
++       vdd-supply = <&pm8916_l17>;
++       vddio-supply = <&pm8916_l6>;
++    
++       buswidth = <8>;
++       width = <128>;
++       height = <128>;
++       rotate = <0>;
++       bgr;
++       fps = <27>;
++       debug = <0>;
++    
++       pinctrl-names = "default";
++       pinctrl-0 = <&panel_default>;
++   };
 +};
 +
 +&pm8916_l6 {
