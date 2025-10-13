@@ -33,7 +33,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,223 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * DRM driver for Sitronix ST7735S / GalaxyCore GC9106 display controller
@@ -114,9 +114,6 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +   msleep(120);
 +   mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 +   msleep(20);
-+   mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
-+   mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x20, 0x00, 0x9F);
-+   mipi_dbi_command(dbi, MIPI_DCS_WRITE_MEMORY_START);
 +
 +   mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
 +
@@ -228,7 +225,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +
 +	spi_set_drvdata(spi, drm);
 +
-+	drm_fbdev_dma_setup(drm, 0);
++	drm_fbdev_dma_setup(drm, 16);
 +
 +	return 0;
 +}
