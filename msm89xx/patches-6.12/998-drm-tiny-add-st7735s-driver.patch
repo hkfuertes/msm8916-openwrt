@@ -33,7 +33,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
 +++ b/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,241 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * DRM driver for Sitronix ST7735S / GalaxyCore GC9106 display controller
@@ -92,8 +92,19 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +   if (ret)
 +       goto out_exit;
 +
++   /* Allow panel to stabilise after reset */
 +   msleep(120);
 +
++   /* GC9106/GC9107 require an early "unlock" sequence (FE,FE,FE,EF)
++    * immediately after reset and before any Bx/Cx/E* commands.
++    */
++   mipi_dbi_command(dbi, 0xFE);
++   mipi_dbi_command(dbi, 0xFE);
++   mipi_dbi_command(dbi, 0xFE);
++   mipi_dbi_command(dbi, 0xEF);
++   dev_dbg(pipe->crtc.dev->dev, "st7735s: sent GC910x unlock FE FE FE EF after reset\n");
++
++   /* Continue with the rest of the vendor init sequence */
 +   mipi_dbi_command(dbi, 0xB1, 0x05, 0x3C, 0x3C);
 +   mipi_dbi_command(dbi, 0xB2, 0x05, 0x3C, 0x3C);
 +   mipi_dbi_command(dbi, 0xB3, 0x05, 0x3C, 0x3C, 0x05, 0x3C, 0x3C);
@@ -114,9 +125,10 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +   msleep(120);
 +   mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 +   msleep(20);
-+   mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F);
-+   mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x20, 0x00, 0x9F);
-+   mipi_dbi_command(dbi, MIPI_DCS_WRITE_MEMORY_START);
++
++   /* Debug: report the offsets used for the flush helper */
++   dev_dbg(pipe->crtc.dev->dev, "st7735s: enabling flush: left=%u top=%u\n",
++           dbidev->left_offset, dbidev->top_offset);
 +
 +   mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
 +
@@ -192,7 +204,10 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +	if (IS_ERR(dbi->reset))
 +		return dev_err_probe(dev, PTR_ERR(dbi->reset), "Failed to get GPIO 'reset'\n");
 +
-+	dc = devm_gpiod_get(dev, "dc", GPIOD_OUT_LOW);
++	/* DC typically active HIGH on these modules; default to OUT_HIGH so the line idles asserted.
++	 * If your hardware needs the inverse, test with dc-gpios = <&tlmm 30 GPIO_ACTIVE_LOW> in DTS.
++	 */
++	dc = devm_gpiod_get(dev, "dc", GPIOD_OUT_HIGH);
 +	if (IS_ERR(dc))
 +		return dev_err_probe(dev, PTR_ERR(dc), "Failed to get GPIO 'dc'\n");
 +
@@ -228,7 +243,7 @@ Index: drivers/gpu/drm/tiny/st7735s.c
 +
 +	spi_set_drvdata(spi, drm);
 +
-+	drm_fbdev_dma_setup(drm, 0);
++	drm_fbdev_dma_setup(drm, 16);
 +
 +	return 0;
 +}

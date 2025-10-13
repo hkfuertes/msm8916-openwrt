@@ -2,7 +2,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,139 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -52,7 +52,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	};
 +};
 +
-+&blsp_spi5 {
++&blsp_spi3 {
 +	status = "okay";
 +
 +	panel@0 {
@@ -61,7 +61,7 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		spi-max-frequency = <32000000>;
 +
 +		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-+		dc-gpios = <&tlmm 30 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&tlmm 23 GPIO_ACTIVE_HIGH>;
 +		backlight = <&backlight>;
 +
 +		vdd-supply = <&pm8916_l17>;
@@ -128,10 +128,11 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +
 +&tlmm {
 +	panel_default: panel-default-state {
-+		pins = "gpio25", "gpio30";
++		pins = "gpio25", "gpio23";
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-disable;
++       output-high;
 +	};
 +
 +	usb_id_default: usb-id-default-state {
