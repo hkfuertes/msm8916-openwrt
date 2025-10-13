@@ -1,6 +1,34 @@
-Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-===================================================================
---- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+From: OpenWRT Builder <builder@openwrt.org>
+Date: Mon, 13 Oct 2025 16:40:00 +0200
+Subject: [PATCH] arm64: dts: qcom: Add MSM8916 MF68E device with ST7735S display
+
+Add device tree for MF68E 4G LTE Mobile WiFi Router with ST7735S display support.
+
+Features:
+- ST7735S 128x128 display via SPI0
+- PWM backlight via PM8916 MPP4
+- Battery monitoring
+- GPIO LEDs and buttons
+- SPIDEV support for debugging (commented out)
+
+Signed-off-by: OpenWRT Builder <builder@openwrt.org>
+---
+ arch/arm64/boot/dts/qcom/Makefile             |   1 +
+ .../dts/qcom/msm8916-generic-mf68e.dts        | 257 ++++++++++++++++++
+ 2 files changed, 258 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -25,6 +25,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-alcatel-idol347.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-asus-z00l.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-huawei-g7.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-longcheer-l8150.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-mf68e.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-mtp.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-a3u-eur.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-a5u-eur.dtb
+--- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 @@ -0,0 +1,257 @@
 +// SPDX-License-Identifier: GPL-2.0-only
