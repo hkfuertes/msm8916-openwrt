@@ -2,15 +2,14 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,208 @@
+@@ -0,0 +1,139 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
 +
 +#include "msm8916-ufi.dtsi"
 +#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
-+#include <dt-bindings/leds/common.h>
++#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
 +
 +/ {
 +	model = "MF68E 4G LTE Mobile WiFi Router";
@@ -25,16 +24,16 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +
 +		ocv-capacity-celsius = <25>;
 +		ocv-capacity-table-0 = <4330000 100>, <4265000 95>,
-+				<4208000 90>, <4154000 85>, <4102000 80>,
-+				<4063000 75>, <4006000 70>, <3972000 65>,
-+				<3931000 60>, <3880000 55>, <3841000 50>,
-+				<3817000 45>, <3798000 40>, <3783000 35>,
-+				<3767000 30>, <3747000 25>, <3729000 20>,
-+				<3700000 16>, <3687000 13>, <3683000 11>,
-+				<3681000 10>, <3680000 9>, <3678000 8>,
-+				<3674000 7>, <3666000 6>, <3641000 5>,
-+				<3597000 4>, <3537000 3>, <3457000 2>,
-+				<3336000 1>, <3000000 0>;
++			<4208000 90>, <4154000 85>, <4102000 80>,
++			<4063000 75>, <4006000 70>, <3972000 65>,
++			<3931000 60>, <3880000 55>, <3841000 50>,
++			<3817000 45>, <3798000 40>, <3783000 35>,
++			<3767000 30>, <3747000 25>, <3729000 20>,
++			<3700000 16>, <3687000 13>, <3683000 11>,
++			<3681000 10>, <3680000 9>, <3678000 8>,
++			<3674000 7>, <3666000 6>, <3641000 5>,
++			<3597000 4>, <3537000 3>, <3457000 2>,
++			<3336000 1>, <3000000 0>;
 +	};
 +
 +	usb_id: usb-id {
@@ -47,83 +46,30 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	backlight: backlight {
 +		compatible = "pwm-backlight";
 +		pwms = <&pm8916_pwm 0 100000>;
-+		brightness-levels = <0 32 64 128 255>;
-+		num-interpolated-steps = <32>;
-+		default-brightness-level = <128>;
-+	};
-+
-+	gpio-keys {
-+		compatible = "gpio-keys";
-+
-+		pinctrl-0 = <&button_default>;
-+		pinctrl-names = "default";
-+
-+		label = "GPIO Buttons";
-+
-+		button-power {
-+			label = "Power";
-+			linux,code = <KEY_POWER>;
-+			gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
-+		};
-+
-+		button-reset {
-+			label = "Reset";
-+			linux,code = <KEY_RESTART>;
-+			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
-+		};
-+	};
-+
-+	leds {
-+		compatible = "gpio-leds";
-+
-+		pinctrl-0 = <&gpio_leds_default>;
-+		pinctrl-names = "default";
-+
-+		led-0 {
-+			gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
-+			function = LED_FUNCTION_WLAN;
-+			color = <LED_COLOR_ID_BLUE>;
-+		};
-+
-+		led-1 {
-+			gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
-+			function = LED_FUNCTION_STATUS;
-+			color = <LED_COLOR_ID_GREEN>;
-+		};
++		brightness-levels = <255 128 64 32 16 8 4 0>;
++		num-interpolated-steps = <255>;
++		default-brightness-level = <1>;
 +	};
 +};
 +
 +&blsp_spi5 {
 +	status = "okay";
 +
-+	pinctrl-0 = <&spi5_default &spi5_cs_default>;
-+	pinctrl-names = "default";
-+
-+	display@0 {
++	panel@0 {
 +		compatible = "sitronix,st7735s";
 +		reg = <0>;
-+		spi-max-frequency = <16000000>;
-+		spi-cpol;
-+		spi-cpha;
++		spi-max-frequency = <32000000>;
 +
-+		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
 +		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-+
++		dc-gpios = <&tlmm 30 GPIO_ACTIVE_LOW>;
 +		backlight = <&backlight>;
-+		
++
 +		vdd-supply = <&pm8916_l17>;
 +		vddio-supply = <&pm8916_l6>;
 +
-+		rotation = <0>;
-+		width-mm = <23>;
-+		height-mm = <23>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&panel_default>;
 +	};
-+};
-+
-+&pm8916_pwm {
-+	pinctrl-0 = <&pwm_out>;
-+	pinctrl-names = "default";
-+	status = "okay";
 +};
 +
 +&pm8916_l6 {
@@ -135,6 +81,22 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		regulator-min-microvolt = <2850000>;
 +		regulator-max-microvolt = <2850000>;
 +		regulator-always-on;
++	};
++};
++
++&pm8916_pwm {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm_out>;
++};
++
++&pm8916_mpps {
++	pwm_out: mpp4-state {
++		pins = "mpp4";
++		function = "digital";
++		output-low;
++		qcom,dtest = <1>;
++		power-source = <PM8916_MPP_VPH>;
 +	};
 +};
 +
@@ -161,37 +123,15 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +};
 +
 +&sdhc_1 {
-+	status = "okay";
++   status = "okay";
 +};
 +
 +&tlmm {
-+	button_default: button-default-state {
-+		pins = "gpio35", "gpio37";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-up;
-+	};
-+
-+	gpio_leds_default: gpio-leds-default-state {
-+		pins = "gpio20", "gpio21";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-disable;
-+	};
-+
-+	spi5_default: spi5-default-state {
-+		pins = "gpio16", "gpio17", "gpio19";
-+		function = "blsp_spi5";
-+		drive-strength = <8>;
-+		bias-disable;
-+	};
-+
-+	spi5_cs_default: spi5-cs-default-state {
-+		pins = "gpio18";
++	panel_default: panel-default-state {
++		pins = "gpio25", "gpio30";
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-disable;
-+		output-high;
 +	};
 +
 +	usb_id_default: usb-id-default-state {
@@ -199,15 +139,5 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-pull-up;
-+	};
-+};
-+
-+&pm8916_mpps {
-+	pwm_out: pwm-out-state {
-+		pins = "mpp4";
-+		function = "digital";
-+		power-source = <PM8916_MPP_VPH>;
-+		output-low;
-+		qcom,dtest = <1>;
 +	};
 +};
