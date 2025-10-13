@@ -1,18 +1,5 @@
-From: OpenWRT Builder <builder@openwrt.org>
-Date: Mon, 13 Oct 2025 16:30:00 +0200
-Subject: [PATCH] drm/tiny: Add Sitronix ST7735S display driver
-
-Add DRM driver for Sitronix ST7735S display panels with Android
-MSM8916 initialization sequence.
-
-Signed-off-by: OpenWRT Builder <builder@openwrt.org>
----
- drivers/gpu/drm/tiny/Kconfig   |  14 ++
- drivers/gpu/drm/tiny/Makefile  |   1 +
- drivers/gpu/drm/tiny/st7735s.c | 351 +++++++++++++++++++++++++++++++++
- 3 files changed, 366 insertions(+)
- create mode 100644 drivers/gpu/drm/tiny/st7735s.c
-
+Index: drivers/gpu/drm/tiny/Kconfig
+===================================================================
 --- a/drivers/gpu/drm/tiny/Kconfig
 +++ b/drivers/gpu/drm/tiny/Kconfig
 @@ -213,3 +213,17 @@ config TINYDRM_ST7735R
@@ -33,6 +20,8 @@ Signed-off-by: OpenWRT Builder <builder@openwrt.org>
 +	  * Generic ST7735S 128x128 Color TFT
 +
 +	  If M is selected the module will be called st7735s.
+Index: drivers/gpu/drm/tiny/Makefile
+===================================================================
 --- a/drivers/gpu/drm/tiny/Makefile
 +++ b/drivers/gpu/drm/tiny/Makefile
 @@ -16,3 +16,4 @@ obj-$(CONFIG_TINYDRM_MI0283QT)		+= mi028
