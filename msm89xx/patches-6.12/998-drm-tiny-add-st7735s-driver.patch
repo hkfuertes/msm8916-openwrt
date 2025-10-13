@@ -32,7 +32,7 @@ Index: drivers/gpu/drm/tiny/Makefile
 Index: drivers/gpu/drm/tiny/st7735s.c
 ===================================================================
 --- a/drivers/gpu/drm/tiny/st7735s.c
-@@ -0,0 +1,310 @@
+@@ -0,0 +1,308 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * DRM driver for Sitronix ST7735S display panels
