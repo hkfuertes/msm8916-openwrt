@@ -1,7 +1,7 @@
-Index: linux-6.12.51/drivers/staging/fbtft/fb_st7735r.c
+Index: drivers/staging/fbtft/fb_st7735r.c
 ===================================================================
---- linux-6.12.51.orig/drivers/staging/fbtft/fb_st7735r.c
-+++ linux-6.12.51/drivers/staging/fbtft/fb_st7735r.c
+--- a/drivers/staging/fbtft/fb_st7735r.c
++++ b/drivers/staging/fbtft/fb_st7735r.c
 @@ -14,84 +14,96 @@
  
  #define DRVNAME "fb_st7735r"
