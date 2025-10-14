@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=fbtft-st7735
 PKG_RELEASE:=1
 
-include $(INCLUDE_DIR)/package.mk    # ← AÑADIR ESTA LÍNEA
+include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/fbtft-st7735
   SUBMENU:=Video Support
