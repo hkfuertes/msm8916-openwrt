@@ -1,0 +1,186 @@
+--- /dev/null
++++ b/drivers/staging/fbtft/fb_gc9107.c
+@@ -0,0 +1,159 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * FB driver for the GC9107 LCD Controller
++ *
++ * Copyright (C) 2025 based on research and init sequence from:
++ * - Craig Bishop (https://gist.github.com/craigjb/da1bc4200f0378a886a6b4987837551c)
++ * - Android MSM8916 MF68E device
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++
++#include "fbtft.h"
++
++#define DRVNAME "fb_gc9107"
++#define WIDTH 128
++#define HEIGHT 128
++#define BPP 16
++
++/* GC9107 Commands */
++#define GC9107_SWRESET    0x01
++#define GC9107_SLPOUT     0x11
++#define GC9107_INVON      0x21
++#define GC9107_DISPOFF    0x28
++#define GC9107_DISPON     0x29
++#define GC9107_CASET      0x2A
++#define GC9107_RASET      0x2B
++#define GC9107_RAMWR      0x2C
++#define GC9107_MADCTL     0x36
++#define GC9107_COLMOD     0x3A
++
++/* 
++ * Init sequence for GC9107 128x128 
++ * Based on working Android implementation and Craig Bishop's init
++ */
++static int init_display(struct fbtft_par *par)
++{
++	par->fbtftops.reset(par);
++	mdelay(120);
++
++	/* Pixel Format: 16 bits/pixel (RGB565) */
++	write_reg(par, GC9107_COLMOD, 0x05);
++
++	/* Display Inversion ON - Required for proper colors */
++	write_reg(par, GC9107_INVON);
++
++	/* Sleep Out */
++	write_reg(par, GC9107_SLPOUT);
++	mdelay(120);
++
++	/* Display ON */
++	write_reg(par, GC9107_DISPON);
++	mdelay(20);
++
++	return 0;
++}
++
++/*
++ * Set address window with offsets
++ * GC9107 requires COL_OFFSET=2, ROW_OFFSET=1 for 128x128 panels
++ */
++static void set_addr_win(struct fbtft_par *par, int xs, int ys, int xe, int ye)
++{
++	const int col_offset = 2;
++	const int row_offset = 1;
++
++	/* Column Address Set */
++	write_reg(par, GC9107_CASET,
++		  (xs + col_offset) >> 8,
++		  (xs + col_offset) & 0xFF,
++		  (xe + col_offset) >> 8,
++		  (xe + col_offset) & 0xFF);
++
++	/* Row Address Set */
++	write_reg(par, GC9107_RASET,
++		  (ys + row_offset) >> 8,
++		  (ys + row_offset) & 0xFF,
++		  (ye + row_offset) >> 8,
++		  (ye + row_offset) & 0xFF);
++
++	/* Memory Write */
++	write_reg(par, GC9107_RAMWR);
++}
++
++/*
++ * Memory Data Access Control (MADCTL)
++ * Bits:
++ *   MY  (bit 7): Row address order
++ *   MX  (bit 6): Column address order
++ *   MV  (bit 5): Row/Column exchange
++ *   ML  (bit 4): Vertical refresh order
++ *   BGR (bit 3): RGB-BGR order
++ *   MH  (bit 2): Horizontal refresh order
++ */
++static int set_var(struct fbtft_par *par)
++{
++	u8 madctl = 0;
++
++	switch (par->info->var.rotate) {
++	case 0:
++		madctl = 0x00;
++		break;
++	case 90:
++		madctl = 0x60;  /* MV | MX */
++		break;
++	case 180:
++		madctl = 0xC0;  /* MY | MX */
++		break;
++	case 270:
++		madctl = 0xA0;  /* MV | MY */
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	/* Add BGR bit if needed */
++	if (par->bgr)
++		madctl |= 0x08;
++
++	write_reg(par, GC9107_MADCTL, madctl);
++
++	return 0;
++}
++
++static int blank(struct fbtft_par *par, bool on)
++{
++	if (on)
++		write_reg(par, GC9107_DISPOFF);
++	else
++		write_reg(par, GC9107_DISPON);
++	return 0;
++}
++
++static struct fbtft_display display = {
++	.regwidth = 8,
++	.width = WIDTH,
++	.height = HEIGHT,
++	.bpp = BPP,
++	.fps = 27,
++	.fbtftops = {
++		.init_display = init_display,
++		.set_addr_win = set_addr_win,
++		.set_var = set_var,
++		.blank = blank,
++	},
++};
++
++FBTFT_REGISTER_DRIVER(DRVNAME, "galaxycore,gc9107", &display);
++
++MODULE_ALIAS("spi:" DRVNAME);
++MODULE_ALIAS("platform:" DRVNAME);
++MODULE_ALIAS("spi:gc9107");
++MODULE_ALIAS("platform:gc9107");
++
++MODULE_DESCRIPTION("FB driver for the GC9107 LCD Controller");
++MODULE_AUTHOR("Based on Craig Bishop and Android MF68E init");
++MODULE_LICENSE("GPL");
+--- a/drivers/staging/fbtft/Kconfig
++++ b/drivers/staging/fbtft/Kconfig
+@@ -39,6 +39,12 @@ config FB_TFT_AGM1264K_FL
+ 	help
+ 	  Generic Framebuffer support for AGM1264K-FL LCD display
+ 
++config FB_TFT_GC9107
++	tristate "FB driver for the GC9107 LCD Controller"
++	depends on FB_TFT
++	help
++	  Framebuffer support for GalaxyCore GC9107 128x128 LCD
++
+ config FB_TFT_BD663474
+ 	tristate "FB driver for the BD663474 LCD Controller"
+ 	depends on FB_TFT
+--- a/drivers/staging/fbtft/Makefile
++++ b/drivers/staging/fbtft/Makefile
+@@ -6,6 +6,7 @@ obj-$(CONFIG_FB_TFT)             += fbtft.o
+ fbtft-y                          += fbtft-core.o fbtft-sysfs.o fbtft-bus.o fbtft-io.o
+ 
+ obj-$(CONFIG_FB_TFT_AGM1264K_FL) += fb_agm1264k-fl.o
++obj-$(CONFIG_FB_TFT_GC9107)      += fb_gc9107.o
+ obj-$(CONFIG_FB_TFT_BD663474)    += fb_bd663474.o
+ obj-$(CONFIG_FB_TFT_HX8340BN)    += fb_hx8340bn.o

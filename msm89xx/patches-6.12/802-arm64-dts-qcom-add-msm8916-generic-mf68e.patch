@@ -1,8 +1,6 @@
-Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-===================================================================
---- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
+--- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,162 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -46,38 +44,47 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	backlight: backlight {
 +		compatible = "pwm-backlight";
 +		pwms = <&pm8916_pwm 0 100000>;
-+		brightness-levels = <255 128 64 32 16 8 4 0>;
++		brightness-levels = <0 4 8 16 32 64 128 255>;
 +		num-interpolated-steps = <255>;
-+		default-brightness-level = <1>;
++		default-brightness-level = <6>;
 +	};
 +};
 +
-+&blsp_spi3 {
++/* GC9107 Panel on SPI5 (0x78b9000) */
++&blsp_spi5 {
 +	status = "okay";
++	
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&spi4_default>;
++	pinctrl-1 = <&spi4_sleep>;
 +
-+   panel@0 {
-+       compatible = "sitronix,st7735r";
-+       reg = <0>;
-+       spi-max-frequency = <16000000>;
-+ 
-+       reset-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
-+       dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
-+       backlight = <&backlight>;
-+ 
-+       vdd-supply = <&pm8916_l17>;
-+       vddio-supply = <&pm8916_l6>;
-+    
-+       buswidth = <8>;
-+       width = <128>;
-+       height = <128>;
-+       rotate = <0>;
-+       bgr;
-+       fps = <27>;
-+       debug = <7>;
-+    
-+       pinctrl-names = "default";
-+       pinctrl-0 = <&panel_default>;
-+   };
++	panel@0 {
++		compatible = "galaxycore,gc9107", "sitronix,st7735r";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		
++		/* SPI Mode 3: CPOL=1, CPHA=1 */
++		/*spi-cpha;
++		spi-cpol;*/
++
++		reset-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
++		backlight = <&backlight>;
++
++		vdd-supply = <&pm8916_l17>;
++		vddio-supply = <&pm8916_l6>;
++
++		width-mm = <23>;
++		height-mm = <23>;
++
++		buswidth = <8>;
++		width = <128>;
++		height = <128>;
++		rotate = <0>;
++		bgr;
++		fps = <27>;
++		debug = <1>;
++	};
 +};
 +
 +&pm8916_l6 {
@@ -131,16 +138,22 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +};
 +
 +&sdhc_1 {
-+   status = "okay";
++	status = "okay";
 +};
 +
 +&tlmm {
-+	panel_default: panel-default-state {
-+		pins = "gpio11", "gpio30";
-+		function = "gpio";
-+		drive-strength = <8>;
++	spi4_default: spi4-default-state {
++		pins = "gpio16", "gpio17", "gpio19";
++		function = "blsp_spi5";
++		drive-strength = <12>;
 +		bias-disable;
-+       output-high;
++	};
++
++	spi4_sleep: spi4-sleep-state {
++		pins = "gpio16", "gpio17", "gpio19";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
 +	};
 +
 +	usb_id_default: usb-id-default-state {

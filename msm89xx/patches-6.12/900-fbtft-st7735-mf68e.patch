@@ -1,7 +1,7 @@
 Index: drivers/staging/fbtft/fb_st7735r.c
 ===================================================================
 --- a/drivers/staging/fbtft/fb_st7735r.c
-+++ a/drivers/staging/fbtft/fb_st7735r.c
++++ b/drivers/staging/fbtft/fb_st7735r.c
 @@ -14,84 +14,101 @@
  
  #define DRVNAME "fb_st7735r"

@@ -9,7 +9,7 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/fbtft-st7735
   SUBMENU:=Video Support
   TITLE:=ST7735R/S Framebuffer Driver (Custom for MF68E)
-  DEPENDS:=@TARGET_msm89xx
+  DEPENDS:=@TARGET_msm89xx +kmod-backlight
   KCONFIG:= \
     CONFIG_FB=y \
     CONFIG_FB_BACKLIGHT=y \
@@ -25,11 +25,13 @@ define KernelPackage/fbtft-st7735
     CONFIG_FONT_8x16=y \
     CONFIG_STAGING=y \
     CONFIG_FB_TFT=m \
-    CONFIG_FB_TFT_ST7735R=m
+    CONFIG_FB_TFT_ST7735R=m \
+    CONFIG_FB_TFT_GC9107=m
   FILES:= \
     $(LINUX_DIR)/drivers/staging/fbtft/fbtft.ko \
-    $(LINUX_DIR)/drivers/staging/fbtft/fb_st7735r.ko
-  AUTOLOAD:=$(call AutoProbe,fbtft fb_st7735r)
+    $(LINUX_DIR)/drivers/staging/fbtft/fb_st7735r.ko \
+    $(LINUX_DIR)/drivers/staging/fbtft/fb_gc9107.ko
+  AUTOLOAD:=$(call AutoProbe,fbtft fb_st7735r fb_gc9107)
 endef
 
 define KernelPackage/fbtft-st7735/description
