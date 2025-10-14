@@ -288,7 +288,7 @@ Index: drivers/staging/fbtft/fb_st7735r.c
 -	},
 +        .regwidth = 8,
 +        .width = 128,
-+        .height = 160,
++        .height = 128,
 +        .init_sequence = default_init_sequence,
 +        .gamma_num = 2,
 +        .gamma_len = 16,
