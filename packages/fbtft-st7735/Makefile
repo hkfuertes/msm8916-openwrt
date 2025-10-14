@@ -1,10 +1,15 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
+PKG_NAME:=fbtft-st7735
+PKG_RELEASE:=1
+
+include $(INCLUDE_DIR)/package.mk    # ← AÑADIR ESTA LÍNEA
+
 define KernelPackage/fbtft-st7735
   SUBMENU:=Video Support
-  TITLE:=ST7735 Framebuffer Driver
-  DEPENDS:=+kmod-fb +kmod-backlight +kmod-spi-dev
+  TITLE:=ST7735R/S Framebuffer Driver (Custom for MF68E)
+  DEPENDS:=@TARGET_msm89xx
   KCONFIG:= \
     CONFIG_FB=y \
     CONFIG_FB_BACKLIGHT=y \
@@ -26,3 +31,13 @@ define KernelPackage/fbtft-st7735
     $(LINUX_DIR)/drivers/staging/fbtft/fb_st7735r.ko
   AUTOLOAD:=$(call AutoProbe,fbtft fb_st7735r)
 endef
+
+define KernelPackage/fbtft-st7735/description
+  Custom ST7735R/S framebuffer driver for MF68E device.
+  Includes proper initialization sequence from Android kernel.
+endef
+
+define Build/Compile
+endef
+
+$(eval $(call KernelPackage,fbtft-st7735))
