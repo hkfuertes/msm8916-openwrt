@@ -2,13 +2,15 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 ===================================================================
 --- a/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,231 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
 +
 +#include "msm8916-ufi.dtsi"
 +#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/leds/common.h>
 +#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
 +
 +/ {
@@ -36,6 +38,56 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +			<3336000 1>, <3000000 0>;
 +	};
 +
++	gpio-keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&button_default>;
++		label = "GPIO Buttons";
++
++		button_restart: button-restart {
++			label = "Restart";
++			gpios = <&tlmm 107 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++			debounce-interval = <15>;
++		};
++
++		button_volup: volume-up {
++			label = "Volume Up";
++			gpios = <&tlmm 107 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_VOLUMEUP>;
++			gpio-key,wakeup;
++			debounce-interval = <15>;
++		};
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&gpio_leds_default>;
++
++		led_power: led-power {
++			color = <LED_COLOR_ID_RED>;
++			function = LED_FUNCTION_POWER;
++			gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		led_wlan: led-wlan {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_WLAN;
++			gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++			linux,default-trigger = "phy0tx";
++		};
++
++		led_wan: led-wan {
++			color = <LED_COLOR_ID_BLUE>;
++			function = LED_FUNCTION_WAN;
++			gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
 +	usb_id: usb-id {
 +		compatible = "linux,extcon-usb-gpio";
 +		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
@@ -44,42 +96,51 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +	};
 +};
 +
++&pm8916_0 {
++	wled@d800 {
++		compatible = "qcom,pm8916-wled";
++		reg = <0xd800>;
++		label = "backlight";
++		status = "okay";
++		
++		qcom,cs-out;
++		qcom,current-boost-limit = <805>;
++		qcom,current-limit-microamp = <40000>;
++		qcom,ovp-millivolt = <29000>;
++		qcom,num-strings = <3>;
++		
++		default-brightness = <512>;
++		max-brightness = <4095>;
++	};
++};
++
 +&blsp_spi3 {
 +	status = "okay";
 +
-+   panel@0 {
-+       compatible = "sitronix,st7735r";
-+       reg = <0>;
-+       spi-max-frequency = <16000000>;
-+ 
-+       reset-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
-+       dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
-+       backlight = <&pm8916_wled>;
-+ 
-+       vdd-supply = <&pm8916_l17>;
-+       vddio-supply = <&pm8916_l6>;
-+    
-+       buswidth = <8>;
-+       width = <128>;
-+       height = <128>;
-+       rotate = <0>;
-+       bgr;
-+       fps = <27>;
-+       debug = <7>;
-+       bpp = <16>;
-+    
-+       pinctrl-names = "default";
-+       pinctrl-0 = <&panel_default>;
-+   };
-+};
-+
-+&pm8916_wled {
-+    status = "okay";
-+    qcom,cs-out;
-+    qcom,current-limit = <20>;
++	st7735@0 {
++		compatible = "sitronix,st7735r";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		
++		buswidth = <8>;
++		reset-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
++		
++		width = <128>;
++		height = <128>;
++		rotate = <0>;
++		bgr;
++		fps = <27>;
++		debug = <3>;
++		
++		pinctrl-names = "default";
++		pinctrl-0 = <&panel_default>;
++	};
 +};
 +
 +&pm8916_l6 {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
 +	regulator-always-on;
 +};
 +
@@ -88,22 +149,6 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		regulator-min-microvolt = <2850000>;
 +		regulator-max-microvolt = <2850000>;
 +		regulator-always-on;
-+	};
-+};
-+
-+&pm8916_pwm {
-+	status = "okay";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pwm_out>;
-+};
-+
-+&pm8916_mpps {
-+	pwm_out: mpp4-state {
-+		pins = "mpp4";
-+		function = "digital";
-+		output-low;
-+		qcom,dtest = <1>;
-+		power-source = <PM8916_MPP_VPH>;
 +	};
 +};
 +
@@ -130,7 +175,19 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +};
 +
 +&sdhc_1 {
-+   status = "okay";
++	status = "okay";
++};
++
++&sdhc_2 {
++	status = "okay";
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&sdc2_default>;
++	pinctrl-1 = <&sdc2_sleep>;
++	
++	vmmc-supply = <&pm8916_l11>;
++	vqmmc-supply = <&pm8916_l12>;
++	
++	cd-gpios = <&tlmm 38 GPIO_ACTIVE_LOW>;
 +};
 +
 +&tlmm {
@@ -139,13 +196,41 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +		function = "gpio";
 +		drive-strength = <8>;
 +		bias-disable;
-+       output-high;
++		output-high;
++	};
++
++	gpio_leds_default: gpio-leds-default-state {
++		pins = "gpio20", "gpio21", "gpio22";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	button_default: button-default-state {
++		pins = "gpio107";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-up;
 +	};
 +
 +	usb_id_default: usb-id-default-state {
 +		pins = "gpio110";
 +		function = "gpio";
 +		drive-strength = <8>;
++		bias-pull-up;
++	};
++
++	sdc2_default: sdc2-default-state {
++		pins = "gpio38";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++	};
++
++	sdc2_sleep: sdc2-sleep-state {
++		pins = "gpio38";
++		function = "gpio";
++		drive-strength = <2>;
 +		bias-pull-up;
 +	};
 +};
