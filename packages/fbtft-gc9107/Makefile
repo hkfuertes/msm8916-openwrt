@@ -1,14 +1,14 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=fbtft-st7735
+PKG_NAME:=fbtft-gc9107
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define KernelPackage/fbtft-st7735
+define KernelPackage/fbtft-gc9107
   SUBMENU:=Video Support
-  TITLE:=ST7735R/S Framebuffer Driver (Custom for MF68E)
+  TITLE:=GC9107 Framebuffer Driver
   DEPENDS:=@TARGET_msm89xx +kmod-backlight
   KCONFIG:= \
     CONFIG_FB=y \
@@ -29,15 +29,14 @@ define KernelPackage/fbtft-st7735
   FILES:= \
     $(LINUX_DIR)/drivers/staging/fbtft/fbtft.ko \
     $(LINUX_DIR)/drivers/staging/fbtft/fb_gc9107.ko
-  AUTOLOAD:=$(call AutoProbe,fbtft fb_st7735r fb_gc9107)
+  AUTOLOAD:=$(call AutoProbe,fbtft fb_gc9107)
 endef
 
-define KernelPackage/fbtft-st7735/description
-  Custom ST7735R/S framebuffer driver for MF68E device.
-  Includes proper initialization sequence from Android kernel.
+define KernelPackage/fbtft-gc9107/description
+  GC9107 framebuffer driver for MF68E device.
 endef
 
 define Build/Compile
 endef
 
-$(eval $(call KernelPackage,fbtft-st7735))
+$(eval $(call KernelPackage,fbtft-gc9107))
