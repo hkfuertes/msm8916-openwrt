@@ -1,19 +1,30 @@
 /*
- * rgb2rbg.c - RGB565 to RBG converter
- * Copyright (C) 2025
- * License: GPL-2.0
+ * rgb2rbg.c - RGB565 to RBG565 converter
+ * Swaps Green and Blue channels
  */
 
 #include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
 
 #define BUFFER_SIZE 8192
 
 static inline uint16_t swap_gb(uint16_t pixel) {
-    return (pixel & 0xF800) |           // Keep R (bits 15-11)
-           ((pixel & 0x001F) << 5) |    // B to G position
-           ((pixel & 0x07E0) >> 5);     // G to B position
+    // RGB565: RRRRR GGGGGG BBBBB
+    //         15-11  10-5   4-0
+    
+    uint16_t r = pixel & 0xF800;        // Mantener Rojo (bits 15-11)
+    uint16_t g = (pixel & 0x07E0) >> 5; // Verde (bits 10-5) → posición de Azul (bits 4-0)
+    uint16_t b = (pixel & 0x001F) << 5; // Azul (bits 4-0) → posición de Verde (bits 10-5)
+    
+    // Problema: G tiene 6 bits, B tiene 5 bits
+    // Verde (6 bits) → Azul (5 bits): recortar MSB
+    uint16_t g5 = g >> 1;
+    
+    // Azul (5 bits) → Verde (6 bits): expandir replicando MSB
+    uint16_t b6 = (b << 1) | (b >> 4);
+    
+    // RBG565: RRRRR BBBBBB GGGGG
+    return r | b6 | g5;
 }
 
 int main(void) {
