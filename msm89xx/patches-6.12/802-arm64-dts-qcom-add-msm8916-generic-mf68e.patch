@@ -68,8 +68,8 @@ Index: arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
 +       vddio-supply = <&pm8916_l6>;
 +    
 +       buswidth = <8>;
-+       width = <132>;
-+       height = <132>;
++       width = <128>;
++       height = <128>;
 +       rotate = <0>;
 +       bgr;
 +       fps = <27>;
