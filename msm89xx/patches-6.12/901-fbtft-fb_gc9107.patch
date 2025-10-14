@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/drivers/staging/fbtft/fb_gc9107.c
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,160 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * FB driver for the GC9107 LCD Controller
@@ -25,6 +25,7 @@
 +/* GC9107 Commands */
 +#define GC9107_SWRESET    0x01
 +#define GC9107_SLPOUT     0x11
++#define GC9107_INVOFF     0x20
 +#define GC9107_INVON      0x21
 +#define GC9107_DISPOFF    0x28
 +#define GC9107_DISPON     0x29
@@ -47,7 +48,7 @@
 +	write_reg(par, GC9107_COLMOD, 0x05);
 +
 +	/* Display Inversion ON - Required for proper colors */
-+	write_reg(par, GC9107_INVON);
++	write_reg(par, GC9107_INVOFF);
 +
 +	/* Sleep Out */
 +	write_reg(par, GC9107_SLPOUT);
