@@ -1,8 +1,8 @@
 Index: drivers/staging/fbtft/fb_st7735r.c
 ===================================================================
 --- a/drivers/staging/fbtft/fb_st7735r.c
-+++ b/drivers/staging/fbtft/fb_st7735r.c
-@@ -14,84 +14,96 @@
++++ a/drivers/staging/fbtft/fb_st7735r.c
+@@ -14,84 +14,101 @@
  
  #define DRVNAME "fb_st7735r"
  #define DEFAULT_GAMMA   "0F 1A 0F 18 2F 28 20 22 1F 1B 23 37 00 07 02 10\n" \
@@ -10,7 +10,11 @@ Index: drivers/staging/fbtft/fb_st7735r.c
 +                        "0F 1B 0F 17 33 2C 29 2E 30 30 39 3F 00 07 03 10"
  
 +/*
-+ * Init sequence adapted from Android kernel for MF68E device (ST7735S 132x132)
++ * Init sequence from Android MDSS driver for MF68E device (ST7735S 128x128)
++ * Key differences from standard ST7735R:
++ *   - Resolution: 128x128 (not 132x132)
++ *   - Vertical offset: 32 lines (RASET 0x20-0x9F instead of 0x00-0x7F)
++ *   - MADCTL: 0xD8 (not 0xC8)
 + */
  static const s16 default_init_sequence[] = {
 -	-1, MIPI_DCS_SOFT_RESET,
@@ -43,11 +47,40 @@ Index: drivers/staging/fbtft/fb_st7735r.c
 +
 +        /* PWCTR3 - Power Control */
 +        -1, 0xC2, 0x0D, 0x00,
++
++        /* PWCTR4 - Power Control */
++        -1, 0xC3, 0x8D, 0x2A,
++
++        /* PWCTR5 - Power Control */
++        -1, 0xC4, 0x8D, 0xEE,
++
++        /* VMCTR1 - Power Control */
++        -1, 0xC5, 0x0C,
++
++        /* Memory Data Access Control - MF68E specific (0xD8 not 0xC8) */
++        -1, MIPI_DCS_SET_ADDRESS_MODE, 0xD8,
++
++        /* Display Invert ON - Required for MF68E panel */
++        -1, MIPI_DCS_ENTER_INVERT_MODE,
++
++        /* Pixel Format - 16 bit */
++        -1, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT,
++
++        /* Gamma correction (positive) */
++        -1, 0xE0, 0x0C, 0x1C, 0x0F, 0x18, 0x36, 0x2F, 0x27, 0x2A,
++                  0x27, 0x25, 0x2D, 0x3C, 0x00, 0x05, 0x03, 0x10,
++
++        /* Gamma correction (negative) */
++        -1, 0xE1, 0x0C, 0x1A, 0x09, 0x09, 0x26, 0x22, 0x1E, 0x25,
++                  0x25, 0x25, 0x2E, 0x3B, 0x00, 0x05, 0x03, 0x10,
++
++        /* Column address set - MF68E uses 0-127 (0x00-0x7F) for 128 pixels */
++        -1, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x7F,
  
 -	-1, MIPI_DCS_EXIT_SLEEP_MODE,
 -	-2, 500,                               /* delay */
-+        /* PWCTR4 - Power Control */
-+        -1, 0xC3, 0x8D, 0x2A,
++        /* Page address set - MF68E uses 32-159 (0x20-0x9F) with 32-line offset */
++        -1, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x20, 0x00, 0x9F,
  
 -	/* FRMCTR1 - frame rate control: normal mode
 -	 * frame rate = fosc / (1 x 2 + 40) * (LINE + 2C + 2D)
@@ -98,51 +131,22 @@ Index: drivers/staging/fbtft/fb_st7735r.c
 -	-1, MIPI_DCS_EXIT_INVERT_MODE,
 -
 -	-1, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT,
-+        /* PWCTR5 - Power Control */
-+        -1, 0xC4, 0x8D, 0xEE,
++        /* Write memory start */
++        -1, MIPI_DCS_WRITE_MEMORY_START,
++        -2, 120,                               /* delay */
  
 -	-1, MIPI_DCS_SET_DISPLAY_ON,
 -	-2, 100,                               /* delay */
-+        /* VMCTR1 - Power Control */
-+        -1, 0xC5, 0x0C,
++        -1, MIPI_DCS_ENTER_NORMAL_MODE,
++        -2, 50,                                /* delay */
  
 -	-1, MIPI_DCS_ENTER_NORMAL_MODE,
 -	-2, 10,                               /* delay */
-+        /* Memory Data Access Control - MF68E rotation */
-+        -1, MIPI_DCS_SET_ADDRESS_MODE, 0xC8,
++        -1, MIPI_DCS_SET_DISPLAY_ON,
++        -2, 50,                                /* delay */
  
 -	/* end marker */
 -	-3
-+        /* Display Invert ON - Required for MF68E panel */
-+        -1, MIPI_DCS_ENTER_INVERT_MODE,
-+
-+        /* Pixel Format */
-+        -1, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT,
-+
-+        /* Gamma correction (positive) */
-+        -1, 0xE0, 0x0C, 0x1C, 0x0F, 0x18, 0x36, 0x2F, 0x27, 0x2A,
-+                  0x27, 0x25, 0x2D, 0x3C, 0x00, 0x05, 0x03, 0x10,
-+
-+        /* Gamma correction (negative) */
-+        -1, 0xE1, 0x0C, 0x1A, 0x09, 0x09, 0x26, 0x22, 0x1E, 0x25,
-+                  0x25, 0x25, 0x2E, 0x3B, 0x00, 0x05, 0x03, 0x10,
-+
-+        /* Column address set - MF68E uses 0-131 (0x00-0x83) */
-+        -1, MIPI_DCS_SET_COLUMN_ADDRESS, 0x00, 0x00, 0x00, 0x83,
-+
-+        /* Page address set - MF68E uses 0-131 (0x00-0x83) */
-+        -1, MIPI_DCS_SET_PAGE_ADDRESS, 0x00, 0x00, 0x00, 0x83,
-+
-+        /* Write memory */
-+        -1, MIPI_DCS_WRITE_MEMORY_START,
-+        -2, 120,                               /* delay */
-+
-+        -1, MIPI_DCS_ENTER_NORMAL_MODE,
-+        -2, 50,                                /* delay */
-+
-+        -1, MIPI_DCS_SET_DISPLAY_ON,
-+        -2, 50,                                /* delay */
-+
 +        /* end marker */
 +        -3
  };
@@ -157,14 +161,15 @@ Index: drivers/staging/fbtft/fb_st7735r.c
 -	write_reg(par, MIPI_DCS_SET_PAGE_ADDRESS,
 -		  ys >> 8, ys & 0xFF, ye >> 8, ye & 0xFF);
 +        write_reg(par, MIPI_DCS_SET_PAGE_ADDRESS,
-+                  ys >> 8, ys & 0xFF, ye >> 8, ye & 0xFF);
++                  (ys + 0x20) >> 8, (ys + 0x20) & 0xFF,
++                  (ye + 0x20) >> 8, (ye + 0x20) & 0xFF);
  
 -	write_reg(par, MIPI_DCS_WRITE_MEMORY_START);
 +        write_reg(par, MIPI_DCS_WRITE_MEMORY_START);
  }
  
  #define MY BIT(7)
-@@ -99,33 +111,33 @@ static void set_addr_win(struct fbtft_pa
+@@ -99,33 +116,33 @@ static void set_addr_win(struct fbtft_pa
  #define MV BIT(5)
  static int set_var(struct fbtft_par *par)
  {
@@ -224,7 +229,7 @@ Index: drivers/staging/fbtft/fb_st7735r.c
  }
  
  /*
-@@ -136,42 +148,42 @@ static int set_var(struct fbtft_par *par
+@@ -136,42 +153,42 @@ static int set_var(struct fbtft_par *par
  #define CURVE(num, idx)  curves[(num) * par->gamma.num_values + (idx)]
  static int set_gamma(struct fbtft_par *par, u32 *curves)
  {
@@ -296,8 +301,3 @@ Index: drivers/staging/fbtft/fb_st7735r.c
  };
  
  FBTFT_REGISTER_DRIVER(DRVNAME, "sitronix,st7735r", &display);
-@@ -184,3 +196,4 @@ MODULE_ALIAS("platform:st7735r");
- MODULE_DESCRIPTION("FB driver for the ST7735R LCD Controller");
- MODULE_AUTHOR("Noralf Tronnes");
- MODULE_LICENSE("GPL");
-+
