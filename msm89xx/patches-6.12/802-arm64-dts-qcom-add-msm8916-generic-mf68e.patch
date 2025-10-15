@@ -77,7 +77,7 @@
 +		width = <128>;
 +		height = <128>;
 +		rotate = <0>;
-+		rbg;
++		bgr;
 +		fps = <27>;
 +		debug = <1>;
 +	};
