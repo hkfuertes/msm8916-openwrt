@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,158 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -62,10 +62,6 @@
 +		compatible = "galaxycore,gc9107";
 +		reg = <0>;
 +		spi-max-frequency = <16000000>;
-+		
-+		/* SPI Mode 3: CPOL=1, CPHA=1 */
-+		/*spi-cpha;
-+		spi-cpol;*/
 +
 +		reset-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
 +		dc-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
@@ -81,7 +77,7 @@
 +		width = <128>;
 +		height = <128>;
 +		rotate = <0>;
-+		bgr;
++		rbg;
 +		fps = <27>;
 +		debug = <1>;
 +	};

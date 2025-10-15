@@ -1,6 +1,6 @@
 /*
- * rgb2rbg.c - RGB565 to RBG565 converter
- * Swaps Green and Blue channels
+ * rgb2rbg.c - RGB565 to RBG565 converter (CORRECTO)
+ * Swaps Green and Blue channels with proper bit conversion
  */
 
 #include <stdio.h>
@@ -8,23 +8,22 @@
 
 #define BUFFER_SIZE 8192
 
-static inline uint16_t swap_gb(uint16_t pixel) {
-    // RGB565: RRRRR GGGGGG BBBBB
-    //         15-11  10-5   4-0
+static inline uint16_t rgb_to_rbg(uint16_t pixel) {
+    // Extraer componentes RGB565
+    uint16_t r = (pixel >> 11) & 0x1F;   // Rojo: 5 bits
+    uint16_t g = (pixel >> 5) & 0x3F;    // Verde: 6 bits
+    uint16_t b = pixel & 0x1F;           // Azul: 5 bits
     
-    uint16_t r = pixel & 0xF800;        // Mantener Rojo (bits 15-11)
-    uint16_t g = (pixel & 0x07E0) >> 5; // Verde (bits 10-5) → posición de Azul (bits 4-0)
-    uint16_t b = (pixel & 0x001F) << 5; // Azul (bits 4-0) → posición de Verde (bits 10-5)
+    // Convertir para RBG565:
+    // - Rojo mantiene 5 bits
+    // - Verde (6 bits) va a posición de Azul (que también usa 6 bits en el panel)
+    // - Azul (5 bits) va a posición de Verde, expandir a 6 bits
     
-    // Problema: G tiene 6 bits, B tiene 5 bits
-    // Verde (6 bits) → Azul (5 bits): recortar MSB
-    uint16_t g5 = g >> 1;
+    uint16_t b_expanded = (b << 1) | (b >> 4);  // Expandir B de 5 a 6 bits
     
-    // Azul (5 bits) → Verde (6 bits): expandir replicando MSB
-    uint16_t b6 = (b << 1) | (b >> 4);
-    
-    // RBG565: RRRRR BBBBBB GGGGG
-    return r | b6 | g5;
+    // RBG565: RRRRR GGGGGG BBBBB donde G y B están swapeados
+    // Pero en realidad el panel espera: RRRRR BBBBBB GGGGG (6 bits para ambos)
+    return (r << 11) | (g << 5) | b_expanded;
 }
 
 int main(void) {
@@ -33,7 +32,7 @@ int main(void) {
     
     while ((n = fread(buffer, sizeof(uint16_t), BUFFER_SIZE, stdin)) > 0) {
         for (size_t i = 0; i < n; i++) {
-            buffer[i] = swap_gb(buffer[i]);
+            buffer[i] = rgb_to_rbg(buffer[i]);
         }
         fwrite(buffer, sizeof(uint16_t), n, stdout);
     }

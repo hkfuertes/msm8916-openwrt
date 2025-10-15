@@ -1,13 +1,15 @@
 --- /dev/null
 +++ b/drivers/staging/fbtft/fb_gc9107.c
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,191 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * FB driver for the GC9107 LCD Controller
 + *
-+ * Copyright (C) 2025 based on research and init sequence from:
-+ * - Craig Bishop (https://gist.github.com/craigjb/da1bc4200f0378a886a6b4987837551c)
-+ * - Android MSM8916 MF68E device
++ * Copyright (C) 2025
++ * Based on:
++ *   - Espressif ESP-IDF GC9107 driver (esp_lcd_gc9107.c)
++ *   - Craig Bishop init sequence
++ *   - Android MSM8916 MF68E device
 + */
 +
 +#include <linux/module.h>
@@ -23,31 +25,73 @@
 +#define BPP 16
 +
 +/* GC9107 Commands */
-+#define GC9107_SWRESET    0x01
-+#define GC9107_SLPOUT     0x11
-+#define GC9107_INVOFF     0x20
-+#define GC9107_INVON      0x21
-+#define GC9107_DISPOFF    0x28
-+#define GC9107_DISPON     0x29
-+#define GC9107_CASET      0x2A
-+#define GC9107_RASET      0x2B
-+#define GC9107_RAMWR      0x2C
-+#define GC9107_MADCTL     0x36
-+#define GC9107_COLMOD     0x3A
++#define GC9107_SWRESET  0x01
++#define GC9107_SLPOUT   0x11
++#define GC9107_INVON    0x21
++#define GC9107_INVOFF   0x20
++#define GC9107_DISPOFF  0x28
++#define GC9107_DISPON   0x29
++#define GC9107_CASET    0x2A
++#define GC9107_RASET    0x2B
++#define GC9107_RAMWR    0x2C
++#define GC9107_MADCTL   0x36
++#define GC9107_COLMOD   0x3A
 +
-+/* 
-+ * Init sequence for GC9107 128x128 
-+ * Based on working Android implementation and Craig Bishop's init
++/*
++ * Init sequence from Espressif ESP-IDF driver
++ * Includes proper gamma, power control, and timing
 + */
 +static int init_display(struct fbtft_par *par)
 +{
 +	par->fbtftops.reset(par);
 +	mdelay(120);
 +
-+	/* Pixel Format: 16 bits/pixel (RGB565) */
-+	write_reg(par, GC9107_COLMOD, 0x05);
++	/* Frame Rate Control */
++	write_reg(par, 0xB0, 0xC0);
 +
-+	/* Display Inversion ON - Required for proper colors */
++	/* Porch Control */
++	write_reg(par, 0xB2, 0x2F);
++	write_reg(par, 0xB3, 0x03);
++
++	/* Display Function Control */
++	write_reg(par, 0xB6, 0x19);
++	write_reg(par, 0xB7, 0x01);
++
++	/* Power Control Settings */
++	write_reg(par, 0xAC, 0xCB);
++	write_reg(par, 0xAB, 0x0E);
++	write_reg(par, 0xB4, 0x04);
++
++	/* Internal Register */
++	write_reg(par, 0xA8, 0x19);
++	write_reg(par, 0xB8, 0x08);
++
++	/* Tesla Control */
++	write_reg(par, 0xE8, 0x24);
++	write_reg(par, 0xE9, 0x48);
++	write_reg(par, 0xEA, 0x22);
++
++	/* Interface Control */
++	write_reg(par, 0xC6, 0x30);
++	write_reg(par, 0xC7, 0x18);
++
++	/* Positive Gamma Control */
++	write_reg(par, 0xF0,
++		0x1F, 0x28, 0x04, 0x3E, 0x2A, 0x2E, 0x20,
++		0x00, 0x0C, 0x06, 0x00, 0x1C, 0x1F, 0x0F);
++
++	/* Negative Gamma Control */
++	write_reg(par, 0xF1,
++		0x00, 0x2D, 0x2F, 0x3C, 0x6F, 0x1C, 0x0B,
++		0x00, 0x00, 0x00, 0x07, 0x0D, 0x11, 0x0F);
++
++	/* Tearing Effect Line ON */
++	write_reg(par, 0x35, 0x00);
++
++	/* Pixel Format: RGB565 (16 bits/pixel) */
++	write_reg(par, GC9107_COLMOD, 0x55);
++
++	/* Display Inversion OFF - looks bad with INVON */
 +	write_reg(par, GC9107_INVOFF);
 +
 +	/* Sleep Out */
@@ -62,27 +106,29 @@
 +}
 +
 +/*
-+ * Set address window with offsets
-+ * GC9107 requires COL_OFFSET=2, ROW_OFFSET=1 for 128x128 panels
++ * Set address window with proper offsets for GC9107
++ * GC9107 GRAM is 132x130, but display is 128x128
++ * Requires COL_OFFSET=2, ROW_OFFSET=1
 + */
 +static void set_addr_win(struct fbtft_par *par, int xs, int ys, int xe, int ye)
 +{
++	/* GC9107 specific offsets */
 +	const int col_offset = 2;
 +	const int row_offset = 1;
 +
 +	/* Column Address Set */
 +	write_reg(par, GC9107_CASET,
-+		  (xs + col_offset) >> 8,
-+		  (xs + col_offset) & 0xFF,
-+		  (xe + col_offset) >> 8,
-+		  (xe + col_offset) & 0xFF);
++		(xs + col_offset) >> 8,
++		(xs + col_offset) & 0xFF,
++		(xe + col_offset) >> 8,
++		(xe + col_offset) & 0xFF);
 +
 +	/* Row Address Set */
 +	write_reg(par, GC9107_RASET,
-+		  (ys + row_offset) >> 8,
-+		  (ys + row_offset) & 0xFF,
-+		  (ye + row_offset) >> 8,
-+		  (ye + row_offset) & 0xFF);
++		(ys + row_offset) >> 8,
++		(ys + row_offset) & 0xFF,
++		(ye + row_offset) >> 8,
++		(ye + row_offset) & 0xFF);
 +
 +	/* Memory Write */
 +	write_reg(par, GC9107_RAMWR);
@@ -90,36 +136,31 @@
 +
 +/*
 + * Memory Data Access Control (MADCTL)
-+ * Bits:
-+ *   MY  (bit 7): Row address order
-+ *   MX  (bit 6): Column address order
-+ *   MV  (bit 5): Row/Column exchange
-+ *   ML  (bit 4): Vertical refresh order
-+ *   BGR (bit 3): RGB-BGR order
-+ *   MH  (bit 2): Horizontal refresh order
++ * Controls rotation and BGR mode
 + */
 +static int set_var(struct fbtft_par *par)
 +{
 +	u8 madctl = 0;
 +
++	/* Rotation */
 +	switch (par->info->var.rotate) {
 +	case 0:
 +		madctl = 0x00;
 +		break;
 +	case 90:
-+		madctl = 0x60;  /* MV | MX */
++		madctl = 0x60; /* MV | MX */
 +		break;
 +	case 180:
-+		madctl = 0xC0;  /* MY | MX */
++		madctl = 0xC0; /* MY | MX */
 +		break;
 +	case 270:
-+		madctl = 0xA0;  /* MV | MY */
++		madctl = 0xA0; /* MV | MY */
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 +
-+	/* Add BGR bit if needed */
++	/* BGR mode from DTS */
 +	if (par->bgr)
 +		madctl |= 0x08;
 +
@@ -128,26 +169,16 @@
 +	return 0;
 +}
 +
-+static int blank(struct fbtft_par *par, bool on)
-+{
-+	if (on)
-+		write_reg(par, GC9107_DISPOFF);
-+	else
-+		write_reg(par, GC9107_DISPON);
-+	return 0;
-+}
-+
 +static struct fbtft_display display = {
 +	.regwidth = 8,
 +	.width = WIDTH,
 +	.height = HEIGHT,
 +	.bpp = BPP,
-+	.fps = 27,
++	.fps = 30,
 +	.fbtftops = {
 +		.init_display = init_display,
 +		.set_addr_win = set_addr_win,
 +		.set_var = set_var,
-+		.blank = blank,
 +	},
 +};
 +
@@ -158,8 +189,8 @@
 +MODULE_ALIAS("spi:gc9107");
 +MODULE_ALIAS("platform:gc9107");
 +
-+MODULE_DESCRIPTION("FB driver for the GC9107 LCD Controller");
-+MODULE_AUTHOR("Based on Craig Bishop and Android MF68E init");
++MODULE_DESCRIPTION("FB driver for GC9107 LCD Controller");
++MODULE_AUTHOR("Based on Espressif ESP-IDF driver");
 +MODULE_LICENSE("GPL");
 --- a/drivers/staging/fbtft/Kconfig
 +++ b/drivers/staging/fbtft/Kconfig
