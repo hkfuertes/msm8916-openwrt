@@ -10,7 +10,7 @@ define Package/display-monitor
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Display backlight monitor with timeout
-  DEPENDS:=+fbtft-gc9107
+  # DEPENDS:=+fbtft-gc9107
   PKGARCH:=all
 endef
 
