@@ -3,82 +3,71 @@
 BACKLIGHT="/sys/class/backlight/backlight"
 MAX_BRIGHTNESS=$(cat $BACKLIGHT/max_brightness 2>/dev/null || echo 1785)
 
-# Configuración (en segundos)
-TIMEOUT_FULL=3      # 3s al 100%
-TIMEOUT_DIM=2       # 2s al 50% antes de apagar
+TIMEOUT_FULL=5
+TIMEOUT_DIM=3
 BRIGHTNESS_FULL=$MAX_BRIGHTNESS
-BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / 2))
+BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / 8))
 
-# PIDs de timers activos
 DIM_TIMER_PID=""
 OFF_TIMER_PID=""
 
-logger -t display "Display monitor started (max: $MAX_BRIGHTNESS)"
+logger -t display "Display monitor started (max: $MAX_BRIGHTNESS, dimmed: $BRIGHTNESS_DIM)"
 
-# Control del backlight
 set_brightness() {
 	local level=$1
-	
-	if [ "$level" -eq 0 ]; then
-		# Apagar
-		echo 4 > $BACKLIGHT/bl_power 2>/dev/null
-	else
-		# Encender y establecer brillo
-		echo "$level" > $BACKLIGHT/brightness 2>/dev/null
-		echo 0 > $BACKLIGHT/bl_power 2>/dev/null
+	echo $level > $BACKLIGHT/brightness
+}
+
+cancel_timers() {
+	if [ -n "$DIM_TIMER_PID" ]; then
+		kill $DIM_TIMER_PID
+		DIM_TIMER_PID=""
+	fi
+	if [ -n "$OFF_TIMER_PID" ]; then
+		kill $OFF_TIMER_PID
+		OFF_TIMER_PID=""
 	fi
 }
 
-# Cancelar timers activos
-cancel_timers() {
-	[ -n "$DIM_TIMER_PID" ] && kill $DIM_TIMER_PID 2>/dev/null
-	[ -n "$OFF_TIMER_PID" ] && kill $OFF_TIMER_PID 2>/dev/null
-	DIM_TIMER_PID=""
-	OFF_TIMER_PID=""
-}
-
-# Iniciar secuencia de backlight
 start_backlight_sequence() {
-	# Cancelar timers previos
 	cancel_timers
 	
-	# Encender al 100%
-	logger -t display "Backlight: FULL (100%)"
+	logger -t display "Backlight: FULL"
 	set_brightness $BRIGHTNESS_FULL
+
+	TOTAL_TIMEOUT=$((TIMEOUT_FULL + TIMEOUT_DIM))
 	
-	# Timer 1: DIM después de TIMEOUT_FULL segundos
 	(
 		sleep $TIMEOUT_FULL
-		logger -t display "Backlight: DIM (50%)"
+		logger -t display "Backlight: DIM"
 		set_brightness $BRIGHTNESS_DIM
 	) &
 	DIM_TIMER_PID=$!
 	
-	# Timer 2: OFF después de TIMEOUT_FULL + TIMEOUT_DIM segundos
 	(
-		sleep $((TIMEOUT_FULL + TIMEOUT_DIM))
+		sleep $TOTAL_TIMEOUT
 		logger -t display "Backlight: OFF"
-		set_brightness 0
+		set_brightness 1
 	) &
 	OFF_TIMER_PID=$!
 }
 
-# Monitor de eventos del botón
 button_monitor() {
-	PIPE="/tmp/backlight_button_events"
-	[ ! -p "$PIPE" ] && mkfifo "$PIPE"
+	DEVICE="/dev/input/event0"
+	logger -t display "Monitoring power button on /dev/input/event0"
 	
-	while true; do
-		read event < "$PIPE" 2>/dev/null
-		if [ "$event" = "press" ]; then
-			logger -t display "Button pressed - wake display"
+	evtest "$DEVICE" 2>/dev/null | while read -r line; do
+    	if echo "$line" | grep -q "code 116.*value 1"; then
+			logger -t display "Button event detected"
 			start_backlight_sequence
+			
+			usleep 500000
 		fi
 	done
 }
 
-# Inicializar: encender backlight al arrancar
-start_backlight_sequence
 
-# Ejecutar monitor de botón
+trap 'cancel_timers; logger -t display "Display monitor stopped"; exit 0' INT TERM
+
+start_backlight_sequence
 button_monitor
