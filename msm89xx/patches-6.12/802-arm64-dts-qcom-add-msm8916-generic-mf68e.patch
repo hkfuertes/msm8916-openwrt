@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-mf68e.dts
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,160 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -8,6 +8,7 @@
 +#include "msm8916-ufi.dtsi"
 +#include <dt-bindings/gpio/gpio.h>
 +#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
++#include <dt-bindings/pwm/pwm.h>
 +
 +/ {
 +	model = "MF68E 4G LTE Mobile WiFi Router";
@@ -47,6 +48,7 @@
 +		brightness-levels = <255 128 64 32 16 8 4 0>;
 +		num-interpolated-steps = <255>;
 +		default-brightness-level = <6>;
++       status = "okay";
 +	};
 +};
 +
