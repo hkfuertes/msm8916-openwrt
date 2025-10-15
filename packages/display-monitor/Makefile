@@ -23,10 +23,12 @@ endef
 
 define Package/display-monitor/install
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	
 	$(INSTALL_BIN) ./files/display-monitor.sh $(1)/usr/bin/display-monitor
 	$(INSTALL_BIN) ./files/display-monitor.init $(1)/etc/init.d/display-monitor
+	$(INSTALL_DATA) ./files/display.config $(1)/etc/config/display
 endef
 
 define Package/display-monitor/postinst
