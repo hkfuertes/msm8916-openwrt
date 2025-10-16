@@ -6,7 +6,6 @@ services:
     volumes:
       - ../bin:/home/builder/openwrt/bin
       - dl:/home/builder/openwrt/dl
-      # - build_dir:/home/builder/openwrt/build_dir
     user: root
     restart: "no"
 
@@ -20,12 +19,10 @@ services:
     tty: true
     volumes:
       - ..:/repo
-      - ../packages:/home/builder/openwrt/package/uz801
+      - ../packages:/home/builder/openwrt/package/msm8916
       - ../msm89xx:/home/builder/openwrt/target/linux/msm89xx
       - ../bin:/home/builder/openwrt/bin
-      # - ./files:/home/builder/openwrt/files
       - dl:/home/builder/openwrt/dl
-      # - build_dir:/home/builder/openwrt/build_dir
     command: ["/bin/bash"]
     depends_on:
       chown-fix:
