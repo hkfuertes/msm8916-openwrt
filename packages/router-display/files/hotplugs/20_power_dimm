@@ -19,12 +19,26 @@ BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / BRIGHTNESS_DIM_DIVISOR))
 # PID file for timer management
 TIMER_PID_FILE="/tmp/screen_timer.pid"
 
+maybe_set_lockscreen(){
+    # Check if system is shutting down
+    if pgrep poweroff >/dev/null 2>&1 || \
+       pgrep halt >/dev/null 2>&1 || \
+       pgrep reboot >/dev/null 2>&1; then
+        logger -t display "System shutting down - skipping lockscreen"
+        return 0
+    fi
+
+    # Show lockscreen if brightness is OFF
+    [ -n "$1" ] && [ "$1" = "$BRIGHTNESS_OFF" ] && [ -f /etc/boot_logo.fb ] && \
+        cat /etc/boot_logo.fb > /dev/fb0 2>/dev/null
+}
+
 # Set brightness level
 set_brightness() {
-    echo $1 > $BACKLIGHT_PATH/brightness
-
-    [ "$1" = "$BRIGHTNESS_OFF" ] && [ -f /etc/boot_logo.fb ] && \
-        cat /etc/boot_logo.fb > /dev/fb0 2>/dev/null
+    echo "$1" > "$BACKLIGHT_PATH/brightness"
+    
+    # Check if we should show lockscreen
+    maybe_set_lockscreen "$1"
 }
 
 # Function to start a timer
