@@ -22,7 +22,7 @@ show_logo() {
 		
 		if [ -d "$BACKLIGHT" ]; then
 			echo 0 > $BACKLIGHT/bl_power 2>/dev/null
-			echo 892 > $BACKLIGHT/brightness 2>/dev/null
+			echo 128 > $BACKLIGHT/brightness 2>/dev/null
 		fi
 	) &
 }

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Only process power button events
+[ "$BUTTON" = "power" ] || exit 0
+
+# Execute update-display on button release
+[ "${ACTION}" = "released" ] && {
+    /usr/sbin/update-display
+}
+
+exit 0

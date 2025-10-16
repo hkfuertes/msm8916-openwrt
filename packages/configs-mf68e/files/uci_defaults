@@ -27,4 +27,21 @@ uci commit
 wifi reload
 /etc/init.d/network restart
 
+cat > /etc/rc.button/power << 'EOF'
+#!/bin/sh
+
+SECONDS=3
+
+[ "${ACTION}" = "pressed" ] && exit ${SECONDS}
+
+[ "${ACTION}" = "timeout" ] && {
+    logger "Power held for ${SECONDS}: Shutting down system"
+    poweroff
+    exit 0
+}
+
+exit 0
+EOF
+chmod +x /etc/rc.button/power
+
 exit 0

@@ -270,7 +270,8 @@ int main(int argc, char *argv[]) {
     
     FT_Face face;
     const char *fonts[] = {
-        "/usr/share/fonts/DejaVuSansMono-Bold.ttf",
+        "/usr/share/fonts/ttf-dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/ttf-dejavu/DejaVuSans-Bold.ttf",
         NULL
     };
     

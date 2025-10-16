@@ -18,7 +18,7 @@ define Package/router-display
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Framebuffer router status display
-  DEPENDS:=+libfreetype
+  DEPENDS:=+libfreetype +kmod-button-hotplug +dejavu-fonts-ttf-DejaVuSans-Bold +dejavu-fonts-ttf-DejaVuSans
 endef
 
 define Package/router-display/description
@@ -58,11 +58,12 @@ define Package/router-display/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
 
-	$(INSTALL_DIR) $(1)/usr/share/fonts
-	$(INSTALL_DATA) ./files/DejaVuSansMono-Bold.ttf $(1)/usr/share/fonts/DejaVuSansMono-Bold.ttf
-
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DATA) ./files/openwrt_logo.fb $(1)/etc/openwrt_logo.fb
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
+	$(INSTALL_BIN) ./files/hotplugs/20_power_dimm $(1)/etc/hotplug.d/button/20_power_dimm
+	$(INSTALL_BIN) ./files/hotplugs/30_power_update $(1)/etc/hotplug.d/button/20_power_update
 endef
 
 $(eval $(call BuildPackage,router-display))
