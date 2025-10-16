@@ -13,4 +13,5 @@ HOSTNAME=$(uci get system.@system[0].hostname 2>/dev/null || echo "Router")
     -t "$NETWORK" \
     -s "$SSID" \
     -p "$PASSWORD" \
-    -h "$HOSTNAME" > /dev/fb0
+    -h "$HOSTNAME" \
+    -q -c > /dev/fb0

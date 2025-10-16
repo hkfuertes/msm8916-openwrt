@@ -45,10 +45,12 @@ endef
 
 define KernelPackage/fbtft-gc9107/install
 	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/lib/preinit
-	
 	$(INSTALL_DATA) ./files/boot_logo.fb $(1)/etc/boot_logo.fb
+	$(INSTALL_DATA) ./files/poweroff_logo.fb $(1)/etc/poweroff_logo.fb
 	$(INSTALL_BIN) ./files/05_display_logo $(1)/lib/preinit/05_display_logo
+	$(INSTALL_BIN) ./files/01_poweroff_logo $(1)/etc/init.d/01_poweroff_logo
 endef
 
 $(eval $(call KernelPackage,fbtft-gc9107))

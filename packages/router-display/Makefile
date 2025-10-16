@@ -18,7 +18,7 @@ define Package/router-display
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Framebuffer router status display
-  DEPENDS:=+libfreetype +dejavu-fonts-ttf-DejaVuSansMono
+  DEPENDS:=+libfreetype
 endef
 
 define Package/router-display/description
@@ -34,15 +34,9 @@ endef
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
-	
-	# Copiar nuestro código
 	$(CP) ./src/main.c $(PKG_BUILD_DIR)/
-	
-	# Descargar y extraer qrcodegen
 	$(eval $(call Download,qrcodegen))
 	tar -xzf $(DL_DIR)/qrcodegen-$(PKG_QRGEN_VERSION).tar.gz -C $(PKG_BUILD_DIR)
-	
-	# Copiar solo los archivos C necesarios
 	$(CP) $(PKG_BUILD_DIR)/$(PKG_QRGEN_NAME)-*/c/qrcodegen.c $(PKG_BUILD_DIR)/
 	$(CP) $(PKG_BUILD_DIR)/$(PKG_QRGEN_NAME)-*/c/qrcodegen.h $(PKG_BUILD_DIR)/
 endef
@@ -60,12 +54,12 @@ endef
 define Package/router-display/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/router-display $(1)/usr/bin/
-	
-# 	$(INSTALL_DIR) $(1)/etc/init.d
-# 	$(INSTALL_BIN) ./files/router-display.init $(1)/etc/init.d/router-display
-	
-# 	$(INSTALL_DIR) $(1)/usr/sbin
-# 	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
+
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
+
+	$(INSTALL_DIR) $(1)/usr/share/fonts
+	$(INSTALL_DATA) ./files/DejaVuSansMono-Bold.ttf $(1)/usr/share/fonts/DejaVuSansMono-Bold.ttf
 endef
 
 $(eval $(call BuildPackage,router-display))

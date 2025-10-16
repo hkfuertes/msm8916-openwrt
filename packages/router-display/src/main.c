@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "qrcodegen.h"
@@ -26,6 +27,8 @@ typedef struct {
     char ssid[64];
     char password[64];
     char hostname[32];
+    int show_qr;
+    int uppercase;  // Flag para mayúsculas
 } DisplayConfig;
 
 void fb_init(Framebuffer *fb) {
@@ -38,33 +41,32 @@ void fb_put_pixel(Framebuffer *fb, int x, int y, uint16_t color) {
     }
 }
 
+void fb_blend_pixel(Framebuffer *fb, int x, int y, unsigned char gray) {
+    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return;
+    
+    uint16_t fg_color = RGB565(gray, gray, gray);
+    uint16_t bg_color = fb->data[y * WIDTH + x];
+    
+    uint8_t bg_r = (bg_color >> 11) << 3;
+    uint8_t bg_g = ((bg_color >> 5) & 0x3F) << 2;
+    uint8_t bg_b = (bg_color & 0x1F) << 3;
+    
+    uint8_t fg_r = (fg_color >> 11) << 3;
+    uint8_t fg_g = ((fg_color >> 5) & 0x3F) << 2;
+    uint8_t fg_b = (fg_color & 0x1F) << 3;
+    
+    float alpha = gray / 255.0f;
+    uint8_t r = (uint8_t)(fg_r * alpha + bg_r * (1.0f - alpha));
+    uint8_t g = (uint8_t)(fg_g * alpha + bg_g * (1.0f - alpha));
+    uint8_t b = (uint8_t)(fg_b * alpha + bg_b * (1.0f - alpha));
+    
+    fb->data[y * WIDTH + x] = RGB565(r, g, b);
+}
+
 void fb_draw_rect(Framebuffer *fb, int x, int y, int w, int h, uint16_t color) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             fb_put_pixel(fb, x + i, y + j, color);
-        }
-    }
-}
-
-void fb_draw_char(Framebuffer *fb, FT_Face face, char c, int x, int y, int size) {
-    FT_Set_Pixel_Sizes(face, 0, size);
-    
-    if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-        return;
-    }
-    
-    FT_GlyphSlot slot = face->glyph;
-    FT_Bitmap bitmap = slot->bitmap;
-    
-    for (unsigned int row = 0; row < bitmap.rows; row++) {
-        for (unsigned int col = 0; col < bitmap.width; col++) {
-            int px = x + slot->bitmap_left + col;
-            int py = y - slot->bitmap_top + row;
-            
-            unsigned char gray = bitmap.buffer[row * bitmap.pitch + col];
-            if (gray > 128) {
-                fb_put_pixel(fb, px, py, COLOR_WHITE);
-            }
         }
     }
 }
@@ -88,14 +90,28 @@ void fb_draw_text(Framebuffer *fb, FT_Face face, const char *text, int x, int y,
                 int py = y - slot->bitmap_top + row;
                 
                 unsigned char gray = bitmap.buffer[row * bitmap.pitch + col];
-                if (gray > 128) {
-                    fb_put_pixel(fb, px, py, COLOR_WHITE);
+                if (gray > 0) {
+                    fb_blend_pixel(fb, px, py, gray);
                 }
             }
         }
         
         pen_x += slot->advance.x >> 6;
     }
+}
+
+int fb_get_text_width(FT_Face face, const char *text, int size) {
+    int width = 0;
+    FT_Set_Pixel_Sizes(face, 0, size);
+    
+    for (const char *p = text; *p; p++) {
+        if (FT_Load_Char(face, *p, FT_LOAD_RENDER)) {
+            continue;
+        }
+        width += face->glyph->advance.x >> 6;
+    }
+    
+    return width;
 }
 
 void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
@@ -129,38 +145,58 @@ void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
     }
 }
 
+// Convertir string a mayúsculas
+void str_to_upper(char *str) {
+    for (char *p = str; *p; p++) {
+        *p = toupper((unsigned char)*p);
+    }
+}
+
 void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
     fb_init(fb);
     
-    // 1. Hostname arriba derecha
-    int text_w = strlen(cfg->hostname) * 6;
-    fb_draw_text(fb, face, cfg->hostname, WIDTH - text_w - 2, 10, 9);
+    // Preparar strings (uppercase si está activado)
+    char operator_text[32], network_text[8], hostname_text[32];
+    strncpy(operator_text, cfg->operator, 31);
+    strncpy(network_text, cfg->network_type, 7);
+    strncpy(hostname_text, cfg->hostname, 31);
     
-    // 2. QR WiFi centrado
-    char wifi_qr[256];
-    snprintf(wifi_qr, sizeof(wifi_qr), 
-             "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
-    fb_draw_qr(fb, wifi_qr, 16, 16, 96);
-    
-    // 3. Operador + tipo red
-    fb_draw_text(fb, face, cfg->operator, 2, 118, 8);
-    int net_w = strlen(cfg->network_type) * 5;
-    fb_draw_text(fb, face, cfg->network_type, WIDTH - net_w - 2, 118, 8);
-    
-    // 4. Barra batería
-    char bar[64];
-    int bar_chars = 18;
-    int filled = (bar_chars * cfg->battery) / 100;
-    
-    for (int i = 0; i < filled; i++) {
-        bar[i] = 0x2588;  // █
+    if (cfg->uppercase) {
+        str_to_upper(operator_text);
+        str_to_upper(network_text);
+        str_to_upper(hostname_text);
     }
-    for (int i = filled; i < bar_chars; i++) {
-        bar[i] = 0x2591;  // ░
-    }
-    sprintf(bar + bar_chars, " %d%%", cfg->battery);
     
-    fb_draw_text(fb, face, bar, 0, 126, 8);
+    // 1. QR centrado con más espacio arriba
+    if (cfg->show_qr) {
+        char wifi_qr[256];
+        snprintf(wifi_qr, sizeof(wifi_qr), 
+                 "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
+        
+        int qr_size = 80;
+        int qr_x = (WIDTH - qr_size) / 2;
+        int qr_y = 12;
+        fb_draw_qr(fb, wifi_qr, qr_x, qr_y, qr_size);
+    }
+    
+    // 2. Texto más grande (15pt en lugar de 13pt)
+    int fontsz = 15;
+    int line1_y = HEIGHT - fontsz - 4;  // Penúltima línea
+    int line2_y = HEIGHT - 4;           // Última línea
+    
+    // Línea 1: "Orange" izquierda + "4G" derecha
+    fb_draw_text(fb, face, operator_text, 3, line1_y, fontsz);
+    
+    int net_width = fb_get_text_width(face, network_text, fontsz);
+    fb_draw_text(fb, face, network_text, WIDTH - net_width - 3, line1_y, fontsz);
+    
+    // Línea 2: "Router" izquierda + "88%" derecha
+    fb_draw_text(fb, face, hostname_text, 3, line2_y, fontsz);
+    
+    char battery_text[8];
+    snprintf(battery_text, sizeof(battery_text), "%d%%", cfg->battery);
+    int battery_width = fb_get_text_width(face, battery_text, fontsz);
+    fb_draw_text(fb, face, battery_text, WIDTH - battery_width - 3, line2_y, fontsz);
 }
 
 void print_usage(const char *prog) {
@@ -171,6 +207,8 @@ void print_usage(const char *prog) {
     fprintf(stderr, "  -s SSID   WiFi SSID\n");
     fprintf(stderr, "  -p PASS   WiFi password\n");
     fprintf(stderr, "  -h HOST   Hostname\n");
+    fprintf(stderr, "  -q        Show QR code\n");
+    fprintf(stderr, "  -c        Convert text to UPPERCASE\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -180,11 +218,13 @@ int main(int argc, char *argv[]) {
         .network_type = "4G",
         .ssid = "WiFi",
         .password = "password",
-        .hostname = "Router"
+        .hostname = "Router",
+        .show_qr = 0,
+        .uppercase = 0
     };
     
     int opt;
-    while ((opt = getopt(argc, argv, "b:n:t:s:p:h:")) != -1) {
+    while ((opt = getopt(argc, argv, "b:n:t:s:p:h:qc")) != -1) {
         switch (opt) {
             case 'b': cfg.battery = atoi(optarg); break;
             case 'n': strncpy(cfg.operator, optarg, 31); break;
@@ -192,6 +232,8 @@ int main(int argc, char *argv[]) {
             case 's': strncpy(cfg.ssid, optarg, 63); break;
             case 'p': strncpy(cfg.password, optarg, 63); break;
             case 'h': strncpy(cfg.hostname, optarg, 31); break;
+            case 'q': cfg.show_qr = 1; break;
+            case 'c': cfg.uppercase = 1; break;
             default:
                 print_usage(argv[0]);
                 return 1;
@@ -207,8 +249,7 @@ int main(int argc, char *argv[]) {
     
     FT_Face face;
     const char *fonts[] = {
-        "/usr/share/fonts/dejavu/DejaVuSansMono.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/usr/share/fonts/DejaVuSansMono-Bold.ttf",
         NULL
     };
     
