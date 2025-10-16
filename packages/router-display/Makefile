@@ -60,6 +60,9 @@ define Package/router-display/install
 
 	$(INSTALL_DIR) $(1)/usr/share/fonts
 	$(INSTALL_DATA) ./files/DejaVuSansMono-Bold.ttf $(1)/usr/share/fonts/DejaVuSansMono-Bold.ttf
+
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DATA) ./files/openwrt_logo.fb $(1)/etc/openwrt_logo.fb
 endef
 
 $(eval $(call BuildPackage,router-display))

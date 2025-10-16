@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# /etc/hotplug.d/ieee80211/99-display-update
+# Update display based on WiFi status
+
+case "$ACTION" in
+    add)
+        if [ "$DEVICENAME" = "phy0" ]; then
+            sleep 5
+            /usr/bin/update-display.sh &
+            logger -t display-update "WiFi phy0 added, updating display"
+        fi
+        ;;
+    
+    remove)
+        if [ "$DEVICENAME" = "phy0" ]; then
+            /usr/bin/update-display.sh &
+            logger -t display-update "WiFi phy0 removed, updating display"
+        fi
+        ;;
+esac

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# /etc/hotplug.d/iface/99-display-update
+# Update display based on modem status
+
+case "$ACTION:$INTERFACE" in
+    ifup:modem|ifup:wwan0)
+        /usr/bin/update-display.sh &
+        logger -t display-update "Modem UP, updating display"
+        ;;
+    
+    ifdown:modem|ifdown:wwan0)
+        /usr/bin/update-display.sh &
+        logger -t display-update "Modem DOWN, updating display"
+        ;;
+esac

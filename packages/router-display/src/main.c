@@ -16,6 +16,9 @@
 #define COLOR_WHITE RGB565(255, 255, 255)
 #define COLOR_BLACK RGB565(0, 0, 0)
 
+#define LOGO_SIZE 80
+#define LOGO_PATH "/etc/openwrt_logo.fb"
+
 typedef struct {
     uint16_t data[WIDTH * HEIGHT];
 } Framebuffer;
@@ -63,6 +66,31 @@ void fb_draw_rect(Framebuffer *fb, int x, int y, int w, int h, uint16_t color) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             fb_put_pixel(fb, x + i, y + j, color);
+        }
+    }
+}
+
+void fb_draw_logo(Framebuffer *fb, const char *logo_file, int x, int y) {
+    FILE *f = fopen(logo_file, "rb");
+    if (!f) {
+        fprintf(stderr, "Logo file not found: %s\n", logo_file);
+        return;
+    }
+    
+    uint16_t logo_data[LOGO_SIZE * LOGO_SIZE];
+    size_t read = fread(logo_data, sizeof(uint16_t), LOGO_SIZE * LOGO_SIZE, f);
+    fclose(f);
+    
+    if (read != LOGO_SIZE * LOGO_SIZE) {
+        fprintf(stderr, "Logo file size mismatch\n");
+        return;
+    }
+    
+    for (int row = 0; row < LOGO_SIZE; row++) {
+        for (int col = 0; col < LOGO_SIZE; col++) {
+            uint16_t pixel = logo_data[row * LOGO_SIZE + col];
+            // Copiar todos los pixels (incluso el negro de fondo)
+            fb_put_pixel(fb, x + col, y + row, pixel);
         }
     }
 }
@@ -162,15 +190,18 @@ void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
         str_to_upper(hostname_text);
     }
     
+    int logo_x = (WIDTH - LOGO_SIZE) / 2 + 2;
+    int logo_y = 12;
+    
     if (cfg->show_qr) {
         char wifi_qr[256];
         snprintf(wifi_qr, sizeof(wifi_qr), 
                  "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
         
-        int qr_size = 80;
-        int qr_x = (WIDTH - qr_size) / 2 + 2;
-        int qr_y = 12;
-        fb_draw_qr(fb, wifi_qr, qr_x, qr_y, qr_size);
+        fb_draw_qr(fb, wifi_qr, logo_x, logo_y, LOGO_SIZE);
+    } else {
+        // Mostrar logo de OpenWrt cuando no hay QR
+        fb_draw_logo(fb, LOGO_PATH, logo_x, logo_y);
     }
     
     int fontsz = 15;
@@ -198,7 +229,7 @@ void print_usage(const char *prog) {
     fprintf(stderr, "  -s SSID   WiFi SSID\n");
     fprintf(stderr, "  -p PASS   WiFi password\n");
     fprintf(stderr, "  -h HOST   Hostname\n");
-    fprintf(stderr, "  -q        Show QR code\n");
+    fprintf(stderr, "  -q        Show QR code (default: show logo)\n");
     fprintf(stderr, "  -c        Convert text to UPPERCASE\n");
 }
 
