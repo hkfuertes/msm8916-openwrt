@@ -23,9 +23,13 @@ define KernelPackage/fbtft-gc9107
     CONFIG_BACKLIGHT_PWM=y \
     CONFIG_FONTS=y \
     CONFIG_FONT_8x16=y \
+    CONFIG_FRAMEBUFFER_CONSOLE=y \
+    CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER=n \
+    CONFIG_VT_HW_CONSOLE_BINDING=y \
+    CONFIG_VT_CONSOLE_SLEEP=y \
     CONFIG_STAGING=y \
-    CONFIG_FB_TFT=m \
-    CONFIG_FB_TFT_GC9107=m
+    CONFIG_FB_TFT=y \
+    CONFIG_FB_TFT_GC9107=y
   FILES:= \
     $(LINUX_DIR)/drivers/staging/fbtft/fbtft.ko \
     $(LINUX_DIR)/drivers/staging/fbtft/fb_gc9107.ko
@@ -33,10 +37,20 @@ define KernelPackage/fbtft-gc9107
 endef
 
 define KernelPackage/fbtft-gc9107/description
-  GC9107 framebuffer driver for MF68E device.
+  GC9107 framebuffer driver for MF68E device with boot logo support.
 endef
 
 define Build/Compile
+endef
+
+define KernelPackage/fbtft-gc9107/install
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/lib/preinit
+	$(INSTALL_DATA) ./files/boot_logo.fb $(1)/etc/boot_logo.fb
+	$(INSTALL_DATA) ./files/poweroff_logo.fb $(1)/etc/poweroff_logo.fb
+	$(INSTALL_BIN) ./files/05_display_logo $(1)/lib/preinit/05_display_logo
+	$(INSTALL_BIN) ./files/01_poweroff_logo $(1)/etc/init.d/01_poweroff_logo
 endef
 
 $(eval $(call KernelPackage,fbtft-gc9107))

@@ -1,0 +1,91 @@
+#!/bin/sh
+# /etc/hotplug.d/button/20_power_dimm
+
+# Only process power button events
+[ "$BUTTON" = "power" ] || exit 0
+
+# Configuration variables
+TIMEOUT_DIM=5
+TIMEOUT_OFF=3
+BACKLIGHT_PATH="/sys/class/backlight/backlight"
+BRIGHTNESS_DIM_DIVISOR=8
+BRIGHTNESS_OFF=1
+
+# Calculated variables
+MAX_BRIGHTNESS=$(cat $BACKLIGHT_PATH/max_brightness 2>/dev/null || echo 1785)
+BRIGHTNESS_FULL=$MAX_BRIGHTNESS
+BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / BRIGHTNESS_DIM_DIVISOR))
+
+# PID file for timer management
+TIMER_PID_FILE="/tmp/screen_timer.pid"
+
+maybe_set_lockscreen(){
+    # Check if system is shutting down
+    if pgrep poweroff >/dev/null 2>&1 || \
+       pgrep halt >/dev/null 2>&1 || \
+       pgrep reboot >/dev/null 2>&1; then
+        logger -t display "System shutting down - skipping lockscreen"
+        return 0
+    fi
+
+    # Show lockscreen if brightness is OFF
+    [ -n "$1" ] && [ "$1" = "$BRIGHTNESS_OFF" ] && [ -f /etc/boot_logo.fb ] && \
+        cat /etc/boot_logo.fb > /dev/fb0 2>/dev/null
+}
+
+# Set brightness level
+set_brightness() {
+    echo "$1" > "$BACKLIGHT_PATH/brightness"
+    
+    # Check if we should show lockscreen
+    maybe_set_lockscreen "$1"
+}
+
+# Function to start a timer
+# Parameters: $1=timeout (seconds), $2=brightness level, $3=log message
+start_timer() {
+    local timeout=$1
+    local brightness=$2
+    local log_msg=$3
+    
+    (
+        sleep "$timeout"
+        logger -t display "$log_msg"
+        set_brightness "$brightness"
+    ) >/dev/null 2>&1 </dev/null &
+    
+    echo $!
+}
+
+# Cancel all active timers
+cancel_timers() {
+    if [ -f "$TIMER_PID_FILE" ]; then
+        while read pid; do
+            kill "$pid" 2>/dev/null
+        done < "$TIMER_PID_FILE"
+        rm -f "$TIMER_PID_FILE"
+    fi
+}
+
+# Only act on button release
+[ "${ACTION}" = "released" ] && {
+    logger -t display "Button event detected"
+    
+    # Cancel previous timers if any
+    cancel_timers
+    
+    # Set full brightness immediately
+    logger -t display "Backlight: FULL"
+    set_brightness $BRIGHTNESS_FULL
+    
+    # Start timer 1: DIM after TIMEOUT_DIM seconds
+    pid1=$(start_timer $TIMEOUT_DIM $BRIGHTNESS_DIM "Backlight: DIM")
+    echo "$pid1" >> "$TIMER_PID_FILE"
+    
+    # Start timer 2: OFF after (TIMEOUT_DIM + TIMEOUT_OFF) seconds
+    TOTAL_TIMEOUT=$((TIMEOUT_DIM + TIMEOUT_OFF))
+    pid2=$(start_timer $TOTAL_TIMEOUT $BRIGHTNESS_OFF "Backlight: OFF")
+    echo "$pid2" >> "$TIMER_PID_FILE"
+}
+
+exit 0

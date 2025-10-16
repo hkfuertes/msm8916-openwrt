@@ -1,0 +1,20 @@
+#!/bin/sh
+# /etc/hotplug.d/button/30_power_update
+
+# Only process power button events
+[ "$BUTTON" = "power" ] || exit 0
+
+# Execute update-display on button release
+[ "${ACTION}" = "released" ] && {
+    # Check if system is shutting down
+    if pgrep poweroff >/dev/null 2>&1 || \
+       pgrep halt >/dev/null 2>&1 || \
+       pgrep reboot >/dev/null 2>&1; then
+        logger -t display "System shutting down - skipping update-display"
+        exit 0
+    fi
+    
+    /usr/sbin/update-display
+}
+
+exit 0

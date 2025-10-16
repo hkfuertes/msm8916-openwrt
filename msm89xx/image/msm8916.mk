@@ -44,9 +44,10 @@ define Device/generic-mf68e
   DEVICE_VENDOR := Generic
   DEVICE_MODEL := MF68E
   FILESYSTEMS := squashfs
+  CMDLINE := "earlycon console=ttyMSM0,115200 quiet loglevel=0 vt.global_cursor_default=0 vt.cur_default=0 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
   DEVICE_PACKAGES := configs-mf68e wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper power-button-daemon kmod-fbtft-gc9107
+                     msm-firmware-dumper kmod-fbtft-gc9107 router-display
 endef
 TARGET_DEVICES += generic-mf68e
 
