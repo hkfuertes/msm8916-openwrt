@@ -28,7 +28,7 @@ typedef struct {
     char password[64];
     char hostname[32];
     int show_qr;
-    int uppercase;  // Flag para mayúsculas
+    int uppercase;
 } DisplayConfig;
 
 void fb_init(Framebuffer *fb) {
@@ -43,22 +43,18 @@ void fb_put_pixel(Framebuffer *fb, int x, int y, uint16_t color) {
 
 void fb_blend_pixel(Framebuffer *fb, int x, int y, unsigned char gray) {
     if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return;
+    if (gray == 0) return;
     
-    uint16_t fg_color = RGB565(gray, gray, gray);
     uint16_t bg_color = fb->data[y * WIDTH + x];
     
     uint8_t bg_r = (bg_color >> 11) << 3;
     uint8_t bg_g = ((bg_color >> 5) & 0x3F) << 2;
     uint8_t bg_b = (bg_color & 0x1F) << 3;
     
-    uint8_t fg_r = (fg_color >> 11) << 3;
-    uint8_t fg_g = ((fg_color >> 5) & 0x3F) << 2;
-    uint8_t fg_b = (fg_color & 0x1F) << 3;
-    
     float alpha = gray / 255.0f;
-    uint8_t r = (uint8_t)(fg_r * alpha + bg_r * (1.0f - alpha));
-    uint8_t g = (uint8_t)(fg_g * alpha + bg_g * (1.0f - alpha));
-    uint8_t b = (uint8_t)(fg_b * alpha + bg_b * (1.0f - alpha));
+    uint8_t r = (uint8_t)(255 * alpha + bg_r * (1.0f - alpha));
+    uint8_t g = (uint8_t)(255 * alpha + bg_g * (1.0f - alpha));
+    uint8_t b = (uint8_t)(255 * alpha + bg_b * (1.0f - alpha));
     
     fb->data[y * WIDTH + x] = RGB565(r, g, b);
 }
@@ -77,7 +73,7 @@ void fb_draw_text(Framebuffer *fb, FT_Face face, const char *text, int x, int y,
     for (const char *p = text; *p; p++) {
         FT_Set_Pixel_Sizes(face, 0, size);
         
-        if (FT_Load_Char(face, *p, FT_LOAD_RENDER)) {
+        if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_TARGET_NORMAL)) {
             continue;
         }
         
@@ -90,6 +86,7 @@ void fb_draw_text(Framebuffer *fb, FT_Face face, const char *text, int x, int y,
                 int py = y - slot->bitmap_top + row;
                 
                 unsigned char gray = bitmap.buffer[row * bitmap.pitch + col];
+                
                 if (gray > 0) {
                     fb_blend_pixel(fb, px, py, gray);
                 }
@@ -145,7 +142,6 @@ void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
     }
 }
 
-// Convertir string a mayúsculas
 void str_to_upper(char *str) {
     for (char *p = str; *p; p++) {
         *p = toupper((unsigned char)*p);
@@ -155,7 +151,6 @@ void str_to_upper(char *str) {
 void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
     fb_init(fb);
     
-    // Preparar strings (uppercase si está activado)
     char operator_text[32], network_text[8], hostname_text[32];
     strncpy(operator_text, cfg->operator, 31);
     strncpy(network_text, cfg->network_type, 7);
@@ -167,30 +162,26 @@ void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
         str_to_upper(hostname_text);
     }
     
-    // 1. QR centrado con más espacio arriba
     if (cfg->show_qr) {
         char wifi_qr[256];
         snprintf(wifi_qr, sizeof(wifi_qr), 
                  "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
         
         int qr_size = 80;
-        int qr_x = (WIDTH - qr_size) / 2;
+        int qr_x = (WIDTH - qr_size) / 2 + 2;
         int qr_y = 12;
         fb_draw_qr(fb, wifi_qr, qr_x, qr_y, qr_size);
     }
     
-    // 2. Texto más grande (15pt en lugar de 13pt)
     int fontsz = 15;
-    int line1_y = HEIGHT - fontsz - 4;  // Penúltima línea
-    int line2_y = HEIGHT - 4;           // Última línea
+    int line1_y = HEIGHT - fontsz - 6;
+    int line2_y = HEIGHT - 5;
     
-    // Línea 1: "Orange" izquierda + "4G" derecha
     fb_draw_text(fb, face, operator_text, 3, line1_y, fontsz);
     
     int net_width = fb_get_text_width(face, network_text, fontsz);
     fb_draw_text(fb, face, network_text, WIDTH - net_width - 3, line1_y, fontsz);
     
-    // Línea 2: "Router" izquierda + "88%" derecha
     fb_draw_text(fb, face, hostname_text, 3, line2_y, fontsz);
     
     char battery_text[8];
@@ -240,7 +231,6 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    // Init FreeType
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         fprintf(stderr, "FreeType init failed\n");
@@ -267,14 +257,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    // Generate
     Framebuffer fb;
     generate_display(&fb, &cfg, face);
     
-    // Output raw RGB565
     fwrite(fb.data, sizeof(uint16_t), WIDTH * HEIGHT, stdout);
     
-    // Cleanup
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
     
