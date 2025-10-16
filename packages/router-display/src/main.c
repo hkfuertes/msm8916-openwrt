@@ -19,6 +19,7 @@
 #define QR_SIZE 108
 #define QR_TOP_MARGIN 6
 #define TEXT_HEIGHT 13
+#define MIN_MODULE_SIZE 3  // Minimum pixels per QR module for readability
 
 typedef struct {
     uint16_t data[WIDTH * HEIGHT];
@@ -115,7 +116,7 @@ int fb_get_text_width(FT_Face face, const char *text, int size) {
     return width;
 }
 
-void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
+int fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
     uint8_t qr_data[qrcodegen_BUFFER_LEN_MAX];
     uint8_t temp_buffer[qrcodegen_BUFFER_LEN_MAX];
     
@@ -127,16 +128,23 @@ void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
     
     if (!ok) {
         fprintf(stderr, "QR generation failed\n");
-        return;
+        return 0;
     }
     
     int qr_modules = qrcodegen_getSize(qr_data);
     int module_size = size / qr_modules;
     
+    // Check if QR modules are too small (minimum pixels per module)
+    if (module_size < MIN_MODULE_SIZE) {
+        fprintf(stderr, "QR too large for display area (needs %d modules, only fits %dpx modules)\n", 
+                qr_modules, module_size);
+        return 0;  // Don't draw, QR would be unreadable
+    }
+    
     // Calculate actual QR size and center horizontally, align top vertically
     int actual_qr_size = qr_modules * module_size;
     int offset_x = (size - actual_qr_size) / 2;  // Center horizontally
-    int offset_y = 0;                             // Top aligned (no vertical centering)
+    int offset_y = 0;                             // Top aligned
     
     for (int row = 0; row < qr_modules; row++) {
         for (int col = 0; col < qr_modules; col++) {
@@ -149,6 +157,8 @@ void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
             }
         }
     }
+    
+    return 1;  // QR drawn successfully
 }
 
 void str_to_upper(char *str) {
@@ -171,21 +181,19 @@ void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
         str_to_upper(hostname_text);
     }
     
-    // Calculate space to center QR perfectly vertically
-    int qr_available_height = HEIGHT - TEXT_HEIGHT - QR_TOP_MARGIN;
-    int qr_size = (QR_SIZE < qr_available_height) ? QR_SIZE : qr_available_height;
-    int qr_x = (WIDTH - qr_size) / 2;
-    int qr_y = QR_TOP_MARGIN + (qr_available_height - qr_size) / 2;
+    // Calculate QR position: centered horizontally, at top with margin
+    int qr_x = (WIDTH - QR_SIZE) / 2;
+    int qr_y = QR_TOP_MARGIN;
     
     if (cfg->show_qr) {
         char wifi_qr[256];
         snprintf(wifi_qr, sizeof(wifi_qr), 
                  "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
         
-        fb_draw_qr(fb, wifi_qr, qr_x, qr_y, qr_size);
+        // Try to draw QR, if it doesn't fit (returns 0), screen stays black
+        fb_draw_qr(fb, wifi_qr, qr_x, qr_y, QR_SIZE);
     }
-    // If no QR: stay black (fb_init already cleared to black)
-    // No logo drawn
+    // If no QR or QR too large: stay black (fb_init already cleared to black)
     
     int fontsz = 12;
     int line1_y = HEIGHT - fontsz - 3;

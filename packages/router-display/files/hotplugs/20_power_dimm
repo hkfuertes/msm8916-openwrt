@@ -5,8 +5,8 @@
 [ "$BUTTON" = "power" ] || exit 0
 
 # Configuration variables
-TIMEOUT_DIM=3
-TIMEOUT_OFF=2
+TIMEOUT_DIM=5
+TIMEOUT_OFF=3
 BACKLIGHT_PATH="/sys/class/backlight/backlight"
 BRIGHTNESS_DIM_DIVISOR=8
 BRIGHTNESS_OFF=1
