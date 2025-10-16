@@ -52,7 +52,7 @@ jobs:
 
     - name: "Load diffconfig"
       run: |
-        [ -f diffconfig ] && mv diffconfig openwrt/.config
+        [ -f diffconfig_uz801 ] && mv diffconfig_uz801 openwrt/.config
 
     - name: Download package
       id: package

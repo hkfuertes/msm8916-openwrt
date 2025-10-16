@@ -1,0 +1,12 @@
+--- a/arch/arm64/boot/dts/qcom/msm8916-yiming-uz801v3.dts
++++ b/arch/arm64/boot/dts/qcom/msm8916-yiming-uz801v3.dts
+@@ -16,8 +16,8 @@
+ &led_b {
+-	gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
++	gpios = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+ };
+ 
+ &led_g {
+-	gpios = <&tlmm 8 GPIO_ACTIVE_HIGH>;
++	gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
+ };
