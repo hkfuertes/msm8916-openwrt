@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=01
+
+start() {
+    return 0
+}
+
+stop() {
+    cat /etc/poweroff_logo.fb > /dev/fb0 2>/dev/null
+    sleep 2
+}

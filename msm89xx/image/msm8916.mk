@@ -35,8 +35,20 @@ define Device/yiming-uz801v3
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := configs-uz801 wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper
+                     msm-firmware-dumper ledcontrol
 endef
 TARGET_DEVICES += yiming-uz801v3
+
+define Device/generic-mf68e
+  $(Device/msm8916)
+  DEVICE_VENDOR := Generic
+  DEVICE_MODEL := MF68E
+  FILESYSTEMS := squashfs
+  CMDLINE := "earlycon console=ttyMSM0,115200 quiet loglevel=0 vt.global_cursor_default=0 vt.cur_default=0 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
+  DEVICE_PACKAGES := configs-mf68e wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm-firmware-dumper kmod-fbtft-gc9107 router-display
+endef
+TARGET_DEVICES += generic-mf68e
 
 endif

@@ -1,4 +1,4 @@
-name: OpenWrt Builder
+name: OpenWrt Builder (UZ801)
 on:
   repository_dispatch:
   workflow_dispatch:

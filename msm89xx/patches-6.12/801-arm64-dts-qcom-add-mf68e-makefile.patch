@@ -1,0 +1,21 @@
+From: hkfuertes <hkfuertes@example.com>
+Date: Sat, 11 Oct 2025 11:49:00 +0200
+Subject: [PATCH] arm64: dts: qcom: Add MF68E to Makefile
+
+Add msm8916-generic-mf68e.dtb to Makefile.
+
+Signed-off-by: hkfuertes <hkfuertes@example.com>
+---
+ arch/arm64/boot/dts/qcom/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -23,6 +23,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsu
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-gt58.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j3ltetw.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-mf68e.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5x.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-rossa.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-serranove.dtb

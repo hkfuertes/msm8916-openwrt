@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=configs-uz801
+PKG_NAME:=configs-mf68e
 PKG_VERSION:=1.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -10,13 +10,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=Utilities
   CATEGORY:=Utilities
-  TITLE:=Default Settings For uz801v3
+  TITLE:=Default Settings For mf68e
   DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager
 endef
 
 # Optional description
 define Package/$(PKG_NAME)/description
-Tweaks and defaults for uz801v3, including cleanup of problematic APK feeds.
+Tweaks and defaults for mf68e, including cleanup of problematic APK feeds and LuCI battery widget.
 endef
 
 define Build/Configure
@@ -32,6 +32,10 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/root/
 	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
+
+	# Battery widget for LuCI
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/admin_status/index
+	$(INSTALL_DATA) ./files/battery.htm $(1)/usr/lib/lua/luci/view/admin_status/index/20_battery.htm
 endef
 
 define Package/$(PKG_NAME)/postinst
@@ -42,7 +46,7 @@ ROOT="$${IPKG_INSTROOT:-/}"
 TARGET_FILE="$$ROOT$$FILE"
 
 if [ -f "$$TARGET_FILE" ]; then
-	sed -i '\|/targets/msm89xx/msm8916/packages|d' "$$TARGET_FILE" || true
+    sed -i '\|/targets/msm89xx/msm8916/packages|d' "$$TARGET_FILE" || true
 fi
 
 exit 0
