@@ -16,8 +16,9 @@
 #define COLOR_WHITE RGB565(255, 255, 255)
 #define COLOR_BLACK RGB565(0, 0, 0)
 
-#define LOGO_SIZE 80
-#define LOGO_PATH "/etc/openwrt_logo.fb"
+#define QR_SIZE 108
+#define QR_TOP_MARGIN 6
+#define TEXT_HEIGHT 13
 
 typedef struct {
     uint16_t data[WIDTH * HEIGHT];
@@ -66,31 +67,6 @@ void fb_draw_rect(Framebuffer *fb, int x, int y, int w, int h, uint16_t color) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             fb_put_pixel(fb, x + i, y + j, color);
-        }
-    }
-}
-
-void fb_draw_logo(Framebuffer *fb, const char *logo_file, int x, int y) {
-    FILE *f = fopen(logo_file, "rb");
-    if (!f) {
-        fprintf(stderr, "Logo file not found: %s\n", logo_file);
-        return;
-    }
-    
-    uint16_t logo_data[LOGO_SIZE * LOGO_SIZE];
-    size_t read = fread(logo_data, sizeof(uint16_t), LOGO_SIZE * LOGO_SIZE, f);
-    fclose(f);
-    
-    if (read != LOGO_SIZE * LOGO_SIZE) {
-        fprintf(stderr, "Logo file size mismatch\n");
-        return;
-    }
-    
-    for (int row = 0; row < LOGO_SIZE; row++) {
-        for (int col = 0; col < LOGO_SIZE; col++) {
-            uint16_t pixel = logo_data[row * LOGO_SIZE + col];
-            // Copiar todos los pixels (incluso el negro de fondo)
-            fb_put_pixel(fb, x + col, y + row, pixel);
         }
     }
 }
@@ -154,15 +130,20 @@ void fb_draw_qr(Framebuffer *fb, const char *text, int x, int y, int size) {
         return;
     }
     
-    int qr_size = qrcodegen_getSize(qr_data);
-    int module_size = size / qr_size;
+    int qr_modules = qrcodegen_getSize(qr_data);
+    int module_size = size / qr_modules;
     
-    for (int row = 0; row < qr_size; row++) {
-        for (int col = 0; col < qr_size; col++) {
+    // Calculate actual QR size and center horizontally, align top vertically
+    int actual_qr_size = qr_modules * module_size;
+    int offset_x = (size - actual_qr_size) / 2;  // Center horizontally
+    int offset_y = 0;                             // Top aligned (no vertical centering)
+    
+    for (int row = 0; row < qr_modules; row++) {
+        for (int col = 0; col < qr_modules; col++) {
             if (qrcodegen_getModule(qr_data, col, row)) {
                 fb_draw_rect(fb, 
-                           x + col * module_size, 
-                           y + row * module_size,
+                           x + offset_x + col * module_size, 
+                           y + offset_y + row * module_size,
                            module_size, module_size, 
                            COLOR_WHITE);
             }
@@ -190,35 +171,37 @@ void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
         str_to_upper(hostname_text);
     }
     
-    int logo_x = (WIDTH - LOGO_SIZE) / 2 + 2;
-    int logo_y = 12;
+    // Calculate space to center QR perfectly vertically
+    int qr_available_height = HEIGHT - TEXT_HEIGHT - QR_TOP_MARGIN;
+    int qr_size = (QR_SIZE < qr_available_height) ? QR_SIZE : qr_available_height;
+    int qr_x = (WIDTH - qr_size) / 2;
+    int qr_y = QR_TOP_MARGIN + (qr_available_height - qr_size) / 2;
     
     if (cfg->show_qr) {
         char wifi_qr[256];
         snprintf(wifi_qr, sizeof(wifi_qr), 
                  "WIFI:T:WPA;S:%s;P:%s;;", cfg->ssid, cfg->password);
         
-        fb_draw_qr(fb, wifi_qr, logo_x, logo_y, LOGO_SIZE);
-    } else {
-        // Mostrar logo de OpenWrt cuando no hay QR
-        fb_draw_logo(fb, LOGO_PATH, logo_x, logo_y);
+        fb_draw_qr(fb, wifi_qr, qr_x, qr_y, qr_size);
     }
+    // If no QR: stay black (fb_init already cleared to black)
+    // No logo drawn
     
-    int fontsz = 15;
-    int line1_y = HEIGHT - fontsz - 6;
-    int line2_y = HEIGHT - 5;
+    int fontsz = 12;
+    int line1_y = HEIGHT - fontsz - 3;
+    int line2_y = HEIGHT - 3;
     
-    fb_draw_text(fb, face, operator_text, 3, line1_y, fontsz);
+    fb_draw_text(fb, face, operator_text, 2, line1_y, fontsz);
     
     int net_width = fb_get_text_width(face, network_text, fontsz);
-    fb_draw_text(fb, face, network_text, WIDTH - net_width - 3, line1_y, fontsz);
+    fb_draw_text(fb, face, network_text, WIDTH - net_width - 2, line1_y, fontsz);
     
-    fb_draw_text(fb, face, hostname_text, 3, line2_y, fontsz);
+    fb_draw_text(fb, face, hostname_text, 2, line2_y, fontsz);
     
     char battery_text[8];
     snprintf(battery_text, sizeof(battery_text), "%d%%", cfg->battery);
     int battery_width = fb_get_text_width(face, battery_text, fontsz);
-    fb_draw_text(fb, face, battery_text, WIDTH - battery_width - 3, line2_y, fontsz);
+    fb_draw_text(fb, face, battery_text, WIDTH - battery_width - 2, line2_y, fontsz);
 }
 
 void print_usage(const char *prog) {

@@ -22,6 +22,9 @@ TIMER_PID_FILE="/tmp/screen_timer.pid"
 # Set brightness level
 set_brightness() {
     echo $1 > $BACKLIGHT_PATH/brightness
+
+    [ "$1" = "$BRIGHTNESS_OFF" ] && [ -f /etc/boot_logo.fb ] && \
+        cat /etc/boot_logo.fb > /dev/fb0 2>/dev/null
 }
 
 # Function to start a timer

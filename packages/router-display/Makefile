@@ -42,7 +42,8 @@ define Build/Prepare
 endef
 
 define Build/Compile
-	$(TARGET_CC) $(TARGET_CFLAGS) $(TARGET_CPPFLAGS) \
+	$(TARGET_CC) $(TARGET_CFLAGS) -O3 -ffast-math \
+		$(TARGET_CPPFLAGS) \
 		-I$(STAGING_DIR)/usr/include/freetype2 \
 		$(TARGET_LDFLAGS) \
 		-o $(PKG_BUILD_DIR)/router-display \
@@ -58,12 +59,9 @@ define Package/router-display/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
 
-	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_DATA) ./files/openwrt_logo.fb $(1)/etc/openwrt_logo.fb
-
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
 	$(INSTALL_BIN) ./files/hotplugs/20_power_dimm $(1)/etc/hotplug.d/button/20_power_dimm
-	$(INSTALL_BIN) ./files/hotplugs/30_power_update $(1)/etc/hotplug.d/button/20_power_update
+	$(INSTALL_BIN) ./files/hotplugs/30_power_update $(1)/etc/hotplug.d/button/30_power_update
 endef
 
 $(eval $(call BuildPackage,router-display))
