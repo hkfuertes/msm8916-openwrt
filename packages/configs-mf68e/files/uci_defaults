@@ -36,7 +36,7 @@ SECONDS=3
 
 [ "${ACTION}" = "timeout" ] && {
     logger "Power held for ${SECONDS}: Shutting down system"
-    poweroff
+    poweroff &
     exit 0
 }
 
