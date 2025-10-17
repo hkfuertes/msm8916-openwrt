@@ -32,15 +32,14 @@ cat > /etc/rc.button/power << 'EOF'
 
 SECONDS=3
 
-[ "${ACTION}" = "pressed" ] && exit ${SECONDS}
-
-[ "${ACTION}" = "timeout" ] && {
-    logger "Power held for ${SECONDS}: Shutting down system"
+[ "${ACTION}" = "released" ] && [ "${SEEN}" -ge "${SECONDS}" ] && {
+    logger "Power held for ${SEEN}s: Shutting down system"
     poweroff &
     exit 0
 }
 
 exit 0
+
 EOF
 chmod +x /etc/rc.button/power
 
