@@ -32,25 +32,36 @@ wifi reload
 /etc/init.d/network restart
 
 cat > /etc/rc.button/power << 'EOF'
-#!/bin/sh
+!/bin/sh
 
-SECONDS=3
+[ "${ACTION}" = "released" ] || exit 0
 
-[ "${ACTION}" = "released" ] && [ "${SEEN}" -ge "${SECONDS}" ] && {
-    logger "Power held for ${SEEN}s: Shutting down system"
-    
-    # Apaga el backlight
-    echo 1 > /sys/class/backlight/*/brightness 2>/dev/null || true
-    
-    # Apaga el framebuffer
-    echo 1 > /sys/class/graphics/fb0/blank 2>/dev/null || true
-    
-    sync
-    poweroff
-    exit 0
+# Double-click Shutdown
+# Copyright By Zy143L
+
+lockfile="/tmp/toff.lock"
+delay=1
+
+shutdown() {
+    logger -t poweroff "Powering off..."
+    /sbin/poweroff
 }
 
-exit 0
+touch_lock() {
+    touch "$lockfile"
+    sleep $delay
+    rm -rf "$lockfile"
+}
+
+if [ -e "$lockfile" ]; then
+    rm -rf "$lockfile"
+    sleep $delay
+    shutdown
+else
+    touch_lock &
+fi
+
+return 0
 
 EOF
 chmod +x /etc/rc.button/power
