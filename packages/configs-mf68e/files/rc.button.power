@@ -5,9 +5,14 @@
 # Double-click Shutdown
 # Works standalone or with display-manager
 
+# Load UCI to get FIFO path (shared with display-manager)
+. /lib/functions.sh
+config_load system
+config_get FIFO display fifo "/var/run/display.fifo"
+
+# Hardcoded values
 lockfile="/tmp/toff.lock"
 delay=1
-FIFO="/var/run/display.fifo"
 
 shutdown() {
     logger -t poweroff "Powering off..."

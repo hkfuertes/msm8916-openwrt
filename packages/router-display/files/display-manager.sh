@@ -1,16 +1,33 @@
 #!/bin/sh
 # /usr/sbin/display-manager
-# Central display timer daemon using FIFO
+# Central display timer daemon using FIFO with UCI configuration
 
-FIFO="/var/run/display.fifo"
-BACKLIGHT_PATH="/sys/class/backlight/backlight"
-TIMEOUT_DIM=5
-TIMEOUT_OFF=3
-BRIGHTNESS_DIM_DIVISOR=8
-BRIGHTNESS_OFF=1
+# Load UCI config
+. /lib/functions.sh
+
+# UCI config section: system.display
+config_load system
+
+# Default values
+DEFAULT_TIMEOUT_DIM=5
+DEFAULT_TIMEOUT_OFF=3
+DEFAULT_BRIGHTNESS_DIM_DIVISOR=8
+DEFAULT_BRIGHTNESS_OFF=1
+DEFAULT_BACKLIGHT_PATH="/sys/class/backlight/backlight"
+DEFAULT_FIFO="/var/run/display.fifo"
+DEFAULT_ENABLE_LOCKSCREEN=0
+
+# Load config from UCI (with defaults)
+config_get TIMEOUT_DIM display timeout_dim "$DEFAULT_TIMEOUT_DIM"
+config_get TIMEOUT_OFF display timeout_off "$DEFAULT_TIMEOUT_OFF"
+config_get BRIGHTNESS_DIM_DIVISOR display brightness_dim_divisor "$DEFAULT_BRIGHTNESS_DIM_DIVISOR"
+config_get BRIGHTNESS_OFF display brightness_off "$DEFAULT_BRIGHTNESS_OFF"
+config_get BACKLIGHT_PATH display backlight_path "$DEFAULT_BACKLIGHT_PATH"
+config_get FIFO display fifo "$DEFAULT_FIFO"
+config_get ENABLE_LOCKSCREEN display enable_lockscreen "$DEFAULT_ENABLE_LOCKSCREEN"
 
 # Calculated variables
-MAX_BRIGHTNESS=$(cat $BACKLIGHT_PATH/max_brightness 2>/dev/null || echo 1785)
+MAX_BRIGHTNESS=$(cat "$BACKLIGHT_PATH/max_brightness" 2>/dev/null || echo 1785)
 BRIGHTNESS_FULL=$MAX_BRIGHTNESS
 BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / BRIGHTNESS_DIM_DIVISOR))
 
@@ -25,6 +42,8 @@ TIMER_OFF_PID=""
 trap "rm -f $FIFO; exit 0" EXIT TERM INT
 
 maybe_set_lockscreen() {
+    # Only set lockscreen if enabled in config
+    [ "$ENABLE_LOCKSCREEN" = "1" ] && \
     [ -n "$1" ] && [ "$1" = "$BRIGHTNESS_DIM" ] && [ -f /etc/boot_logo.fb ] && \
         cat /etc/boot_logo.fb > /dev/fb0 2>/dev/null
 }
@@ -63,7 +82,7 @@ start_timers() {
     TIMER_OFF_PID=$!
 }
 
-logger -t display "Display manager started"
+logger -t display "Display manager started (dim:${TIMEOUT_DIM}s off:${TIMEOUT_OFF}s)"
 
 # Main loop reading from FIFO
 while true; do
