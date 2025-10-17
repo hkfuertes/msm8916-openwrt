@@ -1,6 +1,6 @@
 ![OpenWrt logo](https://raw.githubusercontent.com/openwrt/openwrt/refs/heads/main/include/logo.png)
 
-Modern OpenWrt build targeting the Chinese LTE dongles/MiFis with full modem and USB gadget support.
+Modern OpenWrt build targeting the UZ801v3 LTE dongle with full modem and USB gadget support.
 
 ## Table of Contents
 
