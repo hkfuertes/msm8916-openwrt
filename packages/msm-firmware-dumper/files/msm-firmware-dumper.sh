@@ -6,7 +6,7 @@
 
 set -e
 DEFAULT_FLAG="/lib/firmware/DUMPED"
-DEFAULT_MCFG_PATH="image/modem_pr/mcfg/configs/mcfg_sw/generic/common/default/default"
+DEFAULT_MCFG_PATH="image/modem_pr/mcfg/configs/mcfg_sw/generic/common/row/gen_3gpp"
 
 MARKER="${FLAG:-$DEFAULT_FLAG}"
 [ -f "$MARKER" ] && exit 0
