@@ -19,6 +19,26 @@ define Package/$(PKG_NAME)/description
 Tweaks and defaults for mf68e, including cleanup of problematic APK feeds and LuCI battery widget.
 endef
 
+define Build/Prepare
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)
+	
+	# Copy uci_defaults and remove any trailing "exit 0"
+	sed '/^exit 0$$/d' ./files/uci_defaults > $(PKG_BUILD_DIR)/99-default-config
+	
+	# Add blank line separator
+	echo "" >> $(PKG_BUILD_DIR)/99-default-config
+	echo "# ========== Power button handler ==========" >> $(PKG_BUILD_DIR)/99-default-config
+	echo "" >> $(PKG_BUILD_DIR)/99-default-config
+	
+	# Generate cat > /etc/rc.button/power command
+	echo "cat > /etc/rc.button/power << 'EOF'" >> $(PKG_BUILD_DIR)/99-default-config
+	cat ./files/rc.button.power >> $(PKG_BUILD_DIR)/99-default-config
+	echo "EOF" >> $(PKG_BUILD_DIR)/99-default-config
+	echo "chmod +x /etc/rc.button/power" >> $(PKG_BUILD_DIR)/99-default-config
+	echo "" >> $(PKG_BUILD_DIR)/99-default-config
+	echo "exit 0" >> $(PKG_BUILD_DIR)/99-default-config
+endef
+
 define Build/Configure
 endef
 
@@ -28,7 +48,7 @@ endef
 # Install configuration files and payload you already had
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/uci_defaults $(1)/etc/uci-defaults/99-default-config
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/99-default-config $(1)/etc/uci-defaults/99-default-config
 
 	$(INSTALL_DIR) $(1)/root/
 	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/

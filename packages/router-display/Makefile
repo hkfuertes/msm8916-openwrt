@@ -55,13 +55,14 @@ endef
 define Package/router-display/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/router-display $(1)/usr/bin/
+	$(INSTALL_BIN) ./files/display-manager.sh $(1)/usr/bin/display-manager
+	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/bin/update-display
 
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/display-manager.init $(1)/etc/hotplug.d/init.d/display-manager
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
-	$(INSTALL_BIN) ./files/hotplugs/20_power_dimm $(1)/etc/hotplug.d/button/20_power_dimm
-	$(INSTALL_BIN) ./files/hotplugs/30_power_update $(1)/etc/hotplug.d/button/30_power_update
+	$(INSTALL_BIN) ./files/hotplugs/20_power_button $(1)/etc/hotplug.d/button/20_power_button
 endef
 
 $(eval $(call BuildPackage,router-display))

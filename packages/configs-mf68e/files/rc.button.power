@@ -1,0 +1,45 @@
+#!/bin/sh
+
+[ "${ACTION}" = "released" ] || exit 0
+
+# Double-click Shutdown
+# Works standalone or with display-manager
+
+lockfile="/tmp/toff.lock"
+delay=1
+FIFO="/var/run/display.fifo"
+
+shutdown() {
+    logger -t poweroff "Powering off..."
+    
+    # If display manager is running, notify it
+    if [ -p "$FIFO" ]; then
+        echo "shutdown" > "$FIFO" 2>/dev/null
+        sleep 1
+    else
+        # Standalone mode: manually blank display if it exists
+        if [ -d /sys/class/graphics/fb0 ]; then
+            echo 0 > /sys/class/backlight/*/brightness 2>/dev/null
+            echo 4 > /sys/class/graphics/fb0/blank 2>/dev/null
+        fi
+    fi
+    
+    sync
+    /sbin/poweroff
+}
+
+touch_lock() {
+    touch "$lockfile"
+    sleep $delay
+    rm -f "$lockfile"
+}
+
+if [ -e "$lockfile" ]; then
+    rm -f "$lockfile"
+    sleep $delay
+    shutdown
+else
+    touch_lock &
+fi
+
+exit 0

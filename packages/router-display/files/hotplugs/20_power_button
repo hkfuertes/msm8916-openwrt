@@ -1,0 +1,16 @@
+#!/bin/sh
+# /etc/hotplug.d/button/20_power_button
+# Unified power button handler
+
+FIFO="/var/run/display.fifo"
+
+# Only process power button events
+[ "$BUTTON" = "power" ] || exit 0
+
+# Only act on button release
+[ "${ACTION}" = "released" ] && {
+    # Send command to daemon via FIFO (fails silently if daemon not running)
+    echo "full" > "$FIFO" 2>/dev/null
+}
+
+exit 0
