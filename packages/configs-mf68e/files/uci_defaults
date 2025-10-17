@@ -38,7 +38,15 @@ SECONDS=3
 
 [ "${ACTION}" = "released" ] && [ "${SEEN}" -ge "${SECONDS}" ] && {
     logger "Power held for ${SEEN}s: Shutting down system"
-    poweroff &
+    
+    # Apaga el backlight
+    echo 1 > /sys/class/backlight/*/brightness 2>/dev/null || true
+    
+    # Apaga el framebuffer
+    echo 1 > /sys/class/graphics/fb0/blank 2>/dev/null || true
+    
+    sync
+    poweroff
     exit 0
 }
 
