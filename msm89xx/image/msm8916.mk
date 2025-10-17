@@ -39,17 +39,6 @@ define Device/yiming-uz801v3
 endef
 TARGET_DEVICES += yiming-uz801v3
 
-define Device/thwc-ufi001c
-  $(Device/msm8916)
-  DEVICE_VENDOR := TWHC
-  DEVICE_MODEL := ufi001c
-  FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-uz801 wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper ledcontrol
-endef
-TARGET_DEVICES += thwc-ufi001c
-
 define Device/generic-mf68e
   $(Device/msm8916)
   DEVICE_VENDOR := Generic
