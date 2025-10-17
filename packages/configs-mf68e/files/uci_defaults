@@ -32,7 +32,7 @@ wifi reload
 /etc/init.d/network restart
 
 cat > /etc/rc.button/power << 'EOF'
-!/bin/sh
+#!/bin/sh
 
 [ "${ACTION}" = "released" ] || exit 0
 
@@ -44,6 +44,7 @@ delay=1
 
 shutdown() {
     logger -t poweroff "Powering off..."
+    echo 4 > /sys/class/graphics/fb0/blank
     /sbin/poweroff
 }
 
