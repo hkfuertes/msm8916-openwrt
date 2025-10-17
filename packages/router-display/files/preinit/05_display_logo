@@ -1,0 +1,27 @@
+#!/bin/sh
+
+show_logo() {
+    (
+        . /lib/functions.sh
+        config_load system
+        config_get FIFO display fifo "/var/run/display.fifo"
+
+        FB="/dev/fb0"
+        BL="/sys/class/backlight/backlight"
+
+        [ -p "$FIFO" ] || { 
+			mkdir -p "$(dirname "$FIFO")"; 
+			mkfifo "$FIFO"; 
+			chmod 600 "$FIFO"; 
+		}
+
+        i=0; while { [ ! -c "$FB" ] || [ ! -d "$BL" ]; } && [ $i -lt 50 ]; do
+            usleep 100000  # 100 ms
+            i=$((i + 1))
+        done
+
+        echo "dim" > "$FIFO" 2>/dev/null
+    ) &
+}
+
+boot_hook_add preinit_main show_logo

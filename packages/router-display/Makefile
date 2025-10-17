@@ -33,7 +33,7 @@ define Download/qrcodegen
 endef
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)
 	$(CP) ./src/main.c $(PKG_BUILD_DIR)/
 	$(eval $(call Download,qrcodegen))
 	tar -xzf $(DL_DIR)/qrcodegen-$(PKG_QRGEN_VERSION).tar.gz -C $(PKG_BUILD_DIR)
@@ -59,10 +59,17 @@ define Package/router-display/install
 	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/bin/update-display
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/display-manager.init $(1)/etc/hotplug.d/init.d/display-manager
+	$(INSTALL_BIN) ./files/display-manager.init $(1)/etc/init.d/display-manager
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
 	$(INSTALL_BIN) ./files/hotplugs/20_power_button $(1)/etc/hotplug.d/button/20_power_button
+
+	$(INSTALL_DIR) $(1)/lib/preinit
+	$(INSTALL_BIN) ./files/preinit/05_display_logo $(1)/lib/preinit/05_display_logo
+
+	$(INSTALL_DIR) $(1)/usr/share/logos
+	$(INSTALL_DATA) ./files/logos/boot_logo.fb $(1)/usr/share/logos/boot_logo.fb
+	$(INSTALL_DATA) ./files/logos/poweroff_logo.fb $(1)/usr/share/logos/poweroff_logo.fb
 endef
 
 $(eval $(call BuildPackage,router-display))

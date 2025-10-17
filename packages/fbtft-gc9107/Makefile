@@ -1,14 +1,13 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
+include $(INCLUDE_DIR)/package.mk
 
 PKG_NAME:=fbtft-gc9107
 PKG_RELEASE:=1
 
-include $(INCLUDE_DIR)/package.mk
-
 define KernelPackage/fbtft-gc9107
   SUBMENU:=Video Support
-  TITLE:=GC9107 Framebuffer Driver
+  TITLE:=GC9107 Framebuffer Driver (fbtft)
   DEPENDS:=@TARGET_msm89xx +kmod-backlight
   KCONFIG:= \
     CONFIG_FB=y \
@@ -37,20 +36,14 @@ define KernelPackage/fbtft-gc9107
 endef
 
 define KernelPackage/fbtft-gc9107/description
-  GC9107 framebuffer driver for MF68E device with boot logo support.
+  GC9107 framebuffer driver (fbtft) for MSM8916-based devices (MF68E/UZ801).
+  Includes deferred I/O, sys_* helpers, PWM backlight and fbcon.
 endef
 
 define Build/Compile
 endef
 
 define KernelPackage/fbtft-gc9107/install
-	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/lib/preinit
-	$(INSTALL_DATA) ./files/boot_logo.fb $(1)/etc/boot_logo.fb
-	$(INSTALL_DATA) ./files/poweroff_logo.fb $(1)/etc/poweroff_logo.fb
-	$(INSTALL_BIN) ./files/05_display_logo $(1)/lib/preinit/05_display_logo
-	$(INSTALL_BIN) ./files/01_poweroff_logo $(1)/etc/init.d/01_poweroff_logo
 endef
 
 $(eval $(call KernelPackage,fbtft-gc9107))
