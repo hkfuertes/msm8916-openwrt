@@ -52,7 +52,7 @@ jobs:
 
     - name: "Load diffconfig"
       run: |
-        [ -f mf68e_diffconfig ] && mv mf68e_diffconfig openwrt/.config
+        [ -f diffconfig_mf68e ] && mv diffconfig_mf68e openwrt/.config
 
     - name: Download package
       id: package
