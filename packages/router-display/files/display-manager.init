@@ -23,5 +23,4 @@ stop_service() {
         echo "shutdown" > "$FIFO" 2>/dev/null; 
         sleep 1; 
     }
-
 }

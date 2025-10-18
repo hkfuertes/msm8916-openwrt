@@ -2,25 +2,34 @@
 
 show_logo() {
     (
-        . /lib/functions.sh
-        config_load system
-        config_get FIFO display fifo "/var/run/display.fifo"
-
         FB="/dev/fb0"
         BL="/sys/class/backlight/backlight"
+        LOGO="/etc/logos/boot_logo.fb"
 
-        [ -p "$FIFO" ] || { 
-			mkdir -p "$(dirname "$FIFO")"; 
-			mkfifo "$FIFO"; 
-			chmod 600 "$FIFO"; 
-		}
-
-        i=0; while { [ ! -c "$FB" ] || [ ! -d "$BL" ]; } && [ $i -lt 50 ]; do
+        # Wait for framebuffer
+        i=0
+        while [ ! -c "$FB" ] && [ $i -lt 50 ]; do
             usleep 100000  # 100 ms
             i=$((i + 1))
         done
 
-        echo "dim" > "$FIFO" 2>/dev/null
+        # Show logo on framebuffer
+        if [ -c "$FB" ] && [ -f "$LOGO" ]; then
+            cat "$LOGO" > "$FB" 2>/dev/null
+        fi
+
+        # Wait for backlight
+        i=0
+        while [ ! -d "$BL" ] && [ $i -lt 50 ]; do
+            usleep 100000  # 100 ms
+            i=$((i + 1))
+        done
+
+        # Set backlight
+        if [ -d "$BL" ]; then
+            echo 0 > "$BL/bl_power" 2>/dev/null
+            echo 1 > "$BL/brightness" 2>/dev/null
+        fi
     ) &
 }
 

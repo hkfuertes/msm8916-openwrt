@@ -9,9 +9,22 @@
 lockfile="/tmp/toff.lock"
 delay=1
 
+maybe_notify_display_shutdown() {
+    . /lib/functions.sh
+    config_load system
+    config_get FIFO display fifo "/var/run/display.fifo"
+
+   	[ -p "$FIFO" ] && { 
+        echo "shutdown" > "$FIFO" 2>/dev/null; 
+        sleep 1; 
+    }
+}
+
 shutdown() {
     logger -t poweroff "Powering off..."
-    
+
+    # maybe_notify_display_shutdown
+
     sync
     /sbin/poweroff
 }
