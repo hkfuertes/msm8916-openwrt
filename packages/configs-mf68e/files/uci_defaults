@@ -26,9 +26,3 @@ sed -i 's/"device": "eth0"/"device": "br-lan"/g' /etc/board.json
 
 # Commit all changes
 uci commit
-
-# Apply network and wireless configuration
-wifi reload
-/etc/init.d/network restart
-
-exit 0

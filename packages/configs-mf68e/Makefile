@@ -23,7 +23,7 @@ define Build/Prepare
 	$(INSTALL_DIR) $(PKG_BUILD_DIR)
 	
 	# Copy uci_defaults and remove any trailing "exit 0"
-	sed '/^exit 0$$/d' ./files/uci_defaults > $(PKG_BUILD_DIR)/99-default-config
+	$(INSTALL_BIN) ./files/uci_defaults $(PKG_BUILD_DIR)/99-default-config
 	
 	# Add blank line separator
 	echo "" >> $(PKG_BUILD_DIR)/99-default-config
