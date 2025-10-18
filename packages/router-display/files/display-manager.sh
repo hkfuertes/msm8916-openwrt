@@ -22,12 +22,12 @@ config_get ENABLE_LOCKSCREEN display enable_lockscreen "$DEFAULT_ENABLE_LOCKSCRE
 
 # Derived or fixed values
 BRIGHTNESS_OFF=1
+BACKLIGHT_PATH="/sys/class/backlight/backlight"
 MAX_BRIGHTNESS=$(cat "$BACKLIGHT_PATH/max_brightness" 2>/dev/null || echo 1785)
 BRIGHTNESS_FULL=$MAX_BRIGHTNESS
 BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / BRIGHTNESS_DIM_DIVISOR))
 LOCKSCREEN_FILE="/usr/share/logos/boot_logo.fb"
 POWEROFF_FILE="/usr/share/logos/poweroff_logo.fb"
-BACKLIGHT_PATH="/sys/class/backlight/backlight"
 UPDATE_DISPLAY_BIN="/usr/bin/update-display"
 
 # PIDs
