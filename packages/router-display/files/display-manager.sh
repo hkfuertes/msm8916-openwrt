@@ -114,8 +114,7 @@ start_timers() {
 }
 
 logger -t display "Display manager started (dim:${TIMEOUT_DIM}s off:${TIMEOUT_OFF}s)"
-fb_show_file "$LOCKSCREEN_FILE"
-set_brightness $BRIGHTNESS_OFF
+start_timers
 
 # Open FIFO once with persistent file descriptor
 exec 3<> "$FIFO"
