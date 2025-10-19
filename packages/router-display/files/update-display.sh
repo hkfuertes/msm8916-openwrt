@@ -9,10 +9,19 @@ VOLTAGE=$(cat "$BMS_PATH/voltage_now" 2>/dev/null)
 VMAX=$(cat "$BMS_PATH/voltage_max_design" 2>/dev/null)
 VMIN=$(cat "$BMS_PATH/voltage_min_design" 2>/dev/null)
 
+# Check charging status
+CHARGING_STATUS=$(cat "$BMS_PATH/status" 2>/dev/null)
+CHARGING_PREFIX=""
+
+if [ "$CHARGING_STATUS" = "Charging" ] || [ "$CHARGING_STATUS" = "Full" ]; then
+    CHARGING_PREFIX="+"
+fi
+
 if [ -n "$VOLTAGE" ] && [ -n "$VMAX" ] && [ -n "$VMIN" ]; then
-    BATTERY=$(awk "BEGIN {pct = (($VOLTAGE - $VMIN) / ($VMAX - $VMIN)) * 100; if(pct < 0) pct=0; if(pct > 100) pct=100; printf \"%.0f\", pct}")
+    BATTERY_PCT=$(awk "BEGIN {pct = (($VOLTAGE - $VMIN) / ($VMAX - $VMIN)) * 100; if(pct < 0) pct=0; if(pct > 100) pct=100; printf \"%.0f\", pct}")
+    BATTERY="${CHARGING_PREFIX}${BATTERY_PCT}"
 else
-    BATTERY=100
+    BATTERY="${CHARGING_PREFIX}100"
 fi
 
 # === WiFi AP ===
