@@ -55,9 +55,6 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/admin_status/index
 	$(INSTALL_DATA) ./files/battery.htm $(1)/usr/lib/lua/luci/view/admin_status/index/20_battery.htm
-
-	$(INSTALL_DIR) $(1)/lib/preinit
-	$(INSTALL_BIN) ./files/preinit/05_dim_backlight $(1)/lib/preinit/05_dim_backlight
 endef
 
 define Package/$(PKG_NAME)/postinst

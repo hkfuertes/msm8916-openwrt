@@ -44,6 +44,8 @@ define Build/Compile
 endef
 
 define KernelPackage/fbtft-gc9107/install
+	$(INSTALL_DIR) $(1)/lib/preinit
+	$(INSTALL_BIN) ./preinit/05_dim_backlight $(1)/lib/preinit/05_dim_backlight
 endef
 
 $(eval $(call KernelPackage,fbtft-gc9107))

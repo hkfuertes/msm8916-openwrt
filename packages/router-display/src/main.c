@@ -247,10 +247,10 @@ int main(int argc, char *argv[]) {
     };
     
     int opt;
-    while ((opt = getopt(argc, argv, "b:Cn:t:s:p:h:qc")) != -1) {  // NEW: Added 'C' flag
+    while ((opt = getopt(argc, argv, "b:cn:t:s:p:h:qu")) != -1) {
         switch (opt) {
             case 'b': cfg.battery = atoi(optarg); break;
-            case 'c': cfg.charging = 1; break;                       // NEW: charging flag
+            case 'c': cfg.charging = 1; break;
             case 'n': strncpy(cfg.operator, optarg, 31); break;
             case 't': strncpy(cfg.network_type, optarg, 7); break;
             case 's': strncpy(cfg.ssid, optarg, 63); break;
