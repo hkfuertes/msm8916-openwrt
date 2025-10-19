@@ -13,7 +13,7 @@ VMIN=$(cat "$BMS_PATH/voltage_min_design" 2>/dev/null)
 CHARGING_STATUS=$(cat "$BMS_PATH/status" 2>/dev/null)
 CHARGING_FLAG=""
 
-if [ "$CHARGING_STATUS" = "Charging" ] || [ "$CHARGING_STATUS" = "Full" ]; then
+if [ "$CHARGING_STATUS" = "Charging" ]; then
     CHARGING_FLAG="-c"
 fi
 
