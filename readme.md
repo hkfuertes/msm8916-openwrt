@@ -155,8 +155,8 @@ uci commit display
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `timeout_dim` | integer | 5 | Minutes before display dims (0 = never) |
-| `timeout_off` | integer | 3 | Minutes before display turns off (0 = never) |
+| `timeout_dim` | integer | 5 | Seconds before display dims |
+| `timeout_off` | integer | 3 | Seconds before display turns off |
 | `enable_lockscreen` | boolean | 1 | Display lockscreen when dimmed |
 | `brightness_dim_divisor` | integer | 8 | Brightness divisor for dim mode (higher value = dimmer) |
 | `fifo` | string | `/var/run/display.fifo` | FIFO pipe for display control |
