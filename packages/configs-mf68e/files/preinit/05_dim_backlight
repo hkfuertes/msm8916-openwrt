@@ -1,0 +1,24 @@
+#!/bin/sh
+
+dim_backlight() {
+    (
+        BL="/sys/class/backlight/backlight"
+
+        # Wait for backlight
+        i=0
+        while [ ! -d "$BL" ] && [ $i -lt 50 ]; do
+            usleep 100000  # 100 ms
+            i=$((i + 1))
+        done
+
+        # Set backlight
+        if [ -d "$BL" ]; then
+            MAX_BRIGHTNESS=$(cat "$BL/max_brightness" 2>/dev/null || echo 1785)
+            BRIGHTNESS_DIM=$((MAX_BRIGHTNESS / 8))
+            echo 0 > "$BL/bl_power" 2>/dev/null
+            echo $BRIGHTNESS_DIM > "$BL/brightness" 2>/dev/null
+        fi
+    ) &
+}
+
+boot_hook_add preinit_main dim_backlight

@@ -64,10 +64,7 @@ define Package/router-display/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
 	$(INSTALL_BIN) ./files/hotplugs/20_power_button $(1)/etc/hotplug.d/button/20_power_button
 
-	$(INSTALL_DIR) $(1)/lib/preinit
-	$(INSTALL_BIN) ./files/preinit/05_display_logo $(1)/lib/preinit/05_display_logo
-
-	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DIR) $(1)/etc/logos
 	$(INSTALL_DATA) ./files/logos/boot_logo.fb $(1)/etc/logos/boot_logo.fb
 	$(INSTALL_DATA) ./files/logos/poweroff_logo.fb $(1)/etc/logos/poweroff_logo.fb
 
