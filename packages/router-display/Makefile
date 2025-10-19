@@ -33,7 +33,7 @@ define Download/qrcodegen
 endef
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)
 	$(CP) ./src/main.c $(PKG_BUILD_DIR)/
 	$(eval $(call Download,qrcodegen))
 	tar -xzf $(DL_DIR)/qrcodegen-$(PKG_QRGEN_VERSION).tar.gz -C $(PKG_BUILD_DIR)
@@ -55,13 +55,21 @@ endef
 define Package/router-display/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/router-display $(1)/usr/bin/
+	$(INSTALL_BIN) ./files/display-manager.sh $(1)/usr/bin/display-manager
+	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/bin/update-display
 
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/update-display.sh $(1)/usr/sbin/update-display
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/display-manager.init $(1)/etc/init.d/display-manager
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
-	$(INSTALL_BIN) ./files/hotplugs/20_power_dimm $(1)/etc/hotplug.d/button/20_power_dimm
-	$(INSTALL_BIN) ./files/hotplugs/30_power_update $(1)/etc/hotplug.d/button/30_power_update
+	$(INSTALL_BIN) ./files/hotplugs/20_power_button $(1)/etc/hotplug.d/button/20_power_button
+
+	$(INSTALL_DIR) $(1)/etc/logos
+	$(INSTALL_DATA) ./files/logos/boot_logo.fb $(1)/etc/logos/boot_logo.fb
+	$(INSTALL_DATA) ./files/logos/poweroff_logo.fb $(1)/etc/logos/poweroff_logo.fb
+
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/display-manager.uci $(1)/etc/config/display
 endef
 
 $(eval $(call BuildPackage,router-display))

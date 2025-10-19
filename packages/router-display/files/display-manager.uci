@@ -1,0 +1,6 @@
+config display 'display'
+        option timeout_dim '5'
+        option timeout_off '3'
+        option brightness_dim_divisor '8'
+        option fifo '/var/run/display.fifo'
+        option enable_lockscreen '1'
