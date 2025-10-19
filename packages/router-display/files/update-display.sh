@@ -11,23 +11,22 @@ VMIN=$(cat "$BMS_PATH/voltage_min_design" 2>/dev/null)
 
 # Check charging status
 CHARGING_STATUS=$(cat "$BMS_PATH/status" 2>/dev/null)
-CHARGING_PREFIX=""
+CHARGING_FLAG=""
 
 if [ "$CHARGING_STATUS" = "Charging" ] || [ "$CHARGING_STATUS" = "Full" ]; then
-    CHARGING_PREFIX="+"
+    CHARGING_FLAG="-c"
 fi
 
 if [ -n "$VOLTAGE" ] && [ -n "$VMAX" ] && [ -n "$VMIN" ]; then
-    BATTERY_PCT=$(awk "BEGIN {pct = (($VOLTAGE - $VMIN) / ($VMAX - $VMIN)) * 100; if(pct < 0) pct=0; if(pct > 100) pct=100; printf \"%.0f\", pct}")
-    BATTERY="${CHARGING_PREFIX}${BATTERY_PCT}"
+    BATTERY=$(awk "BEGIN {pct = (($VOLTAGE - $VMIN) / ($VMAX - $VMIN)) * 100; if(pct < 0) pct=0; if(pct > 100) pct=100; printf \"%.0f\", pct}")
 else
-    BATTERY="${CHARGING_PREFIX}100"
+    BATTERY=100
 fi
 
 # === WiFi AP ===
-SHOW_QR=0
+QR_FLAG=""
 if ip link show phy0-ap0 2>/dev/null | grep -q "state UP"; then
-    SHOW_QR=1
+    QR_FLAG="-q"
 fi
 
 # === MODEM (OPTIMIZED - single mmcli call + operator cache) ===
@@ -87,8 +86,4 @@ PASSWORD=$(uci get wireless.@wifi-iface[0].key 2>/dev/null || echo "")
 HOSTNAME=$(uci get system.@system[0].hostname 2>/dev/null || echo "Router")
 
 # === Update Display ===
-if [ "$SHOW_QR" -eq 1 ]; then
-    /usr/bin/router-display -q -b "$BATTERY" -n "$OPERATOR" -t "$NETWORK" -s "$SSID" -p "$PASSWORD" -h "$HOSTNAME" > /dev/fb0
-else
-    /usr/bin/router-display -b "$BATTERY" -n "$OPERATOR" -t "$NETWORK" -s "$SSID" -p "$PASSWORD" -h "$HOSTNAME" > /dev/fb0
-fi
+/usr/bin/router-display $QR_FLAG $CHARGING_FLAG -b "$BATTERY" -n "$OPERATOR" -t "$NETWORK" -s "$SSID" -p "$PASSWORD" -h "$HOSTNAME" > /dev/fb0

@@ -27,6 +27,7 @@ typedef struct {
 
 typedef struct {
     int battery;
+    int charging;        // NEW: charging flag
     char operator[32];
     char network_type[8];
     char ssid[64];
@@ -206,27 +207,36 @@ void generate_display(Framebuffer *fb, DisplayConfig *cfg, FT_Face face) {
     
     fb_draw_text(fb, face, hostname_text, 2, line2_y, fontsz);
     
-    char battery_text[8];
-    snprintf(battery_text, sizeof(battery_text), "%d%%", cfg->battery);
+    // NEW: Format battery with charging indicator
+    char battery_text[16];
+    if (cfg->charging) {
+        snprintf(battery_text, sizeof(battery_text), "+%d%%", cfg->battery);
+    } else {
+        snprintf(battery_text, sizeof(battery_text), "%d%%", cfg->battery);
+    }
+    
     int battery_width = fb_get_text_width(face, battery_text, fontsz);
     fb_draw_text(fb, face, battery_text, WIDTH - battery_width - 2, line2_y, fontsz);
 }
 
 void print_usage(const char *prog) {
     fprintf(stderr, "Usage: %s [OPTIONS]\n", prog);
-    fprintf(stderr, "  -b NUM    Battery (0-100)\n");
+    fprintf(stderr, "  -b NUM    Battery percentage (0-100)\n");
+    fprintf(stderr, "  -c        Charging indicator (adds + prefix)\n");
     fprintf(stderr, "  -n NAME   Operator name\n");
     fprintf(stderr, "  -t TYPE   Network type (4G, LTE)\n");
     fprintf(stderr, "  -s SSID   WiFi SSID\n");
     fprintf(stderr, "  -p PASS   WiFi password\n");
     fprintf(stderr, "  -h HOST   Hostname\n");
     fprintf(stderr, "  -q        Show QR code (default: show logo)\n");
-    fprintf(stderr, "  -c        Convert text to UPPERCASE\n");
+    fprintf(stderr, "  -u        Convert text to UPPERCASE\n");
 }
+
 
 int main(int argc, char *argv[]) {
     DisplayConfig cfg = {
         .battery = 100,
+        .charging = 0,       // NEW: default not charging
         .operator = "Unknown",
         .network_type = "4G",
         .ssid = "WiFi",
@@ -237,16 +247,17 @@ int main(int argc, char *argv[]) {
     };
     
     int opt;
-    while ((opt = getopt(argc, argv, "b:n:t:s:p:h:qc")) != -1) {
+    while ((opt = getopt(argc, argv, "b:Cn:t:s:p:h:qc")) != -1) {  // NEW: Added 'C' flag
         switch (opt) {
             case 'b': cfg.battery = atoi(optarg); break;
+            case 'c': cfg.charging = 1; break;                       // NEW: charging flag
             case 'n': strncpy(cfg.operator, optarg, 31); break;
             case 't': strncpy(cfg.network_type, optarg, 7); break;
             case 's': strncpy(cfg.ssid, optarg, 63); break;
             case 'p': strncpy(cfg.password, optarg, 63); break;
             case 'h': strncpy(cfg.hostname, optarg, 31); break;
             case 'q': cfg.show_qr = 1; break;
-            case 'c': cfg.uppercase = 1; break;
+            case 'u': cfg.uppercase = 1; break;
             default:
                 print_usage(argv[0]);
                 return 1;
