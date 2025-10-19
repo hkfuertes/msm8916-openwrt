@@ -29,8 +29,8 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 
 | Device | OpenWrt Target | SoC | RAM | Storage | Display | Battery | Notes |
 |--------|----------------|-----|-----|---------|---------|---------|-------|
-| **UZ801v3** | `yiming-uz801v3` | MSM8916 | 384MB | 2.4GB | ❌ | ❌ | USB dongle form factor |
-| **MiFi M68E** | `generic-mf68e` | MSM8916 | 384MB | 2.4GB | ✅ GC9107 | ✅ | Portable hotspot with interactive display |
+| **UZ801v3** | `yiming-uz801v3` | MSM8916 | 384MB | 4GB | ❌ | ❌ | USB dongle form factor |
+| **MiFi M68E** | `generic-mf68e` | MSM8916 | 384MB | 4GB | ✅ GC9107 | ✅ | Portable hotspot with interactive display |
 
 ## Features
 
