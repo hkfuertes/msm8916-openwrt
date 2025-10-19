@@ -48,7 +48,7 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
   - WiFi LED: [99-modem-led](packages/ledcontrol/files/99-modem-led)
   - Modem LED: [99-wifi-led](packages/ledcontrol/files/99-wifi-led)
 - **Display Manager**: FIFO-based display control daemon *(MiFi M68E only)*
-  - Script: [display-manager](packages/display-manager/files/display-manager.sh)
+  - Script: [display-manager](packages/router-display/files/display-manager.sh)
   - Manages brightness, timers, and power states
   - Commands: `full`, `dim`, `off`, `lockscreen`, `update`, `shutdown`
   - Controlled via `/var/run/display.fifo`
@@ -118,7 +118,7 @@ make -j$(nproc)
 - **Fastboot mode from OpenWrt**: Enter `edl` mode and erase boot partition (`edl e boot`). This will force bootloader.
 - **EDL mode**: 
   - From OEM: `adb reboot edl`
-  - From OpenWrt: Requires EDL cable or shorting PCB test pads
+  - From OpenWrt: Requires EDL cable or shorting PCB test [pads](https://forum.openwrt.org/t/uf896-qualcomm-msm8916-lte-router-384mib-ram-2-4gib-flash-android-openwrt/131712/483).
 
 ## Device-Specific Configuration
 
