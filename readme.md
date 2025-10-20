@@ -138,8 +138,8 @@ Configure display behavior through UCI:
 
 ```
 # Display timers (in Seconds)
-uci set display.display.timeout_dim='5'              # Seconds until screen dims (0 = disable)
-uci set display.display.timeout_off='3'              # Seconds until screen turns off (0 = disable)
+uci set display.display.timeout_dim='5'              # Seconds until screen dims
+uci set display.display.timeout_off='3'              # Seconds until screen turns off
 uci set display.display.enable_lockscreen='1'        # Show lockscreen when dimmed (0/1)
 
 # Display brightness
