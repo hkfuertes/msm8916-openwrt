@@ -11,11 +11,12 @@ Signed-off-by: hkfuertes <hkfuertes@example.com>
 
 --- a/arch/arm64/boot/dts/qcom/Makefile
 +++ b/arch/arm64/boot/dts/qcom/Makefile
-@@ -23,6 +23,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsu
+@@ -23,6 +23,8 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsu
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-gt58.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j3ltetw.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-mf68e.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-uf02.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5x.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-rossa.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-serranove.dtb
