@@ -1,0 +1,101 @@
+#!/bin/sh /etc/rc.common
+# /etc/init.d/battery-monitor
+
+START=99
+STOP=01
+
+CHARGER_FILE="/sys/class/power_supply/pm8916-lbc-chgr/online"
+BMS_PATH="/sys/class/power_supply/pm8916-bms-vm"
+
+get_capacity() {
+    local voltage=$(cat $BMS_PATH/voltage_now 2>/dev/null)
+    local vmax=$(cat $BMS_PATH/voltage_max_design 2>/dev/null)
+    local vmin=$(cat $BMS_PATH/voltage_min_design 2>/dev/null)
+    
+    if [ -n "$voltage" ] && [ -n "$vmax" ] && [ -n "$vmin" ]; then
+        awk -v v="$voltage" -v vmax="$vmax" -v vmin="$vmin" \
+            'BEGIN {pct = ((v - vmin) / (vmax - vmin)) * 100; 
+                    if (pct < 0) pct = 0; 
+                    if (pct > 100) pct = 100; 
+                    printf "%.0f", pct}'
+    else
+        echo "50"
+    fi
+}
+
+show_battery_temp() {
+    local capacity=$(get_capacity)
+    
+    ledcontrol charging red off 2>/dev/null
+    ledcontrol charging green off 2>/dev/null
+    
+    if [ "$capacity" -lt 20 ]; then
+        ledcontrol charging red on 2>/dev/null
+    elif [ "$capacity" -lt 50 ]; then
+        ledcontrol charging red on 2>/dev/null
+        ledcontrol charging green on 2>/dev/null
+    else
+        ledcontrol charging green on 2>/dev/null
+    fi
+    
+    logger -t battery-monitor "SIGUSR1: Showing ${capacity}%"
+    
+    sleep 2
+    
+    update_led
+}
+
+update_led() {
+    local charging=$(cat $CHARGER_FILE 2>/dev/null || echo 0)
+    
+    if [ "$charging" = "1" ]; then
+        local capacity=$(get_capacity)
+        
+        ledcontrol charging red off 2>/dev/null
+        ledcontrol charging green off 2>/dev/null
+        
+        if [ "$capacity" -ge 95 ]; then
+            ledcontrol charging green on 2>/dev/null
+            logger -t battery-monitor "Charging complete: ${capacity}%"
+        elif [ "$capacity" -ge 50 ]; then
+            ledcontrol charging red blink 2>/dev/null &
+            ledcontrol charging green blink 2>/dev/null &
+            logger -t battery-monitor "Charging: ${capacity}%"
+        else
+            ledcontrol charging red blink 2>/dev/null
+            logger -t battery-monitor "Charging low: ${capacity}%"
+        fi
+    else
+        ledcontrol charging red off 2>/dev/null
+        ledcontrol charging green off 2>/dev/null
+    fi
+}
+
+start() {
+    update_led
+    
+    (
+        trap 'show_battery_temp' USR1
+        
+        while true; do
+            inotifywait -qq -e modify $CHARGER_FILE 2>/dev/null
+            sleep 1
+            update_led
+        done
+    ) &
+    
+    echo $! > /var/run/battery-monitor.pid
+}
+
+stop() {
+    [ -f /var/run/battery-monitor.pid ] && {
+        kill $(cat /var/run/battery-monitor.pid) 2>/dev/null
+        rm -f /var/run/battery-monitor.pid
+    }
+    
+    ledcontrol charging red blink 2>/dev/null
+    ledcontrol charging green blink 2>/dev/null
+    
+    logger -t shutdown-led "BAT LED blinking amber - shutdown"
+    return 0
+}

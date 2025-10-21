@@ -4,10 +4,12 @@
 
 case "$ACTION:$INTERFACE" in
     ifup:modem)
+        ledcontrol wan red off 2>/dev/null || true
         ledcontrol wan on
         logger -t modem-led "Modem UP - Green LED ON"
         ;;
     ifdown:modem)
+        ledcontrol wan red on 2>/dev/null || true
         ledcontrol wan off
         logger -t modem-led "Modem DOWN - Green LED OFF"
         ;;

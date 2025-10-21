@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-m9s.dts
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,126 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -118,4 +118,12 @@
 +
 +&gpio_leds_default {
 +	pins = "gpio0", "gpio1", "gpio72", "gpio73", "gpio84", "gpio85";
++};
++
++&pm8916_0 {
++	pon@800 {
++		watchdog {
++			status = "disabled";
++		};
++	};
 +};

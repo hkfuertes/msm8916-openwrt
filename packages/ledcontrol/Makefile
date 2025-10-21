@@ -11,7 +11,7 @@ define Package/ledcontrol
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Simple LED control utility
-  DEPENDS:=
+  DEPENDS:=+kmod-button-hotplug +inotifywait
 endef
 
 define Package/ledcontrol/description
@@ -25,13 +25,19 @@ endef
 
 define Package/ledcontrol/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/ledcontrol $(1)/usr/sbin/
+	$(INSTALL_BIN) ./files/ledcontrol.sh $(1)/usr/sbin/
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
 	$(INSTALL_DATA) ./files/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_DATA) ./files/99-modem-led $(1)/etc/hotplug.d/iface/
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
+	$(INSTALL_DATA) ./files/50-battery-show $(1)/etc/hotplug.d/button/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DATA) ./files/battery-monitor.init $(1)/etc/init.d/battery-monitor
 endef
 
 $(eval $(call BuildPackage,ledcontrol))
