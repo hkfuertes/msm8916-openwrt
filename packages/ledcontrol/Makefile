@@ -25,7 +25,7 @@ endef
 
 define Package/ledcontrol/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/ledcontrol.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) ./files/ledcontrol.sh $(1)/usr/sbin/ledcontrol
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
 	$(INSTALL_DATA) ./files/99-wifi-led $(1)/etc/hotplug.d/ieee80211/

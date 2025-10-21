@@ -93,9 +93,9 @@ stop() {
         rm -f /var/run/battery-monitor.pid
     }
     
+    ledcontrol charging green off 2>/dev/null
     ledcontrol charging red blink 2>/dev/null
-    ledcontrol charging green blink 2>/dev/null
     
-    logger -t shutdown-led "BAT LED blinking amber - shutdown"
+    logger -t shutdown-led "BAT LED blinking - shutdown"
     return 0
 }
