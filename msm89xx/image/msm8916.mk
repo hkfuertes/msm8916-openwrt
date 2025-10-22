@@ -35,7 +35,7 @@ define Device/yiming-uz801v3
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper ledcontrol
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += yiming-uz801v3
 
@@ -46,7 +46,7 @@ define Device/generic-uf02
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper ledcontrol
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += generic-uf02
 
@@ -70,7 +70,7 @@ define Device/generic-m9s
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := configs-mifi wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper ledcontrol
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += generic-m9s
 

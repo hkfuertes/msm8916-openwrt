@@ -50,15 +50,16 @@ get_capacity() {
 show_battery_temp() {
     local capacity=$(get_capacity)
     
+    # Clear both LEDs first
     ledcontrol $LED_RED off 2>/dev/null
     ledcontrol $LED_GREEN off 2>/dev/null
     
-    if [ "$capacity" -lt 20 ]; then
+    # Show battery level with 2 states (button press)
+    if [ "$capacity" -lt 50 ]; then
+        # Low battery: solid red
         ledcontrol $LED_RED on 2>/dev/null
-    elif [ "$capacity" -lt 50 ]; then
-        ledcontrol $LED_RED on 2>/dev/null
-        ledcontrol $LED_GREEN on 2>/dev/null
     else
+        # Good battery: solid green
         ledcontrol $LED_GREEN on 2>/dev/null
     fi
     
@@ -75,21 +76,26 @@ update_led() {
     if [ "$charging" = "1" ]; then
         local capacity=$(get_capacity)
         
+        # Clear both LEDs first
         ledcontrol $LED_RED off 2>/dev/null
         ledcontrol $LED_GREEN off 2>/dev/null
         
+        # 3 charging states
         if [ "$capacity" -ge 95 ]; then
+            # Fully charged: solid green
             ledcontrol $LED_GREEN on 2>/dev/null
             logger -t battery-monitor "Charging complete: ${capacity}%"
         elif [ "$capacity" -ge 50 ]; then
-            ledcontrol $LED_RED blink 2>/dev/null &
-            ledcontrol $LED_GREEN blink 2>/dev/null &
+            # Charging medium/high: blinking green
+            ledcontrol $LED_GREEN blink 2>/dev/null
             logger -t battery-monitor "Charging: ${capacity}%"
         else
+            # Charging low: blinking red
             ledcontrol $LED_RED blink 2>/dev/null
             logger -t battery-monitor "Charging low: ${capacity}%"
         fi
     else
+        # Not charging: turn off LEDs
         ledcontrol $LED_RED off 2>/dev/null
         ledcontrol $LED_GREEN off 2>/dev/null
     fi

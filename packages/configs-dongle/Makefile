@@ -34,10 +34,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./files/luci-app-tailscale*.apk $(1)/root/
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(INSTALL_DATA) ./files/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
+	$(INSTALL_DATA) ./files/hotplugs/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
 	
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_DATA) ./files/99-modem-led $(1)/etc/hotplug.d/iface/
+	$(INSTALL_DATA) ./files/hotplugs/99-modem-led $(1)/etc/hotplug.d/iface/
 endef
 
 define Package/$(PKG_NAME)/postinst
