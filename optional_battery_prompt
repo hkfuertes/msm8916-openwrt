@@ -1,0 +1,172 @@
+Perfecto. Aquí tienes la **checklist definitiva** para solucionar esto por software en el futuro:[1][2][3]
+
+## Checklist: Simular batería presente por software
+
+### 1. **Información que necesito darte**
+
+Cuando quieras hacer esto en otro dispositivo, dame:[4][5]
+
+**A) El device tree completo del dispositivo** (archivo `.dts`)
+- Para identificar qué GPIOs y canales VADC están definidos
+
+**B) El device tree base de msm8916** (normalmente `msm8916-ufi.dtsi`)
+- Para ver qué tiene el PMIC configurado por defecto
+
+**C) Logs del kernel con batería vs sin batería**
+```bash
+dmesg | grep -E "pm8916|bms|vadc|bat"
+```
+
+**D) Estado actual de los sysfs relevantes**
+```bash
+ls -la /sys/class/power_supply/
+cat /sys/kernel/debug/iio/iio:device*/in_*_raw
+cat /sys/bus/spmi/devices/0-000*/name
+```
+
+### 2. **Preguntas clave que debes hacerme**
+
+Cuando tengas esa información, pregúntame:[2][3][1]
+
+**"¿Cómo simular batería presente en [nombre-dispositivo]?"**
+
+Y específicamente investigo:
+
+**a) Identificar el canal VADC de BAT_ID**[1]
+```
+¿Qué canal del PM8916 VADC lee el BAT_ID?
+```
+Normalmente es `VADC_LR_MUX2_BAT_ID` o similar.
+
+**b) Localizar GPIO asociado a BAT_ID**[3][2]
+```
+¿Hay algún GPIO del PMIC conectado a BAT_ID?
+```
+
+**c) Ver configuración actual del BMS**[1]
+```
+¿Qué propiedades tiene el nodo &pm8916_bms?
+```
+
+### 3. **Soluciones software que aplicaré**
+
+Según lo que encuentre, te daré una de estas soluciones:[2][3][1]
+
+#### Opción A: Desactivar lectura de BAT_ID en VADC
+
+```dts
+&pm8916_vadc {
+    /* Comentar/eliminar el canal BAT_ID */
+    /*
+    bat-id@12 {
+        reg = <VADC_LR_MUX2_BAT_ID>;
+        qcom,pre-scaling = <1 1>;
+        qcom,hw-settle-time = <200>;
+    };
+    */
+};
+```
+
+#### Opción B: Forzar GPIO en pull-down permanente
+
+```dts
+&pm8916_gpios {
+    bat_id_pulldown: bat-id-pulldown-state {
+        pins = "gpioX";  // X = número de GPIO
+        function = "normal";
+        input-disable;
+        output-low;
+        bias-pull-down;
+        power-source = <PM8916_GPIO_VPH>;
+    };
+};
+```
+
+#### Opción C: Modificar propiedades del BMS
+
+```dts
+&pm8916_bms {
+    status = "okay";
+    monitored-battery = <&bat>;
+    power-supplies = <&pm8916_charger>;
+    
+    /* Opciones para ignorar BAT_ID */
+    qcom,ignore-shutdown-soc;
+    qcom,force-bms-active-on-charger;
+    /delete-property/ io-channels;  // Elimina referencia a VADC
+};
+```
+
+#### Opción D: Simular resistencia con GPIO analog
+
+```dts
+&pm8916_gpios {
+    bat_id_sim: bat-id-simulation {
+        pins = "gpioX";
+        function = "normal";
+        qcom,pull-up-strength = <PMIC_GPIO_PULL_UP_30>;  // 100kΩ equiv
+        bias-pull-down;
+    };
+};
+```
+
+### 4. **Archivos que necesito ver**
+
+Cuando me preguntes, adjunta estos archivos:[5][4]
+
+```bash
+# 1. DTS del dispositivo
+target/linux/msm89xx/dts/qcom/msm8916-generic-TUDEVICE.dts
+
+# 2. DTSI base si existe
+target/linux/msm89xx/dts/qcom/msm8916-ufi.dtsi
+
+# 3. Configuración del kernel (opcional pero útil)
+target/linux/msm89xx/config-*
+
+# 4. Output de debugfs con batería conectada
+cat /sys/kernel/debug/pm8916-adc/channels
+cat /sys/kernel/debug/gpio
+```
+
+### 5. **Comando diagnóstico rápido**
+
+Cuando no arranque sin batería, ejecuta esto (con UART/serial):[2][1]
+
+```bash
+# Durante boot, captura:
+dmesg | grep -i "bat\|bms\|vadc\|adc" > /tmp/boot_log.txt
+
+# Y también:
+cat /sys/bus/spmi/devices/*/name
+cat /proc/interrupts | grep pm8916
+```
+
+Y pásame ese log completo.
+
+### 6. **Resumen: ¿Qué te pregunto yo a ti?**
+
+Cuando tengas un dispositivo nuevo que no arranca sin batería:[3][1][2]
+
+> **"Tengo [dispositivo] con MSM8916/PM8916 que no arranca sin batería. Usa el mismo lk2nd que [otro dispositivo] que sí funciona sin batería. Te adjunto:**
+> - **DTS de ambos dispositivos** (el que funciona y el que no)
+> - **dmesg completo** del que no funciona (si arranca con batería)
+> - **Esquemático** si lo tengo
+>
+> **¿Cómo configuro el device tree para simular BAT_ID por software?**"
+
+Y con eso, busco las diferencias en VADC, GPIOs y configuración del BMS para darte el patch exacto.[4][5][3][1][2]
+
+[1](https://www.kernel.org/doc/Documentation/devicetree/bindings/power/supply/qcom,pm8916-bms-vm.yaml)
+[2](https://www.kernel.org/doc/Documentation/devicetree/bindings/pinctrl/qcom,pmic-gpio.txt)
+[3](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/20_GPIO_registers_configuration.html)
+[4](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/71119587/2cbba375-133e-46d7-b84a-35a4b519f137/802-arm64-dts-qcom-add-msm8916-generic-mf68e.patch)
+[5](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/71119587/bb25f50b-d1d3-4c22-921c-7e22b9b185a8/805-arm64-dts-qcom-add-msm8916-generic-m9s.patch)
+[6](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-1/7_Pin_control_driver.html)
+[7](https://www.kernel.org/doc/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml)
+[8](https://sbexr.rabexc.org/latest/sources/6d/8af0298da51217.html)
+[9](https://gitlab.com/cunidev/linux-msm8996/-/blob/v3.5-rc5/Documentation/gpio.txt)
+[10](https://docs.qualcomm.com/bundle/publicresource/topics/80-70017-4/pmic-developer-touchpoints.html)
+[11](https://hafnium.googlesource.com/hafnium/third_party/linux/+/refs/heads/master/Documentation/devicetree/bindings/pinctrl/qcom,pmic-gpio.txt)
+[12](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/19_Hardware_overview.html)
+[13](https://docs.qualcomm.com/bundle/publicresource/topics/80-70020-8/pcie.html)

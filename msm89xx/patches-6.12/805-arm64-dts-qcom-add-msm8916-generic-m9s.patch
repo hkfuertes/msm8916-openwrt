@@ -1,0 +1,134 @@
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/msm8916-generic-m9s.dts
+@@ -0,0 +1,131 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++/dts-v1/;
++
++#include "msm8916-ufi.dtsi"
++
++#include <dt-bindings/leds/common.h>
++
++/ {
++	model = "M9S 4G LTE Mobile WiFi Router";
++	compatible = "generic,m9s", "qcom,msm8916";
++
++	bat: battery {
++		compatible = "simple-battery";
++		voltage-min-design-microvolt = <3400000>;
++		voltage-max-design-microvolt = <4400000>;
++		energy-full-design-microwatt-hours = <11100000>;
++		charge-full-design-microamp-hours = <3000000>;
++
++		ocv-capacity-celsius = <25>;
++		ocv-capacity-table-0 = <4330000 100>, <4265000 95>,
++			<4208000 90>, <4154000 85>, <4102000 80>,
++			<4063000 75>, <4006000 70>, <3972000 65>,
++			<3931000 60>, <3880000 55>, <3841000 50>,
++			<3817000 45>, <3798000 40>, <3783000 35>,
++			<3767000 30>, <3747000 25>, <3729000 20>,
++			<3700000 16>, <3687000 13>, <3683000 11>,
++			<3681000 10>, <3680000 9>, <3678000 8>,
++			<3674000 7>, <3666000 6>, <3641000 5>,
++			<3597000 4>, <3537000 3>, <3457000 2>,
++			<3336000 1>, <3000000 0>;
++	};
++
++	usb_id: usb-id {
++		compatible = "linux,extcon-usb-gpio";
++		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb_id_default>;
++	};
++
++	leds-extra {
++		compatible = "gpio-leds";
++
++		led-wlan-red {
++			function = LED_FUNCTION_WLAN;
++			color = <LED_COLOR_ID_RED>;
++			gpios = <&tlmm 84 GPIO_ACTIVE_HIGH>;
++		};
++
++		led-wan-green {
++			function = LED_FUNCTION_WAN;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&tlmm 85 GPIO_ACTIVE_HIGH>;
++		};
++
++		led-battery-green {
++			function = LED_FUNCTION_CHARGING;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++	};
++};
++
++&usb {
++	extcon = <&usb_id>, <&usb_id>;
++};
++
++&usb_hs_phy {
++	extcon = <&usb_id>;
++};
++
++&button_restart {
++	gpios = <&tlmm 102 GPIO_ACTIVE_LOW>;
++};
++
++&led_r {
++	function = LED_FUNCTION_WAN;
++	color = <LED_COLOR_ID_RED>;
++	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
++};
++
++&led_g {
++	function = LED_FUNCTION_WLAN;
++	color = <LED_COLOR_ID_GREEN>;
++	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
++};
++
++&led_b {
++	function = LED_FUNCTION_CHARGING;
++	color = <LED_COLOR_ID_RED>;
++	gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
++};
++
++&pm8916_bms {
++	status = "okay";
++	monitored-battery = <&bat>;
++	power-supplies = <&pm8916_charger>;
++};
++
++&pm8916_charger {
++	status = "okay";
++	monitored-battery = <&bat>;
++	qcom,fast-charge-safe-current = <900000>;
++	qcom,fast-charge-safe-voltage = <4400000>;
++};
++
++&tlmm {
++	usb_id_default: usb-id-default-state {
++		pins = "gpio110";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
++};
++
++&button_default {
++	pins = "gpio102";
++};
++
++&gpio_leds_default {
++	pins = "gpio0", "gpio1", "gpio72", "gpio73", "gpio84", "gpio85";
++};
++
++&pm8916_0 {
++	pon@800 {
++		watchdog {
++			status = "disabled";
++		};
++	};
++};

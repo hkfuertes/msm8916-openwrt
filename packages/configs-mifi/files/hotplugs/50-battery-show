@@ -1,0 +1,14 @@
+#!/bin/sh
+# /etc/hotplug.d/button/50-battery-show
+
+[ "$BUTTON" = "power" ] || exit 0
+[ "$ACTION" = "pressed" ] || exit 0
+
+charging=$(cat /sys/class/power_supply/pm8916-lbc-chgr/online 2>/dev/null || echo 0)
+
+if [ "$charging" = "0" ]; then
+    [ -f /var/run/battery-monitor.pid ] && {
+        kill -USR1 $(cat /var/run/battery-monitor.pid) 2>/dev/null
+        logger -t button-battery "SIGUSR1 sent to battery-monitor"
+    }
+fi

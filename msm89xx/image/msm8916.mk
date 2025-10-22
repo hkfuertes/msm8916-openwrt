@@ -33,11 +33,23 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-uz801 wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper ledcontrol
+                     msm-firmware-dumper
 endef
 TARGET_DEVICES += yiming-uz801v3
+
+define Device/generic-uf02
+  $(Device/msm8916)
+  DEVICE_VENDOR := Generic
+  DEVICE_MODEL := UF02 (250605 V0S)
+  FILESYSTEMS := squashfs
+  DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm-firmware-dumper
+endef
+TARGET_DEVICES += generic-uf02
+
 
 define Device/generic-mf68e
   $(Device/msm8916)
@@ -45,10 +57,21 @@ define Device/generic-mf68e
   DEVICE_MODEL := MF68E
   FILESYSTEMS := squashfs
   CMDLINE := "earlycon console=ttyMSM0,115200 quiet loglevel=0 vt.global_cursor_default=0 vt.cur_default=0 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait nowatchdog"
-  DEVICE_PACKAGES := configs-mf68e wpad-basic-wolfssl rmtfs uci-usb-gadget \
+  DEVICE_PACKAGES := configs-mifi wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools prepare-rootfs-data \
                      msm-firmware-dumper kmod-fbtft-gc9107 router-display
 endef
 TARGET_DEVICES += generic-mf68e
+
+define Device/generic-m9s
+  $(Device/msm8916)
+  DEVICE_VENDOR := Generic
+  DEVICE_MODEL := M9S
+  FILESYSTEMS := squashfs
+  DEVICE_PACKAGES := configs-mifi wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools prepare-rootfs-data \
+                     msm-firmware-dumper
+endef
+TARGET_DEVICES += generic-m9s
 
 endif

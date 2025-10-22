@@ -1,0 +1,185 @@
+#!/bin/sh /etc/rc.common
+# /etc/init.d/battery-monitor
+
+START=99
+STOP=01
+
+CHARGER_FILE="/sys/class/power_supply/pm8916-lbc-chgr/online"
+BMS_PATH="/sys/class/power_supply/pm8916-bms-vm"
+
+# Required LEDs
+LED_RED="red:charging"
+LED_GREEN="green:charging"
+
+# Check if required LEDs exist
+check_leds() {
+    local missing=""
+    
+    if [ ! -d "/sys/class/leds/$LED_RED" ]; then
+        missing="$missing $LED_RED"
+    fi
+    
+    if [ ! -d "/sys/class/leds/$LED_GREEN" ]; then
+        missing="$missing $LED_GREEN"
+    fi
+    
+    if [ -n "$missing" ]; then
+        logger -t battery-monitor "LEDs not found, service disabled:$missing"
+        return 1
+    fi
+    
+    return 0
+}
+
+get_capacity() {
+    local voltage=$(cat $BMS_PATH/voltage_now 2>/dev/null)
+    local vmax=$(cat $BMS_PATH/voltage_max_design 2>/dev/null)
+    local vmin=$(cat $BMS_PATH/voltage_min_design 2>/dev/null)
+    
+    if [ -n "$voltage" ] && [ -n "$vmax" ] && [ -n "$vmin" ]; then
+        awk -v v="$voltage" -v vmax="$vmax" -v vmin="$vmin" \
+            'BEGIN {pct = ((v - vmin) / (vmax - vmin)) * 100; 
+                    if (pct < 0) pct = 0; 
+                    if (pct > 100) pct = 100; 
+                    printf "%.0f", pct}'
+    else
+        echo "50"
+    fi
+}
+
+show_battery_temp() {
+    local capacity=$(get_capacity)
+    
+    # Clear both LEDs first
+    ledcontrol $LED_RED off 2>/dev/null
+    ledcontrol $LED_GREEN off 2>/dev/null
+    
+    # Show battery level with 2 states (button press)
+    if [ "$capacity" -lt 50 ]; then
+        # Low battery: solid red
+        ledcontrol $LED_RED on 2>/dev/null
+    else
+        # Good battery: solid green
+        ledcontrol $LED_GREEN on 2>/dev/null
+    fi
+    
+    logger -t battery-monitor "SIGUSR1: Showing ${capacity}%"
+    
+    sleep 2
+    
+    update_led
+}
+
+update_led() {
+    local charging=$(cat $CHARGER_FILE 2>/dev/null || echo 0)
+    
+    if [ "$charging" = "1" ]; then
+        local capacity=$(get_capacity)
+        
+        # Clear both LEDs first
+        ledcontrol $LED_RED off 2>/dev/null
+        ledcontrol $LED_GREEN off 2>/dev/null
+        
+        # 3 charging states
+        if [ "$capacity" -ge 95 ]; then
+            # Fully charged: solid green
+            ledcontrol $LED_GREEN on 2>/dev/null
+            logger -t battery-monitor "Charging complete: ${capacity}%"
+        elif [ "$capacity" -ge 50 ]; then
+            # Charging medium/high: blinking green
+            ledcontrol $LED_GREEN blink 2>/dev/null
+            logger -t battery-monitor "Charging: ${capacity}%"
+        else
+            # Charging low: blinking red
+            ledcontrol $LED_RED blink 2>/dev/null
+            logger -t battery-monitor "Charging low: ${capacity}%"
+        fi
+    else
+        # Not charging: turn off LEDs
+        ledcontrol $LED_RED off 2>/dev/null
+        ledcontrol $LED_GREEN off 2>/dev/null
+    fi
+}
+
+# Main monitoring loop (runs in background)
+monitor_loop() {
+    # Set up signal handler
+    trap 'show_battery_temp' USR1
+    
+    # Get initial state
+    local last_state=$(cat $CHARGER_FILE 2>/dev/null || echo 0)
+    update_led
+    
+    # Poll charger state
+    while true; do
+        local current_state=$(cat $CHARGER_FILE 2>/dev/null || echo 0)
+        
+        if [ "$current_state" != "$last_state" ]; then
+            logger -t battery-monitor "Charger state changed: $last_state -> $current_state"
+            last_state=$current_state
+            sleep 1
+            update_led
+        fi
+        
+        # Poll every 2 seconds
+        sleep 2
+    done
+}
+
+start() {
+    # Exit silently if LEDs don't exist
+    check_leds || return 0
+    
+    # Check if already running
+    if [ -f /var/run/battery-monitor.pid ] && kill -0 $(cat /var/run/battery-monitor.pid) 2>/dev/null; then
+        logger -t battery-monitor "Already running"
+        return 0
+    fi
+    
+    logger -t battery-monitor "Starting with LEDs: $LED_RED, $LED_GREEN"
+    
+    # Start monitoring loop in background
+    monitor_loop &
+    
+    echo $! > /var/run/battery-monitor.pid
+    logger -t battery-monitor "Service started (PID: $!)"
+}
+
+stop() {
+    if [ -f /var/run/battery-monitor.pid ]; then
+        local pid=$(cat /var/run/battery-monitor.pid)
+        
+        if kill -0 $pid 2>/dev/null; then
+            kill $pid 2>/dev/null
+            
+            # Wait for process to die
+            local timeout=5
+            while [ $timeout -gt 0 ] && kill -0 $pid 2>/dev/null; do
+                sleep 1
+                timeout=$((timeout - 1))
+            done
+            
+            # Force kill if still alive
+            kill -9 $pid 2>/dev/null
+            
+            logger -t battery-monitor "Service stopped (PID: $pid)"
+        fi
+        
+        rm -f /var/run/battery-monitor.pid
+    fi
+    
+    # Only try to control LEDs if they exist
+    if check_leds 2>/dev/null; then
+        ledcontrol $LED_GREEN off 2>/dev/null
+        ledcontrol $LED_RED blink 2>/dev/null
+        logger -t battery-monitor "Shutdown: Red LED blinking"
+    fi
+    
+    return 0
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}

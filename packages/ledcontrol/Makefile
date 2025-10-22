@@ -16,7 +16,7 @@ endef
 
 define Package/ledcontrol/description
   Simple utility to control device LEDs via sysfs
-  Usage: ledcontrol <color> <on|off|blink|blink_fast>
+  Usage: ledcontrol <color:function> <on|off|blink|blink_fast>
   Includes hotplug scripts for WiFi and modem LED management
 endef
 
@@ -24,14 +24,8 @@ define Build/Compile
 endef
 
 define Package/ledcontrol/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ./files/ledcontrol $(1)/usr/sbin/
-	
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(INSTALL_DATA) ./files/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
-	
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_DATA) ./files/99-modem-led $(1)/etc/hotplug.d/iface/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ./ledcontrol.sh $(1)/usr/bin/ledcontrol
 endef
 
 $(eval $(call BuildPackage,ledcontrol))

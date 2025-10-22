@@ -30,7 +30,9 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 | Device | OpenWrt Target | SoC | RAM | Storage | Display | Battery | Notes |
 |--------|----------------|-----|-----|---------|---------|---------|-------|
 | **UZ801v3** | `yiming-uz801v3` | MSM8916 | 384MB | 4GB | ❌ | ❌ | USB dongle form factor |
+| **UF02** | `generic-uf02` | MSM8916 | 384MB | 4GB | ❌ | ❌ | USB dongle form factor most likely with only asian bands. _(Can be somewhat changed via QPST and the `qcn` file from uz801)_ |
 | **MiFi M68E** | `generic-mf68e` | MSM8916 | 384MB | 4GB | ✅ GC9107 | ✅ | Portable hotspot with interactive display |
+| **MiFi M9S** | `generic-mf9s` | MSM8916 | 384MB | 4GB | ❌ (Leds) | ✅ | Portable hotspot|
 
 ## Features
 
@@ -114,7 +116,15 @@ make -j$(nproc)
 - **Fastboot mode**: Insert device while holding the button
 - **EDL mode**: Boot to fastboot first, then execute: `fastboot oem reboot-edl`
 
-#### MiFi M68E
+#### UF02
+- **Fastboot mode**: 
+  - From OEM: `adb reboot bootloader`.
+  - From OpenWrt: Enter `edl` and erase boot partition (`edl e boot`).
+- **EDL mode**:
+  - From OEM: `adb reboot bootloader`, flash `lk2nd` aboot. Reboot pressing the button.
+  - From OpenWrt: Insert device while holding the button.
+
+#### MiFi M68E or M9S
 - **Fastboot mode from OpenWrt**: Enter `edl` mode and erase boot partition (`edl e boot`). This will force bootloader.
 - **EDL mode**: 
   - From OEM: `adb reboot edl`
