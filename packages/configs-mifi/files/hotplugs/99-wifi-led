@@ -12,17 +12,20 @@ case "$ACTION" in
             sta_status=$(ip link show phy0-sta0 2>/dev/null | grep -c "state UP")
             
             if [ "$ap_status" -gt 0 ] || [ "$sta_status" -gt 0 ]; then
-                ledcontrol wlan on
+                ledcontrol red:wlan on 2>/dev/null || true
+                ledcontrol green:wlan on 2>/dev/null || true
                 logger -t wifi-led "phy0 interface UP, blue LED ON"
             else
-                ledcontrol wlan off
+                ledcontrol red:wlan on 2>/dev/null || true
+                ledcontrol green:wlan off 2>/dev/null || true
                 logger -t wifi-led "No phy0 interface UP, blue LED OFF"
             fi
         fi
         ;;
     remove)
         if [ "$DEVICENAME" = "phy0" ]; then
-            ledcontrol wlan off
+            ledcontrol red:wlan off 2>/dev/null || true
+            ledcontrol green:wlan off 2>/dev/null || true
             logger -t wifi-led "phy0 removed, blue LED OFF"
         fi
         ;;

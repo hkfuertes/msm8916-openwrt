@@ -1,0 +1,29 @@
+#!/bin/sh
+# /etc/hotplug.d/ieee80211/99-wifi-led
+# WiFi LED control based on phy0 status
+
+case "$ACTION" in
+    add)
+        if [ "$DEVICENAME" = "phy0" ]; then
+            sleep 5
+            
+            # Check interface status
+            ap_status=$(ip link show phy0-ap0 2>/dev/null | grep -c "state UP")
+            sta_status=$(ip link show phy0-sta0 2>/dev/null | grep -c "state UP")
+            
+            if [ "$ap_status" -gt 0 ] || [ "$sta_status" -gt 0 ]; then
+                ledcontrol blue:wlan on
+                logger -t wifi-led "phy0 interface UP, blue LED ON"
+            else
+                ledcontrol blue:wlan off
+                logger -t wifi-led "No phy0 interface UP, blue LED OFF"
+            fi
+        fi
+        ;;
+    remove)
+        if [ "$DEVICENAME" = "phy0" ]; then
+            ledcontrol blue:wlan off
+            logger -t wifi-led "phy0 removed, blue LED OFF"
+        fi
+        ;;
+esac

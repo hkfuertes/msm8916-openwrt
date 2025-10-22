@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=configs-mf68e
+PKG_NAME:=configs-mifi
 PKG_VERSION:=1.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -10,13 +10,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=Utilities
   CATEGORY:=Utilities
-  TITLE:=Default Settings For mf68e
-  DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager
+  TITLE:=Default Settings For MiFis
+  DEPENDS:=+PACKAGE_luci:luci-proto-modemmanager +ledcontrol +kmod-button-hotplug +inotifywait
 endef
 
 # Optional description
 define Package/$(PKG_NAME)/description
-Tweaks and defaults for mf68e, including cleanup of problematic APK feeds and LuCI battery widget.
+Tweaks and defaults for MiFis, including cleanup of problematic APK feeds and LuCI battery widget.
 endef
 
 define Build/Prepare
@@ -55,6 +55,18 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/admin_status/index
 	$(INSTALL_DATA) ./files/battery.htm $(1)/usr/lib/lua/luci/view/admin_status/index/20_battery.htm
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
+	$(INSTALL_DATA) ./files/hotplugs/99-wifi-led $(1)/etc/hotplug.d/ieee80211/
+	
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_DATA) ./files/hotplugs/99-modem-led $(1)/etc/hotplug.d/iface/
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/button
+	$(INSTALL_DATA) ./files/hotplugs/50-battery-show $(1)/etc/hotplug.d/button/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/battery-monitor.init $(1)/etc/init.d/battery-monitor
 endef
 
 define Package/$(PKG_NAME)/postinst
