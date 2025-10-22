@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-m9s.dts
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,131 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -96,10 +96,15 @@
 +};
 +
 +&pm8916_bms {
++	status = "okay";
 +	monitored-battery = <&bat>;
++	power-supplies = <&pm8916_charger>;
 +};
 +
 +&pm8916_charger {
++	status = "okay";
++	monitored-battery = <&bat>;
++	qcom,fast-charge-safe-current = <900000>;
 +	qcom,fast-charge-safe-voltage = <4400000>;
 +};
 +
