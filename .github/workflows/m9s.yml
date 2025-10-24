@@ -89,9 +89,9 @@ jobs:
       with:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: |
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-squashfs-gpt_both0.bin
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-squashfs-boot.img
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-squashfs-system.img
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3.manifest
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-flash.sh
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-yiming-uz801v3-firmware.zip
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s-squashfs-gpt_both0.bin
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s-squashfs-boot.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s-squashfs-system.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s.manifest
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s-flash.sh
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-m9s-firmware.zip
