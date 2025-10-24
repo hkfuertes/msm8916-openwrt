@@ -34,7 +34,7 @@ jobs:
         df -hT $PWD
         git clone --depth=1 --branch "main" https://git.openwrt.org/openwrt/openwrt.git openwrt
 
-    - name: Load msm89xx target and mf68e packages
+    - name: Load msm89xx target and packages
       run: |
         git apply --unsafe-paths enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
