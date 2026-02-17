@@ -86,7 +86,7 @@ index 5b13b6a..f8c5edf 100644
 +endef
 +
  define KernelPackage/ath10k-smallbuffers
-   $(call KernelPackage/ath10k/Default)
+   $(call KernelPackage/ath10k)
    TITLE+= (small buffers for low-RAM devices)
 @@ -356,6 +380,20 @@ This module adds support for Qualcomm Technologies 802.11ax family of
  chipsets with PCI bus.

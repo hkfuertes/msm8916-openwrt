@@ -1,0 +1,166 @@
+name: OpenWrt Builder
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      openwrt_branch:
+        description: 'OpenWrt branch'
+        required: true
+        default: 'main'
+        type: string
+      release_tag:
+        description: 'Release tag (optional - if provided, creates a GitHub release)'
+        required: false
+        type: string
+
+env:
+  UPLOAD_BIN_DIR: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: false
+  TZ: Europe/Madrid
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force
+        sudo -E apt-get -qq update
+        sudo -E ./devenv/dependencies.sh
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+
+    - name: "Clone OpenWrt source code"
+      run: |
+        df -hT $PWD
+        git clone --depth=1 --branch "${{ inputs.openwrt_branch }}" https://git.openwrt.org/openwrt/openwrt.git openwrt
+
+    - name: Load msm89xx target and packages
+      run: |
+        mv msm89xx openwrt/target/linux/msm89xx
+        mv packages openwrt/package/uz801
+        if [ "${{ inputs.openwrt_branch }}" == "openwrt-24.10" ]; then
+          git apply --unsafe-paths enable_wcn36xx_mac80211.openwrt_24_10.patch
+          sed -i '/^KERNEL_PATCHVER/c\KERNEL_PATCHVER:=6.6' openwrt/target/linux/msm89xx/Makefile
+        else
+          git apply --unsafe-paths enable_wcn36xx_mac80211.patch
+        fi
+
+    - name: Update and install feeds
+      run: |
+        cd openwrt
+        rm -rf tmp
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Cache OpenWrt downloads
+      uses: actions/cache@v4
+      with:
+        path: openwrt/dl
+        key: openwrt-dl-${{ inputs.openwrt_branch }}-${{ hashFiles('openwrt/feeds.conf.default', 'diffconfig_*') }}
+        restore-keys: |
+          openwrt-dl-${{ inputs.openwrt_branch }}-
+          openwrt-dl-
+
+    - name: Cache OpenWrt build binaries
+      uses: actions/cache@v4
+      with:
+        path: |
+          openwrt/staging_dir
+          openwrt/build_dir
+        key: openwrt-build-${{ inputs.openwrt_branch }}-${{ hashFiles('openwrt/feeds.conf.default', 'diffconfig_*') }}
+        restore-keys: |
+          openwrt-build-${{ inputs.openwrt_branch }}-
+          openwrt-build-
+
+    - name: Download package
+      id: package
+      run: |
+        cp "diffconfig_m9s" openwrt/.config
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \; || true
+        find dl -size -1024c -exec rm -f {} \; || true
+
+    - name: Compile the firmware (M9S)
+      run: |
+        cp diffconfig_m9s openwrt/.config
+        cd openwrt
+        make defconfig
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Compile the firmware (MF68E)
+      run: |
+        cp diffconfig_mf68e openwrt/.config
+        cd openwrt
+        make defconfig
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Compile the firmware (UF02)
+      run: |
+        cp diffconfig_uf02 openwrt/.config
+        cd openwrt
+        make defconfig
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Compile the firmware (UZ801)
+      run: |
+        cp diffconfig_uz801 openwrt/.config
+        cd openwrt
+        make defconfig
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: Prepare firmware files
+      run: |
+        mkdir -p firmware
+        find openwrt/bin/targets -type f -name "openwrt-msm89xx-*" -exec cp {} firmware/ \;
+        echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: openwrt_firmware_${{ env.FILE_DATE }}
+        path: firmware/*
+
+  release:
+    needs: build
+    if: inputs.release_tag != ''
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Create firmware archives
+      run: |
+        cd artifacts/openwrt_firmware_*/
+        for manifest in openwrt-msm89xx-msm8916-*.manifest; do
+          device=$(basename "$manifest" .manifest | sed 's/openwrt-msm89xx-msm8916-//')
+          zip ../../openwrt-msm89xx-msm8916-${device}-firmware.zip openwrt-msm89xx-msm8916-${device}*
+        done
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ inputs.release_tag }}
+        name: Release ${{ inputs.release_tag }}
+        body: |
+          OpenWrt firmware build for all variants
+          Branch: ${{ inputs.openwrt_branch }}
+        files: openwrt-msm89xx-msm8916-*-firmware.zip
+        draft: false
+        prerelease: false
