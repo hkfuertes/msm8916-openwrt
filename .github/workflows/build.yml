@@ -1,12 +1,22 @@
-name: OpenWrt Builder (UF02)
+name: OpenWrt Builder
+
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      device:
+        description: 'Target device'
+        required: true
+        type: choice
+        default: uz801
+        options:
+          - uz801
+          - m9s
+          - mf68e
+          - uf02
 
 env:
-  UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: false
   TZ: Europe/Madrid
 
 jobs:
@@ -29,19 +39,17 @@ jobs:
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
 
-    - name: "Clone OpenWrt source code"
+    - name: Clone OpenWrt source code
       run: |
         df -hT $PWD
-        git clone --depth=1 --branch "main" https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git -C openwrt checkout 00ceb1ed1763f7479df6edf92ffada948f0e7d45
 
     - name: Load msm89xx target and packages
       run: |
         git apply --unsafe-paths enable_wcn36xx_mac80211.patch
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/uz801
-        if [ "${{ inputs.openwrt_version }}" == "openwrt-24.10" ]; then
-          sed -i '/^KERNEL_PATCHVER/c\KERNEL_PATCHVER:=6.6' openwrt/target/linux/msm89xx/Makefile
-        fi
 
     - name: Update and install feeds
       run: |
@@ -50,9 +58,11 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: "Load diffconfig"
+    - name: Load diffconfig
       run: |
-        [ -f diffconfig_uf02 ] && mv diffconfig_uf02 openwrt/.config
+        DEVICE="${{ inputs.device || 'uz801' }}"
+        DIFFCONFIG=$([ "$DEVICE" = "uz801" ] && echo "diffconfig" || echo "diffconfig_${DEVICE}")
+        [ -f "$DIFFCONFIG" ] && mv "$DIFFCONFIG" openwrt/.config
 
     - name: Download package
       id: package
@@ -89,9 +99,9 @@ jobs:
       with:
         name: openwrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: |
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02-squashfs-gpt_both0.bin
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02-squashfs-boot.img
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02-squashfs-system.img
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02.manifest
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02-flash.sh
-          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-generic-uf02-firmware.zip
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}-squashfs-gpt_both0.bin
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}-squashfs-boot.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}-squashfs-system.img
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}.manifest
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}-flash.sh
+          ${{ env.FIRMWARE }}/openwrt-msm89xx-msm8916-${{ env.DEVICE_NAME }}-firmware.zip
