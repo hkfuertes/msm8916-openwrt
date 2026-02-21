@@ -20,7 +20,8 @@ FROM base AS openwrt
 ENV BRANCH=main
 
 # Clone OpenWrt repository
-RUN git clone --depth=1 -b ${BRANCH} https://git.openwrt.org/openwrt/openwrt.git openwrt
+RUN git clone https://git.openwrt.org/openwrt/openwrt.git openwrt && \
+    git -C openwrt checkout 00ceb1ed1763f7479df6edf92ffada948f0e7d45
 
 # Apply patch inside openwrt directory
 COPY enable_wcn36xx_mac80211.patch .
