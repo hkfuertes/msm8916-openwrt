@@ -32,7 +32,8 @@ jobs:
     - name: "Clone OpenWrt source code"
       run: |
         df -hT $PWD
-        git clone --depth=1 --branch "main" https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git -C openwrt checkout 00ceb1ed1763f7479df6edf92ffada948f0e7d45
 
     - name: Load msm89xx target and packages
       run: |
