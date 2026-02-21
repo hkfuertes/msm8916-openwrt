@@ -215,7 +215,7 @@ The modem requires region-specific MCFG configuration files.
   - Note: Target-specific modules may require building from source via `make menuconfig`
   - Removed feed: `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb`
 - [ ] Investigate `lpac` for eSIM support
-- [ ] Memory expansion: swap/zram configuration
+- [x] Memory expansion: `kmod-zram` + `zram-swap` enabled on all devices
 
 ## Credits
 
