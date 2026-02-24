@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 #
 # Flash OpenWrt to MSM8916 devices entirely via EDL.
-# Prerequisites: edl, simg2img
+# Prerequisites: edl
 # Usage: run from the build output directory (bin/targets/...)
 
 set -euo pipefail
@@ -12,9 +12,8 @@ TOT_SECTORS=7569408
 
 # Temp files - cleaned up on exit
 firmware_tmp=""
-rootfs_raw=""
 gpt_tmp=""
-trap 'rm -rf "$firmware_tmp" "$rootfs_raw" "$gpt_tmp"' EXIT
+trap 'rm -rf "$firmware_tmp" "$gpt_tmp"' EXIT
 
 find_image() {
     local dir="$1" pattern="$2" file
@@ -87,21 +86,8 @@ if [[ "$missing_mbn" == true ]]; then
     exit 1
 fi
 
-# Convert sparse rootfs to raw if needed (simg2img).
-echo
-echo "[*] Checking rootfs format..."
-if file "$rootfs_path" | grep -q "Android sparse image"; then
-    echo "[*] Sparse image detected, converting to raw..."
-    rootfs_raw="$(mktemp --suffix=.img)"
-    simg2img "$rootfs_path" "$rootfs_raw" || { echo "[-] simg2img failed"; exit 1; }
-    rootfs_flash="$rootfs_raw"
-    echo "[+] Converted: $(du -h "$rootfs_raw" | cut -f1)"
-else
-    rootfs_flash="$rootfs_path"
-    echo "[+] Raw image, no conversion needed"
-fi
-
 # Confirm before flashing.
+rootfs_flash="$rootfs_path"
 echo
 read -r -p "Continue with flashing? (y/N): " confirm
 if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
