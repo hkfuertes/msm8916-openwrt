@@ -1,11 +1,16 @@
-#!/bin/sh -e
-# Creates GPT table with fixed TOT_SECTORS=7569408 (512B logical sectors)
-# To get TOT_SECTORS automatically from EDL:
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Generate GPT image for MSM8916 eMMC (7569408 x 512B sectors).
+# To read TOT_SECTORS from a live device:
 #   HEX=$(edl printgpt 2>&1 | sed -n 's/.*sectors:\(0x[0-9A-Fa-f]\+\).*/\1/p' | tail -n1)
 #   TOT_SECTORS=$((HEX))
 
+set -e
+
 OUTFILE=${1:-gpt_both0.bin}
 TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
 IMG="${TMPDIR}/gpt.img"
 
 # Total size in 512B sectors
@@ -24,13 +29,10 @@ ROOTFS_END=$((ROOTFS_START + ROOTFS_SIZE - 1))
 ROOTFSDATA_START=$((ROOTFS_END + 1))
 ROOTFSDATA_SIZE=$((LAST_LBA - ROOTFSDATA_START + 1))
 
-# Validation
 [ ${ROOTFSDATA_SIZE} -gt 0 ] || { echo "ERROR: No space for rootfs_data"; exit 1; }
 
-# Create image with exact size
 truncate -s $((TOT_SECTORS * 512)) "${IMG}"
 
-# Generate GPT table
 sfdisk "${IMG}" <<EOF
 label: gpt
 label-id: DB708ACF-2E04-8DE2-BAFE-30C9B26444C5
@@ -56,9 +58,7 @@ gpt.img14 : start=${ROOTFS_START}, size=${ROOTFS_SIZE}, type=1B81E7E6-F50D-419B-
 gpt.img15 : start=${ROOTFSDATA_START}, type=1B81E7E6-F50D-419B-A739-2AEEF8DA3335, name="rootfs_data"
 EOF
 
-# size=${ROOTFSDATA_SIZE},
-
-# Build gpt_both0.bin (primary + entries + backup header)
+# Assemble gpt_both0.bin: primary header+entries + backup header
 dd if="${IMG}" of="${OUTFILE}" bs=512 count=34
 dd if="${IMG}" bs=512 skip=2 count=32 >> "${OUTFILE}"
 dd if="${IMG}" bs=512 skip=$((TOT_SECTORS - 1)) count=1 >> "${OUTFILE}"
