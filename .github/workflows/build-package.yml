@@ -1,16 +1,14 @@
-name: Build Package
+name: Build Packages
 
 on:
   workflow_dispatch:
-    inputs:
-      package:
-        description: 'Package to build'
-        required: true
-        type: string
-        default: luci-app-tailscale
 
 env:
   TZ: Europe/Madrid
+  PACKAGES: >-
+    luci-app-tailscale
+    uci-usb-gadget
+    luci-app-usb-gadget
 
 jobs:
   build:
@@ -50,10 +48,10 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Configure for package build
+    - name: Configure for package build (APK)
       run: |
         cd openwrt
-        mv ../diffconfig_uz801 .config
+        cp ../diffconfig_uz801 .config
         make defconfig
         make download -j8
         find dl -size -1024c -exec rm -f {} \; || true
@@ -64,14 +62,46 @@ jobs:
         make tools/install -j$(nproc)
         make toolchain/install -j$(nproc)
 
-    - name: Build package
+    - name: Build APK packages
       run: |
         cd openwrt
-        make package/${{ inputs.package }}/compile -j$(nproc) V=s
+        for pkg in $PACKAGES; do
+          make package/${pkg}/compile -j$(nproc) V=s
+        done
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-    - name: Upload package
+    - name: Collect APK artifacts
+      run: |
+        mkdir -p artifacts/apk
+        for pkg in $PACKAGES; do
+          find openwrt/bin/packages -name "${pkg}*.apk" -exec cp {} artifacts/apk/ \;
+        done
+
+    - name: Reconfigure for IPK
+      run: |
+        cd openwrt
+        cp ../diffconfig_uz801 .config
+        echo "# CONFIG_USE_APK is not set" >> .config
+        make defconfig
+        for pkg in $PACKAGES; do
+          make package/${pkg}/{clean,compile} -j$(nproc) V=s
+        done
+
+    - name: Collect IPK artifacts
+      run: |
+        mkdir -p artifacts/ipk
+        for pkg in $PACKAGES; do
+          find openwrt/bin/packages -name "${pkg}*.ipk" -exec cp {} artifacts/ipk/ \;
+        done
+
+    - name: Upload APK packages
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package }}_${{ env.FILE_DATE }}
-        path: openwrt/bin/packages/**/${{ inputs.package }}*.apk
+        name: packages_apk_${{ env.FILE_DATE }}
+        path: artifacts/apk/
+
+    - name: Upload IPK packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages_ipk_${{ env.FILE_DATE }}
+        path: artifacts/ipk/
