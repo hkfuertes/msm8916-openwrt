@@ -21,7 +21,7 @@ define Device/msm8916
   SOC := msm8916
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
   FEATURES := squashfs
-  IMAGE/system.img := append-rootfs | append-metadata | sparse-img
+  IMAGE/system.img := append-rootfs | append-metadata
   ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
   ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
   ARTIFACT/flash.sh := install-flasher
