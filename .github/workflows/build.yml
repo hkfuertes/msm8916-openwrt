@@ -11,8 +11,6 @@ on:
         default: uz801
         options:
           - uz801
-          - m9s
-          - mf68e
           - uf02
 
 env:
@@ -61,7 +59,7 @@ jobs:
     - name: Load diffconfig
       run: |
         DEVICE="${{ inputs.device || 'uz801' }}"
-        DIFFCONFIG=$([ "$DEVICE" = "uz801" ] && echo "diffconfig" || echo "diffconfig_${DEVICE}")
+        DIFFCONFIG="diffconfig_${DEVICE}"
         [ -f "$DIFFCONFIG" ] && mv "$DIFFCONFIG" openwrt/.config
 
     - name: Download package

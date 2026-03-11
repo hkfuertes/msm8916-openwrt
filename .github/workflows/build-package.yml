@@ -1,0 +1,107 @@
+name: Build Packages
+
+on:
+  workflow_dispatch:
+
+env:
+  TZ: Europe/Madrid
+  PACKAGES: >-
+    luci-app-tailscale
+    uci-usb-gadget
+    luci-app-usb-gadget
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force
+        sudo -E apt-get -qq update
+        sudo -E ./devenv/dependencies.sh
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+
+    - name: Clone OpenWrt source code
+      run: |
+        git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git -C openwrt checkout 00ceb1ed1763f7479df6edf92ffada948f0e7d45
+
+    - name: Load msm89xx target and packages
+      run: |
+        git apply --unsafe-paths enable_wcn36xx_mac80211.patch
+        mv msm89xx openwrt/target/linux/msm89xx
+        mv packages openwrt/package/uz801
+
+    - name: Update and install feeds
+      run: |
+        cd openwrt
+        rm -rf tmp
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Configure for package build (APK)
+      run: |
+        cd openwrt
+        cp ../diffconfig_uz801 .config
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec rm -f {} \; || true
+
+    - name: Build toolchain and dependencies
+      run: |
+        cd openwrt
+        make tools/install -j$(nproc)
+        make toolchain/install -j$(nproc)
+
+    - name: Build APK packages
+      run: |
+        cd openwrt
+        for pkg in $PACKAGES; do
+          make package/${pkg}/compile -j$(nproc) V=s
+        done
+        echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Collect APK artifacts
+      run: |
+        mkdir -p artifacts/apk
+        for pkg in $PACKAGES; do
+          find openwrt/bin/packages -name "${pkg}*.apk" -exec cp {} artifacts/apk/ \;
+        done
+
+    - name: Reconfigure for IPK
+      run: |
+        cd openwrt
+        cp ../diffconfig_uz801 .config
+        echo "# CONFIG_USE_APK is not set" >> .config
+        make defconfig
+        for pkg in $PACKAGES; do
+          make package/${pkg}/{clean,compile} -j$(nproc) V=s
+        done
+
+    - name: Collect IPK artifacts
+      run: |
+        mkdir -p artifacts/ipk
+        for pkg in $PACKAGES; do
+          find openwrt/bin/packages -name "${pkg}*.ipk" -exec cp {} artifacts/ipk/ \;
+        done
+
+    - name: Upload APK packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages_apk_${{ env.FILE_DATE }}
+        path: artifacts/apk/
+
+    - name: Upload IPK packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages_ipk_${{ env.FILE_DATE }}
+        path: artifacts/ipk/
