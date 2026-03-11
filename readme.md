@@ -1,6 +1,6 @@
 ![OpenWrt logo](https://raw.githubusercontent.com/openwrt/openwrt/refs/heads/main/include/logo.png)
 
-Modern OpenWrt build targeting MSM8916 devices with full modem, display, and USB gadget support.
+Modern OpenWrt build targeting MSM8916 devices with full modem, USB gadget, and WiFi support.
 
 ## Table of Contents
 
@@ -12,8 +12,6 @@ Modern OpenWrt build targeting MSM8916 devices with full modem, display, and USB
 - [Installation](#installation)
   - [Flashing from OEM Firmware](#flashing-from-oem-firmware)
   - [Accessing Boot Modes](#accessing-boot-modes)
-- [Device-Specific Configuration](#device-specific-configuration)
-  - [MiFi M68E Display & Power Management](#mifi-m68e-display--power-management)
 - [Troubleshooting](#troubleshooting)
   - [No Network / Modem Stuck at Searching](#no-network--modem-stuck-at-searching)
 - [Roadmap](#roadmap)
@@ -27,12 +25,12 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 
 ## Supported Devices
 
-| Device | OpenWrt Target | SoC | RAM | Storage | Display | Battery | Notes |
-|--------|----------------|-----|-----|---------|---------|---------|-------|
-| **UZ801v3** | `yiming-uz801v3` | MSM8916 | 384MB | 4GB | ❌ | ❌ | USB dongle form factor |
-| **UF02** | `generic-uf02` | MSM8916 | 384MB | 4GB | ❌ | ❌ | USB dongle form factor most likely with only asian bands. _(Can be somewhat changed via QPST and the `qcn` file from uz801)_ |
-| **MiFi M68E** | `generic-mf68e` | MSM8916 | 384MB | 4GB | ✅ GC9107 | ✅ | Portable hotspot with interactive display |
-| **MiFi M9S** | `generic-mf9s` | MSM8916 | 384MB | 4GB | ❌ (Leds) | ✅ | Portable hotspot|
+All devices use the Qualcomm MSM8916 SoC with 384 MB RAM and 4 GB eMMC.
+
+- **UZ801v3** (`yiming-uz801v3`) -- USB dongle form factor.
+- **UF02** (`generic-uf02`) -- USB dongle form factor, most likely with only asian bands. Can be somewhat changed via QPST and the `qcn` file from UZ801.
+
+MF68E and M9S device support has been moved to the [TBR](TBR/readme.md) directory for reference. See that README for re-integration instructions.
 
 ## Features
 
@@ -42,28 +40,16 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 - **WiFi**: Complete wireless support
 - **USB Gadget Modes**: NCM, RNDIS, Mass Storage, ACM Shell
   - Configure via [UCI](packages/uci-usb-gadget/readme.md) or LuCI app
-- **Display**: GC9107 framebuffer support *(MiFi M68E only)*
-  - System info screen with WiFi QR code
-  - Configurable auto-dim and lockscreen timers
 - **VPN Ready**: TUN driver and WireGuard pre-installed
-- **LED Control**: Managed via `hotplug.d` scripts *(UZ801 Only)*
-  - WiFi LED: [99-modem-led](packages/ledcontrol/files/99-modem-led)
-  - Modem LED: [99-wifi-led](packages/ledcontrol/files/99-wifi-led)
-- **Display Manager**: FIFO-based display control daemon *(MiFi M68E only)*
-  - Script: [display-manager](packages/router-display/files/display-manager.sh)
-  - Manages brightness, timers, and power states
-  - Commands: `full`, `dim`, `off`, `lockscreen`, `update`, `shutdown`
-  - Controlled via `/var/run/display.fifo`
+- **LED Control**: Managed via `hotplug.d` scripts (sysfs-based, no extra packages)
 
 ### Storage & Recovery
 - **SquashFS Root**: Compressed root filesystem
-- **OverlayFS**: ext4 overlay partition for user data
+- **OverlayFS**: ext4 overlay partition for user data (formatted automatically via preinit)
 - **Factory Reset**: `firstboot` mechanism enabled
 
 ### Additional Packages
-- **Tailscale**: LuCI app included in `/root` (manual installation required)
-  - Install with: `apk add --allow-untrusted /root/luci-app-tailscale*.apk`
-  - Not auto-installed to save space
+- **Tailscale**: LuCI app available as standalone package (APK and IPK)
 
 ## Prerequisites
 
@@ -81,11 +67,15 @@ docker compose run --rm builder
 
 2. Configure and build:
 ```
-cp /repo/diffconfig .config
+cp /repo/diffconfig_uz801 .config
 echo "# CONFIG_SIGNED_PACKAGES is not set" >> .config  # Optional: disable signature verification
 make defconfig
 make -j$(nproc)
 ```
+
+### Building standalone packages
+
+A GitHub Actions workflow (`build-package.yml`) builds `luci-app-tailscale`, `uci-usb-gadget`, and `luci-app-usb-gadget` in both APK and IPK formats. Trigger it manually from the Actions tab.
 
 ## Installation
 
@@ -94,9 +84,6 @@ make -j$(nproc)
 1. **Install EDL tool**: https://github.com/bkerler/edl
 2. **Enter EDL mode**:
    - **UZ801v3**: See [PostmarketOS wiki guide](https://wiki.postmarketos.org/wiki/Zhihe_series_LTE_dongles_(generic-zhihe)#How_to_enter_flash_mode)
-   - **MiFi M68E**: 
-     - From OEM firmware: `adb reboot edl`
-     - After flashing OpenWrt: Requires EDL cable or shorting test pads on PCB ([see forum guide](https://forum.openwrt.org/t/uf896-qualcomm-msm8916-lte-router-384mib-ram-2-4gib-flash-android-openwrt/131712/483))
 
 3. **Backup original firmware**:
    ```
@@ -107,8 +94,8 @@ make -j$(nproc)
    ```
    ./openwrt-msm89xx-msm8916-*-flash.sh
    ```
-   
-   > The script automatically backs up device-specific partitions, flashes the firmware, and restores critical data.
+
+   > The script flashes entirely via EDL (no fastboot step). It automatically backs up radio partitions, writes the new GPT, firmware, boot and rootfs, and restores the backed-up partitions.
 
 ### Accessing Boot Modes
 
@@ -117,59 +104,12 @@ make -j$(nproc)
 - **EDL mode**: Boot to fastboot first, then execute: `fastboot oem reboot-edl`
 
 #### UF02
-- **Fastboot mode**: 
+- **Fastboot mode**:
   - From OEM: `adb reboot bootloader`.
   - From OpenWrt: Enter `edl` and erase boot partition (`edl e boot`).
 - **EDL mode**:
   - From OEM: `adb reboot bootloader`, flash `lk2nd` aboot. Reboot pressing the button.
   - From OpenWrt: Insert device while holding the button.
-
-#### MiFi M68E or M9S
-- **Fastboot mode from OpenWrt**: Enter `edl` mode and erase boot partition (`edl e boot`). This will force bootloader.
-- **EDL mode**: 
-  - From OEM: `adb reboot edl`
-  - From OpenWrt: Requires EDL cable or shorting PCB test [pads](https://forum.openwrt.org/t/uf896-qualcomm-msm8916-lte-router-384mib-ram-2-4gib-flash-android-openwrt/131712/483).
-
-## Device-Specific Configuration
-
-### MiFi M68E Display & Power Management
-
-The MiFi M68E features an interactive display and power management system controlled via the power button and UCI configuration.
-
-#### Power Button Functions
-- **Single press**: Display system information screen
-  - Shows: Carrier name, signal type (4G/3G), hostname, battery percentage, WiFi QR code
-  - Automatically starts display timers
-- **Double press** (quick succession): Power off the device
-
-#### UCI Display Configuration
-
-Configure display behavior through UCI:
-
-```
-# Display timers (in Seconds)
-uci set display.display.timeout_dim='5'              # Seconds until screen dims
-uci set display.display.timeout_off='3'              # Seconds until screen turns off
-uci set display.display.enable_lockscreen='1'        # Show lockscreen when dimmed (0/1)
-
-# Display brightness
-uci set display.display.brightness_dim_divisor='8'   # Brightness divisor when dimmed (higher = dimmer)
-
-# FIFO control (advanced)
-uci set display.display.fifo='/var/run/display.fifo'
-
-uci commit display
-```
-
-#### Display Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `timeout_dim` | integer | 5 | Seconds before display dims |
-| `timeout_off` | integer | 3 | Seconds before display turns off |
-| `enable_lockscreen` | boolean | 1 | Display lockscreen when dimmed |
-| `brightness_dim_divisor` | integer | 8 | Brightness divisor for dim mode (higher value = dimmer) |
-| `fifo` | string | `/var/run/display.fifo` | FIFO pipe for display control |
 
 ## Troubleshooting
 

@@ -1,8 +1,10 @@
 #!/bin/bash
-# Build firmware bundle: compiles qhypstub (AArch64 asm) and lk2nd (ARM), signs them, and packs a ZIP.
-# Works inside OpenWrt build by restoring implicit make rules only for qhypstub and using detected toolchains.
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Build firmware bundle: compiles qhypstub (AArch64 asm) and lk2nd (ARM),
+# signs them with qtestsign, and packs a ZIP.
 
-set -e
+set -euo pipefail
 
 OUT_FILE="${1:-uz801v3-firmware.zip}"
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+LED="/sys/class/leds/blue:wlan"
+[ -d "$LED" ] || exit 0
+
+case "$ACTION" in
+	add)
+		[ "$DEVICENAME" = "phy0" ] || exit 0
+		echo none > "$LED/trigger"
+		echo 1 > "$LED/brightness"
+		;;
+	remove)
+		[ "$DEVICENAME" = "phy0" ] || exit 0
+		echo none > "$LED/trigger"
+		echo 0 > "$LED/brightness"
+		;;
+esac

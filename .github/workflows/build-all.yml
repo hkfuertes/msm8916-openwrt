@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: [uz801, m9s, mf68e, uf02]
+        device: [uz801, uf02]
 
     steps:
     - name: Checkout
@@ -55,7 +55,7 @@ jobs:
     - name: Load diffconfig
       run: |
         DEVICE="${{ matrix.device }}"
-        DIFFCONFIG=$([ "$DEVICE" = "uz801" ] && echo "diffconfig" || echo "diffconfig_${DEVICE}")
+        DIFFCONFIG="diffconfig_${DEVICE}"
         [ -f "$DIFFCONFIG" ] && mv "$DIFFCONFIG" openwrt/.config
 
     - name: Download package

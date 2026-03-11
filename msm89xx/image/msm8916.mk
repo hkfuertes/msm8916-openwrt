@@ -3,8 +3,8 @@
 ifeq ($(SUBTARGET),msm8916)
 
 define Build/generate-squashfs-gpt
-  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_squahsfs_gpt.sh
-  $(TOPDIR)/target/linux/$(BOARD)/image/generate_squahsfs_gpt.sh $@
+  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt.sh
+  $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt.sh $@
 endef
 
 define Build/install-flasher
@@ -21,7 +21,7 @@ define Device/msm8916
   SOC := msm8916
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
   FEATURES := squashfs
-  IMAGE/system.img := append-rootfs | append-metadata | sparse-img
+  IMAGE/system.img := append-rootfs | append-metadata
   ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
   ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
   ARTIFACT/flash.sh := install-flasher
@@ -33,8 +33,8 @@ define Device/yiming-uz801v3
   DEVICE_VENDOR := YiMing
   DEVICE_MODEL := uz801v3
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
+  DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools \
                      msm-firmware-dumper
 endef
 TARGET_DEVICES += yiming-uz801v3
@@ -44,34 +44,10 @@ define Device/generic-uf02
   DEVICE_VENDOR := Generic
   DEVICE_MODEL := UF02 (250605 V0S)
   FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-dongle wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
+  DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools \
                      msm-firmware-dumper
 endef
 TARGET_DEVICES += generic-uf02
-
-
-define Device/generic-mf68e
-  $(Device/msm8916)
-  DEVICE_VENDOR := Generic
-  DEVICE_MODEL := MF68E
-  FILESYSTEMS := squashfs
-  CMDLINE := "earlycon console=ttyMSM0,115200 quiet loglevel=0 vt.global_cursor_default=0 vt.cur_default=0 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait nowatchdog"
-  DEVICE_PACKAGES := configs-mifi wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper kmod-fbtft-gc9107 router-display
-endef
-TARGET_DEVICES += generic-mf68e
-
-define Device/generic-m9s
-  $(Device/msm8916)
-  DEVICE_VENDOR := Generic
-  DEVICE_MODEL := M9S
-  FILESYSTEMS := squashfs
-  DEVICE_PACKAGES := configs-mifi wpad-basic-wolfssl rmtfs uci-usb-gadget \
-                     block-mount f2fs-tools prepare-rootfs-data \
-                     msm-firmware-dumper
-endef
-TARGET_DEVICES += generic-m9s
 
 endif
