@@ -61,6 +61,7 @@ jobs:
         cd openwrt
         make tools/install -j$(nproc)
         make toolchain/install -j$(nproc)
+        make target/linux/compile -j$(nproc) V=s
 
     - name: Build APK packages
       run: |
