@@ -52,6 +52,8 @@ jobs:
       run: |
         cd openwrt
         cp ../diffconfig_uz801 .config
+        echo "CONFIG_PACKAGE_tailscale=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-tailscale=y" >> .config
         make defconfig
         make download -j8
         find dl -size -1024c -exec rm -f {} \; || true
@@ -82,6 +84,8 @@ jobs:
       run: |
         cd openwrt
         cp ../diffconfig_uz801 .config
+        echo "CONFIG_PACKAGE_tailscale=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-tailscale=y" >> .config
         echo "# CONFIG_USE_APK is not set" >> .config
         make defconfig
         for pkg in $PACKAGES; do
