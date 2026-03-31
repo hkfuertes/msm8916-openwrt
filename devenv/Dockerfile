@@ -33,6 +33,10 @@ RUN cd openwrt && \
     ./scripts/feeds install -a && \
     rm -rf tmp
 
+# Fix LuCI getFeatures crash when odhcpd is present (upstream bug: ??= doesn't override false)
+RUN sed -i 's/result\.odhcpd = false;/result.odhcpd = {};/' \
+    openwrt/feeds/luci/modules/luci-base/root/usr/share/rpcd/ucode/luci
+
 WORKDIR /home/builder/openwrt
 
 CMD ["/bin/bash"]
