@@ -59,23 +59,35 @@ MF68E and M9S device support has been moved to the [TBR](TBR/readme.md) director
 
 ## Building
 
-1. Enter the build environment:
+### GitHub Actions (release builds)
+
+GHA workflows automatically resolve the **latest OpenWrt 25.12.x** tag. Trigger manually from the Actions tab:
+
+- **Build firmware**: `build.yml` — select a device (`uz801`, `uf02`, or `all`)
+- **Build packages**: `build-package.yml` — builds `luci-app-tailscale`, `uci-usb-gadget`, and `luci-app-usb-gadget` in APK and IPK formats
+
+### Local (snapshot builds)
+
+1. Build the environment (defaults to OpenWrt `main`/snapshot):
 ```
 cd devenv
-docker compose run --rm builder
+docker compose build builder
 ```
 
-2. Configure and build:
+2. Enter and build:
 ```
+docker compose run --rm builder
 cp /repo/diffconfig_uz801 .config
-echo "# CONFIG_SIGNED_PACKAGES is not set" >> .config  # Optional: disable signature verification
 make defconfig
 make -j$(nproc)
 ```
 
-### Building standalone packages
+To build a specific version locally:
+```
+OPENWRT_VERSION=v25.12.1 docker compose build builder --no-cache
+```
 
-A GitHub Actions workflow (`build-package.yml`) builds `luci-app-tailscale`, `uci-usb-gadget`, and `luci-app-usb-gadget` in both APK and IPK formats. Trigger it manually from the Actions tab.
+> **Note:** The msm89xx target requires kernel 6.12. Only OpenWrt versions that include this kernel (25.12.x, current snapshots) are supported.
 
 ## Installation
 
@@ -153,7 +165,7 @@ The modem requires region-specific MCFG configuration files.
 
 - [ ] Custom package server for msm89xx/msm8916
   - Note: Target-specific modules may require building from source via `make menuconfig`
-  - Removed feed: `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb`
+  - The target-specific APK feed is automatically removed on first boot (msm89xx is not on downloads.openwrt.org)
 - [ ] Investigate `lpac` for eSIM support
 - [x] Memory expansion: `kmod-zram` + `zram-swap` enabled on all devices
 
