@@ -18,11 +18,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Resolve latest OpenWrt 25.12.x tag
+    - name: Resolve latest stable OpenWrt tag (>= 24.10)
       id: resolve
       run: |
         VERSION=$(git ls-remote --tags https://git.openwrt.org/openwrt/openwrt.git 'v25.12.*' \
           | grep -oP 'v25\.12\.\d+$' | sort -V | tail -1)
+        if [ -z "$VERSION" ]; then
+          echo "ERROR: Could not resolve a stable OpenWrt 25.12.x version"
+          exit 1
+        fi
         echo "Resolved OpenWrt version: $VERSION"
         echo "OPENWRT_VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -46,9 +50,10 @@ jobs:
 
     - name: Load msm89xx target and packages
       run: |
-        chmod +x apply_patches.sh && ./apply_patches.sh openwrt
+        chmod +x apply_patches.sh
+        ./apply_patches.sh openwrt
         mv msm89xx openwrt/target/linux/msm89xx
-        mv packages openwrt/package/uz801
+        mv packages openwrt/package/msm8916
 
     - name: Update and install feeds
       run: |
