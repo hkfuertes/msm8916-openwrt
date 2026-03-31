@@ -7,10 +7,13 @@ BOARDNAME:=Boards based on Snapdragon 210/410/615 chipsets
 FEATURES:=ext4 usb usbgadget gpio fpu rootfs-part boot-part squashfs
 SUBTARGETS:=msm8916
 
-# Resolve kernel: prefer 6.12, fall back to latest available
-kernel-detect = $(if $(TOPDIR),$(if $(wildcard $(TOPDIR)/include/kernel-$(1)),$(1),$(lastword $(sort $(patsubst $(TOPDIR)/include/kernel-%,%,$(wildcard $(TOPDIR)/include/kernel-[0-9]*))))),$(1))
+# Kernel version map: OpenWrt major -> kernel patchver
+KERNEL_FOR_24 := 6.6
+KERNEL_FOR_25 := 6.12
+KERNEL_DEFAULT := 6.12
 
-KERNEL_PATCHVER:=$(call kernel-detect,6.12)
+OPENWRT_MAJOR := $(shell git -C $(TOPDIR) describe --tags --abbrev=0 2>/dev/null | cut -d. -f1 | tr -d v)
+KERNEL_PATCHVER := $(or $(KERNEL_FOR_$(OPENWRT_MAJOR)),$(KERNEL_DEFAULT))
 
 
 define Target/Description
