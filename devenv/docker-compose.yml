@@ -13,6 +13,8 @@ services:
     build:
       context: ..
       dockerfile: devenv/Dockerfile
+      args:
+        OPENWRT_VERSION: ${OPENWRT_VERSION:-main}
     container_name: openwrt-builder
     working_dir: /home/builder/openwrt
     stdin_open: true
