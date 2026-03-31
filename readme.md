@@ -82,12 +82,21 @@ make defconfig
 make -j$(nproc)
 ```
 
-To build a specific version locally:
+To build a specific release locally:
 ```
-OPENWRT_VERSION=v25.12.1 docker compose build builder --no-cache
+OPENWRT_VERSION=v24.10.2 docker compose build builder --no-cache
 ```
 
-> **Note:** The msm89xx target requires kernel 6.12. Only OpenWrt versions that include this kernel (25.12.x, current snapshots) are supported.
+### Kernel version compatibility
+
+The msm89xx Makefile auto-detects the available kernel version at build time. It prefers kernel 6.12 and falls back to the latest available (e.g. 6.6 for OpenWrt 24.10.x). Each kernel version requires a matching `config-X.Y` file in `msm89xx/`:
+
+| OpenWrt | Kernel | Config file |
+|---------|--------|-------------|
+| 25.12.x / snapshot | 6.12 | `config-6.12` |
+| 24.10.x | 6.6 | `config-6.6` |
+
+When a new OpenWrt major version ships a new kernel, you will need to add a corresponding `config-X.Y` file.
 
 ## Installation
 

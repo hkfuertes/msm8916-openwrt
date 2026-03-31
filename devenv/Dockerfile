@@ -24,7 +24,7 @@ RUN git clone https://git.openwrt.org/openwrt/openwrt.git openwrt && \
     git -C openwrt checkout ${OPENWRT_VERSION}
 
 # Apply mac80211 patches (wcn36xx/ath10k-sdio support)
-COPY --chmod=755 apply_patches.sh .
+COPY --chmod=755 apply_patches.sh ./
 RUN ./apply_patches.sh openwrt
 
 # Update and install feeds
