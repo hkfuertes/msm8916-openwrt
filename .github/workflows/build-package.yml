@@ -54,7 +54,6 @@ jobs:
         ./apply_patches.sh openwrt
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/msm8916
-        sed -i 's/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/' openwrt/target/linux/msm89xx/Makefile
 
     - name: Update and install feeds
       run: |
