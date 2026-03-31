@@ -98,6 +98,8 @@ The msm89xx Makefile auto-detects the available kernel version at build time. It
 
 When a new OpenWrt major version ships a new kernel, you will need to add a corresponding `config-X.Y` file.
 
+> **Minimum version: OpenWrt 24.10.x (kernel 6.6).** The UZ801 device tree entered upstream Linux in v6.4, so older OpenWrt releases (23.05 and below, kernel 5.15) are not supported.
+
 ## Installation
 
 ### Flashing from OEM Firmware
