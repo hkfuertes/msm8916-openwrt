@@ -7,8 +7,8 @@ BOARDNAME:=Boards based on Snapdragon 210/410/615 chipsets
 FEATURES:=ext4 usb usbgadget gpio fpu rootfs-part boot-part squashfs
 SUBTARGETS:=msm8916
 
-# Resolve kernel: prefer $1, fall back to latest available
-kernel-detect = $(if $(wildcard $(TOPDIR)/include/kernel-$(1)),$(1),$(lastword $(sort $(patsubst $(TOPDIR)/include/kernel-%,%,$(wildcard $(TOPDIR)/include/kernel-[0-9]*)))))
+# Resolve kernel: prefer 6.12, fall back to latest available
+kernel-detect = $(if $(TOPDIR),$(if $(wildcard $(TOPDIR)/include/kernel-$(1)),$(1),$(lastword $(sort $(patsubst $(TOPDIR)/include/kernel-%,%,$(wildcard $(TOPDIR)/include/kernel-[0-9]*))))),$(1))
 
 KERNEL_PATCHVER:=$(call kernel-detect,6.12)
 

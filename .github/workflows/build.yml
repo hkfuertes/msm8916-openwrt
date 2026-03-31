@@ -1,7 +1,6 @@
 name: OpenWrt Builder
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       device:
@@ -63,7 +62,6 @@ jobs:
 
     - name: Clone OpenWrt source code
       run: |
-        df -hT $PWD
         echo "Using OpenWrt ${{ needs.resolve-version.outputs.openwrt_version }}"
         git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
         git -C openwrt checkout ${{ needs.resolve-version.outputs.openwrt_version }}
@@ -74,6 +72,7 @@ jobs:
         ./apply_patches.sh openwrt
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/msm8916
+        sed -i 's/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/' openwrt/target/linux/msm89xx/Makefile
 
     - name: Update and install feeds
       run: |
@@ -94,7 +93,6 @@ jobs:
         cd openwrt
         make defconfig
         make download -j8
-        find dl -size -1024c -exec ls -l {} \; || true
         find dl -size -1024c -exec rm -f {} \; || true
 
     - name: Compile the firmware
