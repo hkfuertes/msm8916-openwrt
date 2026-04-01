@@ -87,18 +87,7 @@ To build a specific release locally:
 OPENWRT_VERSION=v24.10.2 docker compose build builder --no-cache
 ```
 
-### Kernel version compatibility
-
-The msm89xx Makefile auto-detects the available kernel version at build time. It prefers kernel 6.12 and falls back to the latest available (e.g. 6.6 for OpenWrt 24.10.x). Each kernel version requires a matching `config-X.Y` file in `msm89xx/`:
-
-| OpenWrt | Kernel | Config file |
-|---------|--------|-------------|
-| 25.12.x / snapshot | 6.12 | `config-6.12` |
-| 24.10.x | 6.6 | `config-6.6` |
-
-When a new OpenWrt major version ships a new kernel, you will need to add a corresponding `config-X.Y` file.
-
-> **Minimum version: OpenWrt 24.10.x (kernel 6.6).** The UZ801 device tree entered upstream Linux in v6.4, so older OpenWrt releases (23.05 and below, kernel 5.15) are not supported.
+> **Supported versions:** OpenWrt 25.12.x and current snapshots (kernel 6.12). OpenWrt 24.10.x (kernel 6.6) compiles but does not boot — the Makefile supports it via `KERNEL_FOR_24` (currently commented out) if someone wants to investigate further.
 
 ## Installation
 
