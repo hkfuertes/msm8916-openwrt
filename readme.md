@@ -59,23 +59,35 @@ MF68E and M9S device support has been moved to the [TBR](TBR/readme.md) director
 
 ## Building
 
-1. Enter the build environment:
+### GitHub Actions (release builds)
+
+GHA workflows automatically resolve the **latest OpenWrt 25.12.x** tag. Trigger manually from the Actions tab:
+
+- **Build firmware**: `build.yml` — select a device (`uz801`, `uf02`, or `all`)
+- **Build packages**: `build-package.yml` — builds `luci-app-tailscale`, `uci-usb-gadget`, and `luci-app-usb-gadget` in APK and IPK formats
+
+### Local (snapshot builds)
+
+1. Build the environment (defaults to OpenWrt `main`/snapshot):
 ```
 cd devenv
-docker compose run --rm builder
+docker compose build builder
 ```
 
-2. Configure and build:
+2. Enter and build:
 ```
+docker compose run --rm builder
 cp /repo/diffconfig_uz801 .config
-echo "# CONFIG_SIGNED_PACKAGES is not set" >> .config  # Optional: disable signature verification
 make defconfig
 make -j$(nproc)
 ```
 
-### Building standalone packages
+To build a specific release locally:
+```
+OPENWRT_VERSION=v24.10.2 docker compose build builder --no-cache
+```
 
-A GitHub Actions workflow (`build-package.yml`) builds `luci-app-tailscale`, `uci-usb-gadget`, and `luci-app-usb-gadget` in both APK and IPK formats. Trigger it manually from the Actions tab.
+> **Supported versions:** OpenWrt 25.12.x and current snapshots (kernel 6.12). OpenWrt 24.10.x (kernel 6.6) compiles but does not boot — the Makefile supports it via `KERNEL_FOR_24` (currently commented out) if someone wants to investigate further.
 
 ## Installation
 
@@ -153,7 +165,7 @@ The modem requires region-specific MCFG configuration files.
 
 - [ ] Custom package server for msm89xx/msm8916
   - Note: Target-specific modules may require building from source via `make menuconfig`
-  - Removed feed: `https://downloads.openwrt.org/snapshots/targets/msm89xx/msm8916/packages/packages.adb`
+  - The target-specific APK feed is automatically removed on first boot (msm89xx is not on downloads.openwrt.org)
 - [ ] Investigate `lpac` for eSIM support
 - [x] Memory expansion: `kmod-zram` + `zram-swap` enabled on all devices
 

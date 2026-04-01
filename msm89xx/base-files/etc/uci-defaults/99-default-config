@@ -16,4 +16,7 @@ uci add_list firewall.@zone[1].network='modem'
 uci -q del_list "network.@device[0].ports=eth0" 2>/dev/null || true
 sed -i 's/"device": "eth0"/"device": "br-lan"/g' /etc/board.json
 
+# Remove target-specific APK feed (msm89xx is not on downloads.openwrt.org)
+sed -i '\|/targets/msm89xx/msm8916/packages|d' /etc/apk/repositories.d/distfeeds.list 2>/dev/null || true
+
 uci commit
