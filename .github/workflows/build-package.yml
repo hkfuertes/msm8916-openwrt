@@ -18,6 +18,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Resolve latest stable OpenWrt 25.12.x tag
+      id: resolve
+      run: |
+        VERSION=$(git ls-remote --tags https://git.openwrt.org/openwrt/openwrt.git 'v25.12.*' \
+          | grep -oP 'v25\.12\.\d+$' | sort -V | tail -1)
+        if [ -z "$VERSION" ]; then
+          echo "ERROR: Could not resolve a stable OpenWrt 25.12.x version"
+          exit 1
+        fi
+        echo "Resolved OpenWrt version: $VERSION"
+        echo "OPENWRT_VERSION=$VERSION" >> $GITHUB_ENV
+
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -32,14 +44,16 @@ jobs:
 
     - name: Clone OpenWrt source code
       run: |
+        echo "Using OpenWrt ${{ env.OPENWRT_VERSION }}"
         git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
-        git -C openwrt checkout 00ceb1ed1763f7479df6edf92ffada948f0e7d45
+        git -C openwrt checkout ${{ env.OPENWRT_VERSION }}
 
     - name: Load msm89xx target and packages
       run: |
-        git apply --unsafe-paths enable_wcn36xx_mac80211.patch
+        chmod +x apply_patches.sh
+        ./apply_patches.sh openwrt
         mv msm89xx openwrt/target/linux/msm89xx
-        mv packages openwrt/package/uz801
+        mv packages openwrt/package/msm8916
 
     - name: Update and install feeds
       run: |
@@ -48,7 +62,7 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Configure for package build (APK)
+    - name: Configure and download
       run: |
         cd openwrt
         cp ../diffconfig_uz801 .config
@@ -65,7 +79,7 @@ jobs:
         make toolchain/install -j$(nproc)
         make target/linux/compile -j$(nproc) V=s
 
-    - name: Build APK packages
+    - name: Build packages
       run: |
         cd openwrt
         for pkg in $PACKAGES; do
@@ -73,40 +87,15 @@ jobs:
         done
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-    - name: Collect APK artifacts
+    - name: Collect artifacts
       run: |
-        mkdir -p artifacts/apk
+        mkdir -p artifacts
         for pkg in $PACKAGES; do
-          find openwrt/bin/packages -name "${pkg}*.apk" -exec cp {} artifacts/apk/ \;
+          find openwrt/bin/packages -name "${pkg}*.apk" -exec cp {} artifacts/ \;
         done
 
-    - name: Reconfigure for IPK
-      run: |
-        cd openwrt
-        cp ../diffconfig_uz801 .config
-        echo "CONFIG_PACKAGE_tailscale=y" >> .config
-        echo "CONFIG_PACKAGE_luci-app-tailscale=y" >> .config
-        echo "# CONFIG_USE_APK is not set" >> .config
-        make defconfig
-        for pkg in $PACKAGES; do
-          make package/${pkg}/{clean,compile} -j$(nproc) V=s
-        done
-
-    - name: Collect IPK artifacts
-      run: |
-        mkdir -p artifacts/ipk
-        for pkg in $PACKAGES; do
-          find openwrt/bin/packages -name "${pkg}*.ipk" -exec cp {} artifacts/ipk/ \;
-        done
-
-    - name: Upload APK packages
+    - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
-        name: packages_apk_${{ env.FILE_DATE }}
-        path: artifacts/apk/
-
-    - name: Upload IPK packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: packages_ipk_${{ env.FILE_DATE }}
-        path: artifacts/ipk/
+        name: packages_${{ env.OPENWRT_VERSION }}_${{ env.FILE_DATE }}
+        path: artifacts/
