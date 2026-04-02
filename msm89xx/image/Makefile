@@ -18,13 +18,25 @@ define Build/aboot-img
 	mv $@.new $@
 endef
 
+define Build/msm89xx-sysupgrade
+	rm -rf $@.sysupgrade-tmp
+	mkdir -p $@.sysupgrade-tmp
+	cp $(IMAGE_KERNEL) $@.sysupgrade-tmp/boot
+	cp $@ $@.sysupgrade-tmp/rootfs
+	cd $@.sysupgrade-tmp && \
+		tar -cf $@.new --owner=0 --group=0 boot rootfs
+	mv $@.new $@
+	rm -rf $@.sysupgrade-tmp
+endef
+
 ### Devices ###
 define Device/Default
 	PROFILES := Default
-	KERNEL = kernel-bin | gzip | append-dtb
-	IMAGES := boot.img system.img
+	KERNEL = kernel-bin | gzip | append-dtb | aboot-img
+	IMAGES := boot.img system.img sysupgrade.bin
 	IMAGE/boot.img := append-kernel | aboot-img | append-metadata
 	IMAGE/system.img := append-rootfs | append-metadata
+	IMAGE/sysupgrade.bin := append-rootfs | pad-rootfs | msm89xx-sysupgrade | append-metadata
 	DEVICE_DTS_DIR := $(DTS_DIR)/qcom
 	DEVICE_DTS = $$(SOC)-$(lastword $(subst _, ,$(1)))
 	CMDLINE := "earlycon console=ttyMSM0,115200 rw"
