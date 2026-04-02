@@ -34,7 +34,7 @@ define Device/Default
 	PROFILES := Default
 	KERNEL = kernel-bin | gzip | append-dtb | aboot-img
 	IMAGES := boot.img system.img sysupgrade.bin
-	IMAGE/boot.img := append-kernel | aboot-img | append-metadata
+	IMAGE/boot.img := append-kernel | append-metadata
 	IMAGE/system.img := append-rootfs | append-metadata
 	IMAGE/sysupgrade.bin := append-rootfs | pad-rootfs | msm89xx-sysupgrade | append-metadata
 	DEVICE_DTS_DIR := $(DTS_DIR)/qcom
