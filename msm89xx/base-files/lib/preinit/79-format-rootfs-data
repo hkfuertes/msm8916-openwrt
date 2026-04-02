@@ -11,11 +11,29 @@ has_valid_ext4() {
 	[ "$magic" = "ef53" ]
 }
 
+copy_backup() {
+	local mnt
+
+	mnt=$(mktemp -d)
+	mount -t ext4 "$1" "$mnt" 2>/dev/null || {
+		rmdir "$mnt"
+		return 0
+	}
+
+	if [ -f "$mnt/.overlay/sysupgrade.tgz" ]; then
+		mv "$mnt/.overlay/sysupgrade.tgz" /tmp/sysupgrade.tgz
+	fi
+
+	umount "$mnt"
+	rmdir "$mnt"
+}
+
 preinit_format_rootfs_data() {
 	[ -b "$ROOTFS_DATA" ] || return 0
 	
 	if has_valid_ext4 "$ROOTFS_DATA"; then
 		echo "rootfs_data: valid ext4 filesystem detected" > /dev/kmsg
+		copy_backup "$ROOTFS_DATA"
 		return 0
 	fi
 	
