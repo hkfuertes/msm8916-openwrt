@@ -2,6 +2,12 @@
 """
 nv_manager.py — Qualcomm MSM8916 modem NV/EFS manager via DIAG port.
 
+Credits:
+  EFS2 command codes, open flags, and HELLO packet structure derived from
+  EfsTools by JohnBel (https://github.com/JohnBel/EfsTools), a C# implementation
+  of the Qualcomm EFS2 DIAG protocol. Used as reference to correct off-by-one
+  command subcodes and flag values that caused DIAG_BAD_PARM_F errors.
+
 Usage:
     # Read and display band NV items:
     python3 nv_manager.py --port /dev/ttyUSB0 --read-bands

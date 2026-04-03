@@ -253,3 +253,4 @@ This saves NV items 946, 1877, 1878, 1881, 6828, 6829 — the full RF band confi
 - **[@Mio-sha512](https://github.com/Mio-sha512/OpenStick-Builder)** - USB gadget and firmware loader concepts
 - **[@AlienWolfX](https://github.com/AlienWolfX/UZ801-USB_MODEM/wiki/Troubleshooting)** - Carrier policy troubleshooting guide
 - **[@gw826943555](https://github.com/gw826943555/luci-app-tailscale) & [@asvow](https://github.com/asvow)** - Tailscale LuCI application
+- **[@JohnBel](https://github.com/JohnBel/EfsTools)** - EfsTools (C#): reference for correct Qualcomm EFS2 DIAG command codes, open flags, and HELLO packet structure used in `nv_manager.py`
