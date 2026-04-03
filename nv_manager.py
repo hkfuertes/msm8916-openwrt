@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 """
-xqcn_restore.py — Restore XQCN backup to Qualcomm MSM8916 modem via DIAG port.
+nv_manager.py — Qualcomm MSM8916 modem NV/EFS manager via DIAG port.
 
 Usage:
-    # Backup current modem NV items first:
-    python3 xqcn_restore.py --port /dev/ttyUSB0 --backup backup_uf02.bin
+    # Read and display band NV items:
+    python3 nv_manager.py --port /dev/ttyUSB0 --read-bands
+
+    # Save band NV items to JSON:
+    python3 nv_manager.py --port /dev/ttyUSB0 --read-bands my_bands.json
+
+    # Apply band config from JSON:
+    python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
+
+    # Backup all NV items:
+    python3 nv_manager.py --port /dev/ttyUSB0 --backup backup.bin
 
     # Restore XQCN (skipping IMEI NV 550):
-    python3 xqcn_restore.py --port /dev/ttyUSB0 --restore uz801.xqcn
+    python3 nv_manager.py --port /dev/ttyUSB0 --restore modem.xqcn
 
-    # Restore XQCN and then write a specific IMEI:
-    python3 xqcn_restore.py --port /dev/ttyUSB0 --restore uz801.xqcn --imei 123456789012345
+    # Read a single NV item:
+    python3 nv_manager.py --port /dev/ttyUSB0 --read-nv 6828
 
-    # Just read a single NV item:
-    python3 xqcn_restore.py --port /dev/ttyUSB0 --read-nv 550
-
-    # Dry-run (parse XQCN and show what would be written):
-    python3 xqcn_restore.py --restore uz801.xqcn --dry-run
+    # Dry-run (parse XQCN and show contents):
+    python3 nv_manager.py --restore modem.xqcn --dry-run
 """
 
 from __future__ import annotations

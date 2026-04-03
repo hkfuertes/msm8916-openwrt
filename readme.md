@@ -29,7 +29,7 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 All devices use the Qualcomm MSM8916 SoC with 384 MB RAM and 4 GB eMMC.
 
 - **UZ801v3** (`yiming-uz801v3`) -- USB dongle form factor.
-- **UF02** (`generic-uf02`) -- USB dongle form factor, ships with Asian bands only. European bands can be enabled via `xqcn_restore.py` + `bands_european_uz801.json` — see [Band Configuration](#band-configuration-uf02).
+- **UF02** (`generic-uf02`) -- USB dongle form factor, ships with Asian bands only. European bands can be enabled via `nv_manager.py` + `bands_european_uz801.json` — see [Band Configuration](#band-configuration-uf02).
 
 MF68E and M9S device support has been moved to the [TBR](TBR/readme.md) directory for reference. See that README for re-integration instructions.
 
@@ -164,7 +164,7 @@ The modem requires region-specific MCFG configuration files.
 
 ## Band Configuration (UF02)
 
-The UF02 ships with Asian bands only. RF band configuration is stored in the modem's NV/EFS partition and can be updated using the included `xqcn_restore.py` script and a pre-built band config JSON.
+The UF02 ships with Asian bands only. RF band configuration is stored in the modem's NV/EFS partition and can be updated using the included `nv_manager.py` script and a pre-built band config JSON.
 
 A validated European band config (`bands_european_uz801.json`) is included, extracted from a UZ801v3 running European firmware:
 
@@ -204,7 +204,7 @@ sudo chmod a+rw /dev/ttyUSB0
 
 **4. Apply the European band config:**
 ```bash
-python3 xqcn_restore.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
+python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
 ```
 
 **5. Reboot:**
@@ -216,7 +216,7 @@ adb shell reboot
 
 To save the band NV items from any device as a JSON (e.g. a UZ801 with the desired config):
 ```bash
-python3 xqcn_restore.py --port /dev/ttyUSB0 --read-bands my_bands.json
+python3 nv_manager.py --port /dev/ttyUSB0 --read-bands my_bands.json
 ```
 
 This saves NV items 946, 1877, 1878, 1881, 6828, 6829 — the full RF band configuration.
