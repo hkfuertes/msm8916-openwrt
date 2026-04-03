@@ -20,8 +20,8 @@ copy_backup() {
 		return 0
 	}
 
-	if [ -f "$mnt/.overlay/sysupgrade.tgz" ]; then
-		mv "$mnt/.overlay/sysupgrade.tgz" /tmp/sysupgrade.tgz
+	if [ -f "$mnt/.overlay-sysupgrade.tgz" ]; then
+		mv "$mnt/.overlay-sysupgrade.tgz" /tmp/sysupgrade.tgz
 	fi
 
 	umount "$mnt"
