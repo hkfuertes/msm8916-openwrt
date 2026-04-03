@@ -1,0 +1,20 @@
+{
+  "description": "European band config — UZ801 V3.0 (WCDMA B1/B8, LTE B1/B3/B5/B7/B8/B20/B38/B40/B41)",
+  "device": "UZ801",
+  "firmware": "UZ801_V3.0_21_V01R01B10",
+  "date": "2026-04-03",
+  "lte_bands": ["B1", "B3", "B5", "B7", "B8", "B20", "B38", "B40", "B41"],
+  "wcdma_bands": ["B1", "B8"],
+  "nv_items": {
+    "946":  "0040",
+    "1877": "00004000000002",
+    "1878": "61",
+    "6828": "d5000800a001"
+  },
+  "notes": {
+    "946":  "WCDMA/RF BC control",
+    "1877": "NV_RF_BC_CONFIG_I — RF hardware band class caps. Asian UF02 has bit26 extra (WCDMA B9 Japan)",
+    "1878": "NV_RF_BC_CONFIG_DIV_I — diversity chain, same on all variants",
+    "6828": "NV_LTE_BAND_PREF_I — LTE band preference bitmask (LE): B1=bit0, B3=bit2, B5=bit4, B7=bit6, B8=bit7, B20=bit19, B38=bit37, B40=bit39, B41=bit40"
+  }
+}

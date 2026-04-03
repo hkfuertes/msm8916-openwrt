@@ -98,7 +98,16 @@ class DiagPort:
 
     def __init__(self, port_path: str, timeout: float = 2.0):
         import serial
-        self.ser = serial.Serial(port_path, baudrate=115200, timeout=timeout)
+        self.ser = serial.Serial()
+        self.ser.port = port_path
+        self.ser.baudrate = 115200
+        self.ser.timeout = timeout
+        self.ser.dsrdtr = False
+        self.ser.rtscts = False
+        # DIAG ports don't support modem control lines; suppress ioctl errors
+        self.ser._update_dtr_state = lambda: None
+        self.ser._update_rts_state = lambda: None
+        self.ser.open()
         self.ser.reset_input_buffer()
 
     def send_recv(self, payload: bytes, retries: int = 2) -> bytes:
@@ -143,15 +152,19 @@ CMD_NV_WRITE = 0x27
 CMD_SUBSYS = 0x4B
 SUBSYS_EFS2 = 0x13
 
-# EFS2 sub-commands
-EFS2_OPEN = 0x01
-EFS2_CLOSE = 0x02
-EFS2_WRITE = 0x03
+# EFS2 sub-commands (from EfsTools / Qualcomm QcdmEfsCommand enum)
+EFS2_HELLO    = 0x00
+EFS2_OPEN     = 0x02
+EFS2_CLOSE    = 0x03
+EFS2_READ     = 0x04
+EFS2_WRITE    = 0x05
+EFS2_MKDIR    = 0x09
+EFS2_OPENDIR  = 0x0B
 
-# EFS open flags (POSIX-like)
-O_CREAT = 0x0100
-O_TRUNC = 0x0200
+# EFS open flags (from EfsTools EfsFileFlag enum)
 O_WRONLY = 0x0001
+O_CREATE = 0x0040
+O_TRUNC  = 0x0200
 
 
 def nv_read(diag: DiagPort, nv_id: int) -> tuple[int, bytes]:
@@ -181,33 +194,54 @@ def nv_write(diag: DiagPort, nv_id: int, data: bytes) -> int:
     return resp[0]
 
 
+_efs_initialized = False
+
+def efs_hello(diag: DiagPort) -> bool:
+    """EFS2 HELLO handshake with proper window/version parameters (per EfsTools)."""
+    global _efs_initialized
+    if _efs_initialized:
+        return True
+    WINDOW = 0x100000
+    payload = struct.pack('<BBH', CMD_SUBSYS, SUBSYS_EFS2, EFS2_HELLO)
+    payload += struct.pack('<IIIIII', WINDOW, WINDOW, WINDOW, WINDOW, WINDOW, WINDOW)
+    payload += struct.pack('<IIII', 0x0001, 0x0001, 0x0001, 0xFFFFFFFF)
+    resp = diag.send_recv(payload)
+    if resp[0] == CMD_SUBSYS:
+        _efs_initialized = True
+        return True
+    return False
+
+
 def efs_write_file(diag: DiagPort, path: str, data: bytes) -> bool:
     """Write a file to EFS2 via DIAG subsystem dispatch."""
-    # Open file
-    flags = O_CREAT | O_TRUNC | O_WRONLY
+    efs_hello(diag)
+
+    # Open file: O_WRONLY | O_CREATE | O_TRUNC, mode 0644
+    flags = O_WRONLY | O_CREATE | O_TRUNC
     mode = 0o0644
-    open_payload = struct.pack('<BBHIH', CMD_SUBSYS, SUBSYS_EFS2, EFS2_OPEN,
+    open_payload = struct.pack('<BBHII', CMD_SUBSYS, SUBSYS_EFS2, EFS2_OPEN,
                                flags, mode) + path.encode('ascii') + b'\x00'
     resp = diag.send_recv(open_payload)
-    if resp[0] != CMD_SUBSYS or len(resp) < 8:
+    if resp[0] != CMD_SUBSYS or len(resp) < 12:
         print(f"    EFS open failed for {path}: resp={resp[:8].hex()}")
         return False
     fd = struct.unpack('<i', resp[4:8])[0]
+    errno_val = struct.unpack('<i', resp[8:12])[0]
     if fd < 0:
-        errno_val = struct.unpack('<i', resp[8:12])[0] if len(resp) >= 12 else -1
         print(f"    EFS open error for {path}: fd={fd}, errno={errno_val}")
         return False
 
-    # Write data in chunks (max ~512 bytes per write to be safe)
+    # Write data in chunks
     CHUNK = 512
     offset = 0
     while offset < len(data):
         chunk = data[offset:offset + CHUNK]
-        write_payload = struct.pack('<BBHIIIH', CMD_SUBSYS, SUBSYS_EFS2, EFS2_WRITE,
-                                    fd, offset, len(chunk), 0) + chunk
+        # EFS_WRITE: header + fd(4) + offset(4) + data
+        write_payload = struct.pack('<BBHII', CMD_SUBSYS, SUBSYS_EFS2, EFS2_WRITE,
+                                    fd, offset) + chunk
         resp = diag.send_recv(write_payload)
         if resp[0] != CMD_SUBSYS:
-            print(f"    EFS write failed for {path} at offset {offset}")
+            print(f"    EFS write failed for {path} at offset {offset}: resp={resp[:4].hex()}")
             break
         offset += len(chunk)
 
@@ -344,6 +378,19 @@ def decode_imei(data: bytes) -> str:
 
 NV_IMEI = 550
 SKIP_NV_IDS = {NV_IMEI}  # NV items to skip during restore (IMEI by default)
+
+# NV items related to RF band configuration (written in --bands-only mode)
+BAND_NV_IDS = {
+    1877,   # NV_RF_BC_CONFIG_I        — primary band class config (LTE/WCDMA/GSM)
+    1878,   # NV_RF_BC_CONFIG_DIV_I    — diversity chain band config
+    1881,   # NV_RF_BC_TABLE_I         — RF band class table
+    946,    # NV_WCDMA_RX_DIVERSITY_CTRL_I — WCDMA RX diversity / band pref
+    6828,   # NV_LTE_BAND_PREF_I       — LTE band preference (system selection)
+    6829,   # NV_LTE_BAND_PREF_02_I
+}
+
+# UIM/SIM NV range to skip in --bands-only mode (to be safe, also excluded from full restore)
+UIM_NV_RANGE = range(4000, 4300)
 
 
 def do_dry_run(xqcn_path: str):
@@ -521,6 +568,44 @@ def do_read_nv(diag: DiagPort, nv_id: int):
         print(f"  IMEI: {decode_imei(data)}")
 
 
+def do_read_bands(diag: DiagPort, output_path: str | None = None):
+    """Read band NV items and optionally save to JSON."""
+    import json
+    result = {}
+    for nv_id in sorted(BAND_NV_IDS):
+        status, data = nv_read(diag, nv_id)
+        nonzero_end = 128
+        while nonzero_end > 0 and data[nonzero_end - 1] == 0:
+            nonzero_end -= 1
+        hex_val = data[:nonzero_end].hex() if nonzero_end > 0 else ""
+        result[str(nv_id)] = hex_val
+        label = "(empty)" if not hex_val else hex_val
+        print(f"  NV {nv_id:5d}: {label}")
+
+    if output_path:
+        out = {"nv_items": result}
+        with open(output_path, 'w') as f:
+            json.dump(out, f, indent=2)
+        print(f"Saved to {output_path}")
+    return result
+
+
+def do_apply_bands(diag: DiagPort, json_path: str):
+    """Write band NV items from a JSON file."""
+    import json
+    with open(json_path) as f:
+        config = json.load(f)
+    items = config.get("nv_items", {})
+    print(f"Applying {len(items)} band NV items from {json_path}...")
+    for nv_id_str, hex_val in items.items():
+        nv_id = int(nv_id_str)
+        data = bytes.fromhex(hex_val).ljust(128, b'\x00') if hex_val else b'\x00' * 128
+        status = nv_write(diag, nv_id, data)
+        label = "ok" if status == 0 else f"FAILED (status={status})"
+        print(f"  NV {nv_id:5d}: {label}")
+    print("Done. Reboot modem for changes to take effect.")
+
+
 # ============================================================
 # CLI
 # ============================================================
@@ -541,12 +626,17 @@ def main():
                         help='Read a single NV item')
     parser.add_argument('--dry-run', action='store_true',
                         help='Parse XQCN and show contents without writing')
+    parser.add_argument('--read-bands', metavar='FILE', nargs='?', const='',
+                        help='Read band NV items (optionally save to JSON file)')
+    parser.add_argument('--apply-bands', metavar='FILE',
+                        help='Write band NV items from JSON file')
     parser.add_argument('--timeout', type=float, default=2.0,
                         help='Serial port timeout in seconds (default: 2.0)')
 
     args = parser.parse_args()
 
-    if not any([args.restore, args.backup, args.read_nv, args.dry_run]):
+    if not any([args.restore, args.backup, args.read_nv, args.dry_run,
+                args.read_bands is not None, args.apply_bands]):
         parser.print_help()
         sys.exit(1)
 
@@ -572,6 +662,10 @@ def main():
             do_backup(diag, args.backup)
         if args.read_nv is not None:
             do_read_nv(diag, args.read_nv)
+        if args.read_bands is not None:
+            do_read_bands(diag, args.read_bands or None)
+        if args.apply_bands:
+            do_apply_bands(diag, args.apply_bands)
         if args.restore:
             do_restore(diag, args.restore, args.imei)
     finally:

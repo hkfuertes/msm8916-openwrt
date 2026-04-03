@@ -14,6 +14,7 @@ Modern OpenWrt build targeting MSM8916 devices with full modem, USB gadget, and 
   - [Accessing Boot Modes](#accessing-boot-modes)
 - [Troubleshooting](#troubleshooting)
   - [No Network / Modem Stuck at Searching](#no-network--modem-stuck-at-searching)
+- [Band Configuration (UF02)](#band-configuration-uf02)
 - [Roadmap](#roadmap)
 - [Credits](#credits)
 
@@ -28,7 +29,7 @@ OpenWrt Project is a Linux operating system targeting embedded devices. Instead 
 All devices use the Qualcomm MSM8916 SoC with 384 MB RAM and 4 GB eMMC.
 
 - **UZ801v3** (`yiming-uz801v3`) -- USB dongle form factor.
-- **UF02** (`generic-uf02`) -- USB dongle form factor, most likely with only asian bands. Can be somewhat changed via QPST and the `qcn` file from UZ801.
+- **UF02** (`generic-uf02`) -- USB dongle form factor, ships with Asian bands only. European bands can be enabled via `xqcn_restore.py` + `bands_european_uz801.json` — see [Band Configuration](#band-configuration-uf02).
 
 MF68E and M9S device support has been moved to the [TBR](TBR/readme.md) directory for reference. See that README for re-integration instructions.
 
@@ -160,6 +161,65 @@ The modem requires region-specific MCFG configuration files.
    scp -O mcfg_sw.mbn root@192.168.1.1:/lib/firmware/MCFG_SW.MBN
    # ... and reboot the device ...
    ```
+
+## Band Configuration (UF02)
+
+The UF02 ships with Asian bands only. RF band configuration is stored in the modem's NV/EFS partition and can be updated using the included `xqcn_restore.py` script and a pre-built band config JSON.
+
+A validated European band config (`bands_european_uz801.json`) is included, extracted from a UZ801v3 running European firmware:
+
+| | Bands |
+|---|---|
+| **Before** | WCDMA B1/B5/B8 · LTE B1/B3/B5/B8 |
+| **After** | WCDMA B1/B8 · LTE B1/B3/B5/B7/B8/B38/B40/B41 |
+
+> **Note:** LTE B20 (800 MHz) is a hardware limitation of the UF02 RF front-end and cannot be enabled via software.
+
+### Requirements
+
+- Linux host with ADB and Python 3
+- `pyserial`: `pip install pyserial`
+- Device running its OEM Android firmware
+
+### Procedure
+
+**1. Get ADB root:**
+```bash
+adb shell "setprop service.adb.root 1; busybox killall adbd"
+sleep 3
+adb shell id   # should show uid=0(root)
+```
+
+**2. Enable DIAG port:**
+```bash
+adb shell setprop sys.usb.config diag,adb
+```
+
+**3. Bind the DIAG interface on the host:**
+```bash
+sudo modprobe option
+sudo sh -c 'echo "05c6 901d" > /sys/bus/usb-serial/drivers/option1/new_id'
+sudo chmod a+rw /dev/ttyUSB0
+```
+
+**4. Apply the European band config:**
+```bash
+python3 xqcn_restore.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
+```
+
+**5. Reboot:**
+```bash
+adb shell reboot
+```
+
+### Capturing bands from another device
+
+To save the band NV items from any device as a JSON (e.g. a UZ801 with the desired config):
+```bash
+python3 xqcn_restore.py --port /dev/ttyUSB0 --read-bands my_bands.json
+```
+
+This saves NV items 946, 1877, 1878, 1881, 6828, 6829 — the full RF band configuration.
 
 ## Roadmap
 
