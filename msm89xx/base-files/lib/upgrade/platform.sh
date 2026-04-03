@@ -44,20 +44,9 @@ platform_do_upgrade() {
     sync
 }
 
-platform_copy_config() {
-    local overlay_part mnt
+platform_pre_upgrade() {
+    rm -fr /overlay/upper/* /overlay/upper/.* 2>/dev/null
+    [ -f "$UPGRADE_BACKUP" ] && cp -f "$UPGRADE_BACKUP" "/overlay/upper/$BACKUP_FILE" 2>/dev/null
 
-    overlay_part=$(find_mmc_part "rootfs_data")
-    [ -z "$overlay_part" ] && return 0
-
-    mnt=$(mktemp -d)
-    mount -t ext4 "$overlay_part" "$mnt" 2>/dev/null || {
-        rmdir "$mnt"
-        return 0
-    }
-
-    cp -f "$UPGRADE_BACKUP" "$mnt/.overlay-sysupgrade.tgz" 2>/dev/null
-
-    umount "$mnt"
-    rmdir "$mnt"
+    return 0
 }
