@@ -211,10 +211,12 @@ sudo chmod a+rw /dev/ttyUSB0
 python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
 ```
 
-**5. Reboot:**
+**5. Reboot the modem:**
 ```bash
 adb shell reboot
 ```
+
+> **Important:** This reboot is required for the modem to flush the NV items to the `modemst1` partition. If you flash OpenWrt before rebooting, the new band config will be lost.
 
 ### Capturing bands from another device
 
