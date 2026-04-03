@@ -185,6 +185,10 @@ A validated European band config (`bands_european_uz801.json`) is included, extr
 
 **1. Get ADB root:**
 ```bash
+# Try this first (works on some devices):
+adb root
+
+# If that doesn't work (UF02), use:
 adb shell "setprop service.adb.root 1; busybox killall adbd"
 sleep 3
 adb shell id   # should show uid=0(root)
