@@ -206,17 +206,28 @@ sudo sh -c 'echo "05c6 901d" > /sys/bus/usb-serial/drivers/option1/new_id'
 sudo chmod a+rw /dev/ttyUSB0
 ```
 
-**4. Apply the European band config:**
+**4. Apply the European band config and reboot:**
 ```bash
-python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
+python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json --reboot
 ```
 
-**5. Reboot the modem:**
+> **Important:** The `--reboot` flag flushes the EFS to `modemst1` and triggers a graceful modem reset via DIAG — no ADB required. Do not unplug the device; wait ~30s for Android to reboot.
+
+**5. Verify the bands persisted (re-enable DIAG after Android boots):**
 ```bash
-adb shell reboot
+adb wait-for-device
+adb shell setprop sys.usb.config diag,adb
+sleep 5
+sudo sh -c 'echo "05c6 901d" > /sys/bus/usb-serial/drivers/option1/new_id'
+sudo chmod a+rw /dev/ttyUSB0
+python3 nv_manager.py --port /dev/ttyUSB0 --read-bands
+# NV 6828 must be: d5000800a001
 ```
 
-> **Important:** This reboot is required for the modem to flush the NV items to the `modemst1` partition. If you flash OpenWrt before rebooting, the new band config will be lost.
+**6. Flash OpenWrt immediately (no further reboots):**
+```bash
+./openwrt-msm89xx-msm8916-*-flash.sh
+```
 
 ### Capturing bands from another device
 

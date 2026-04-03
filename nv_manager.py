@@ -9,8 +9,8 @@ Usage:
     # Save band NV items to JSON:
     python3 nv_manager.py --port /dev/ttyUSB0 --read-bands my_bands.json
 
-    # Apply band config from JSON:
-    python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json
+    # Apply band config from JSON and reboot modem (no ADB needed):
+    python3 nv_manager.py --port /dev/ttyUSB0 --apply-bands bands_european_uz801.json --reboot
 
     # Backup all NV items:
     python3 nv_manager.py --port /dev/ttyUSB0 --backup backup.bin
@@ -156,6 +156,7 @@ class DiagPort:
 CMD_NV_READ = 0x26
 CMD_NV_WRITE = 0x27
 CMD_SUBSYS = 0x4B
+CMD_RESET = 0x7C  # DIAG_CONTROL_F: graceful modem reset
 SUBSYS_EFS2 = 0x13
 
 # EFS2 sub-commands (from EfsTools / Qualcomm QcdmEfsCommand enum)
@@ -166,6 +167,7 @@ EFS2_READ     = 0x04
 EFS2_WRITE    = 0x05
 EFS2_MKDIR    = 0x09
 EFS2_OPENDIR  = 0x0B
+EFS2_SYNC     = 0x11  # EFS2_DIAG_SYNC_NO_WAIT — flush EFS to flash
 
 # EFS open flags (from EfsTools EfsFileFlag enum)
 O_WRONLY = 0x0001
@@ -596,6 +598,28 @@ def do_read_bands(diag: DiagPort, output_path: str | None = None):
     return result
 
 
+def do_reboot(diag: DiagPort):
+    """Flush EFS to flash and trigger a graceful modem reset via DIAG."""
+    # EFS2 sync: ensures NV writes are committed to modemst1 before reset
+    print("Syncing EFS to flash...")
+    efs_hello(diag)
+    sync_payload = struct.pack('<BBH', CMD_SUBSYS, SUBSYS_EFS2, EFS2_SYNC) + b'\x00' * 4
+    try:
+        diag.send_recv(sync_payload)
+        print("  EFS sync ok")
+    except (TimeoutError, ValueError):
+        print("  EFS sync: no response (may be unsupported — proceeding)")
+
+    # DIAG_CONTROL_F (0x7C) with mode=1 triggers a graceful reset
+    print("Sending modem reset command...")
+    reset_payload = struct.pack('<BB', CMD_RESET, 0x01)
+    try:
+        diag.send_recv(reset_payload)
+    except (TimeoutError, ValueError):
+        pass  # device resets mid-response — expected
+    print("Reset command sent. Device is rebooting.")
+
+
 def do_apply_bands(diag: DiagPort, json_path: str):
     """Write band NV items from a JSON file."""
     import json
@@ -636,13 +660,15 @@ def main():
                         help='Read band NV items (optionally save to JSON file)')
     parser.add_argument('--apply-bands', metavar='FILE',
                         help='Write band NV items from JSON file')
+    parser.add_argument('--reboot', action='store_true',
+                        help='Flush EFS and trigger modem reset via DIAG (use after --apply-bands)')
     parser.add_argument('--timeout', type=float, default=2.0,
                         help='Serial port timeout in seconds (default: 2.0)')
 
     args = parser.parse_args()
 
     if not any([args.restore, args.backup, args.read_nv, args.dry_run,
-                args.read_bands is not None, args.apply_bands]):
+                args.read_bands is not None, args.apply_bands, args.reboot]):
         parser.print_help()
         sys.exit(1)
 
@@ -672,6 +698,8 @@ def main():
             do_read_bands(diag, args.read_bands or None)
         if args.apply_bands:
             do_apply_bands(diag, args.apply_bands)
+        if args.reboot:
+            do_reboot(diag)
         if args.restore:
             do_restore(diag, args.restore, args.imei)
     finally:
