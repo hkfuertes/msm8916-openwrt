@@ -1,2 +1,11 @@
 bin
 pr_description.md
+
+# Modem backups and sensitive files
+*.xqcn
+*.tar.gz
+modemst1*.bin
+modemst2*.bin
+*backup*.bin
+mmcli_*
+__pycache__/
