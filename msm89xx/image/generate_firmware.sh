@@ -108,8 +108,8 @@ if [ ! -f "$BUILDDIR/lk2nd/build-lk1st-msm8916/emmc_appsboot.mbn" ]; then
       echo 'DEFINES += USE_TARGET_HS200_CAPS=1' >> project/lk1st-msm8916.mk
     make clean || true
     make \
-      LK2ND_BUNDLE_DTB="msm8916-512mb-mtp.dtb" \
-      LK2ND_COMPATIBLE="yiming,uz801-v3" \
+      LK2ND_BUNDLE_DTB="${LK2ND_BUNDLE_DTB:-msm8916-512mb-mtp.dtb}" \
+      LK2ND_COMPATIBLE="${LK2ND_COMPATIBLE:-yiming,uz801-v3}" \
       TOOLCHAIN_PREFIX="$ARM_CROSS" \
       lk1st-msm8916
   )

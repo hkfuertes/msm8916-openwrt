@@ -1,0 +1,72 @@
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/msm8916-jz01-45.dts
+@@ -0,0 +1,69 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++/dts-v1/;
++
++#include "msm8916-ufi.dtsi"
++
++#include <dt-bindings/leds/common.h>
++
++/ {
++	model = "JZ01-45 4G Modem Stick";
++	compatible = "thwc,ufi001c", "qcom,msm8916";
++};
++
++&button_restart {
++	gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
++};
++
++&led_r {
++	gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
++};
++
++&led_g {
++	function = LED_FUNCTION_WAN;
++	gpios = <&tlmm 7 GPIO_ACTIVE_HIGH>;
++};
++
++&led_b {
++	function = LED_FUNCTION_WLAN;
++	gpios = <&tlmm 8 GPIO_ACTIVE_HIGH>;
++};
++
++&button_default {
++	pins = "gpio37";
++	bias-pull-down;
++};
++
++&gpio_leds_default {
++	pins = "gpio6", "gpio7", "gpio8";
++};
++
++&tlmm {
++	sim_ctrl_default: sim-ctrl-default-state {
++		esim-sel-pins {
++			pins = "gpio22", "gpio23";
++			function = "gpio";
++			bias-disable;
++			output-low;
++		};
++
++		sim-sel-pins {
++			pins = "gpio1";
++			function = "gpio";
++			bias-disable;
++			output-high;
++		};
++
++		sim-en-pins {
++			pins = "gpio20";
++			function = "gpio";
++			bias-disable;
++			output-low;
++		};
++	};
++};
++
++&mpss {
++	pinctrl-0 = <&sim_ctrl_default>;
++	pinctrl-names = "default";
++};

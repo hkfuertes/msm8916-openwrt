@@ -52,4 +52,21 @@ define Device/generic-uf02
 endef
 TARGET_DEVICES += generic-uf02
 
+define Build/generate-firmware-jz01-45
+  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh
+  LK2ND_COMPATIBLE="thwc,ufi001c" \
+  $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@
+endef
+
+define Device/jz01-45
+  $(Device/msm8916)
+  DEVICE_VENDOR := Generic
+  DEVICE_MODEL := JZ01-45 4G Modem Stick
+  FILESYSTEMS := squashfs
+  ARTIFACT/firmware.zip := generate-firmware-jz01-45
+  DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools \
+                     msm-firmware-dumper
+endef
+TARGET_DEVICES += jz01-45
 endif

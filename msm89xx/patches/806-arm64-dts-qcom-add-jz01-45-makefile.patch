@@ -1,0 +1,18 @@
+From: local <local@local>
+Date: Wed, 06 May 2026 00:00:00 +0000
+Subject: [PATCH] arm64: dts: qcom: Add JZ01-45 to Makefile
+
+Add msm8916-jz01-45.dtb to Makefile.
+---
+ arch/arm64/boot/dts/qcom/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -51,6 +51,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsu
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j3ltetw.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-generic-uf02.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-jz01-45.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-j5x.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-rossa.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-samsung-serranove.dtb
