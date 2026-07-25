@@ -7,17 +7,8 @@ RAMFS_COPY_DATA="/lib/functions.sh /lib/upgrade/common.sh /lib/upgrade/fwtool.sh
 
 platform_check_image() {
     local fw_image="$1"
-    local boardname
-    
-    read boardname </tmp/sysinfo/board_name
-    boardname=${boardname//-/}
-    boardname=${boardname//,/-}
 
-    # Must be a tar archive
-    local control_len=$( (tar xf $fw_image sysupgrade-$boardname/CONTROL -O | wc -c) 2> /dev/null)
-
-    # check if valid sysupgrade tar archive
-    if [ "$control_len" = "0" ]; then
+    if ! tar tf "$fw_image" 2>/dev/null | grep -qE '^(\./)?sysupgrade-[^/]+/CONTROL$'; then
         echo "Invalid sysupgrade file: $fw_image"
         return 1
     fi
@@ -47,9 +38,4 @@ platform_do_upgrade() {
         dd of="$rootfs_part" bs=4096 conv=fsync
 
     sync
-}
-
-platform_pre_upgrade() {
-    rm -fr /overlay/upper/* /overlay/upper/.* 2>/dev/null
-    [ -f "$UPGRADE_BACKUP" ] && cp -f "$UPGRADE_BACKUP" "/overlay/upper/$BACKUP_FILE" 2>/dev/null
 }
